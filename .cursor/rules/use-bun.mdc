@@ -1,0 +1,13 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Use Bun for Package Management and Scripts
+
+Always prefer using `bun` for managing dependencies and running scripts in this project.
+
+-   **Installation:** Use `bun install` instead of `npm install` or `yarn install`.
+-   **Running scripts:** Use `bun run <script_name>` instead of `npm run <script_name>` or `yarn <script_name>`.
+
+Avoid using `npm` or `yarn` unless there's a specific reason or compatibility issue that prevents using `bun`.

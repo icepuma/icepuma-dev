@@ -1,0 +1,401 @@
+---
+---
+
+<div id="terminal-wrapper" class="bg-[var(--nord-bg-primary)] text-[var(--nord-text-primary)] p-2 font-mono text-sm h-screen overflow-y-auto flex flex-col">
+  <div id="output">
+    <div>Welcome to <strong>icepuma.dev</strong></div>
+    <div>&nbsp;</div>
+    <div id="welcome-commands-list"></div>
+  </div>
+
+  <div class="current-input-line flex items-center shrink-0 mt-1 relative">
+    <span class="text-[var(--nord-prompt-user)]">guest@<strong>icepuma.dev</strong></span>
+    <span class="text-[var(--nord-prompt-symbol)] mx-1">&gt;</span>
+    <span id="fake-input-display" class="pl-1 whitespace-pre"></span>
+    <div id="custom-cursor" class="w-2 h-4 bg-[var(--nord-cursor)] animate-blink inline-block"></div>
+    <input
+      type="text"
+      id="input"
+      class="absolute left-0 top-0 w-full h-full opacity-0 cursor-default caret-transparent"
+      autofocus
+      spellcheck="false"
+      autocapitalize="off"
+    />
+  </div>
+</div>
+
+<style>
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+  .animate-blink {
+    animation: blink 1.5s step-end infinite;
+  }
+  #input {
+    min-width: 1px;
+  }
+</style>
+
+<script>
+  const inputElement = document.getElementById('input') as HTMLInputElement;
+  const outputElement = document.getElementById('output') as HTMLDivElement;
+  const terminalWrapper = document.getElementById('terminal-wrapper') as HTMLDivElement;
+  const fakeInputDisplay = document.getElementById('fake-input-display') as HTMLSpanElement;
+  const customCursorElement = document.getElementById('custom-cursor') as HTMLDivElement;
+
+  const THEME_KEY = 'terminal-theme';
+  let currentTheme = 'system';
+
+  function applyTheme(theme: string) {
+    const htmlElement = document.documentElement;
+    if (theme === 'dark') {
+      htmlElement.classList.add('dark');
+    } else {
+      htmlElement.classList.remove('dark');
+    }
+  }
+
+  function setTheme(theme: string) {
+    currentTheme = theme;
+    localStorage.setItem(THEME_KEY, theme);
+    if (theme === 'system') {
+      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+      applyTheme(systemPrefersDark ? 'dark' : 'light');
+    } else {
+      applyTheme(theme);
+    }
+  }
+
+  const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
+  prefersDarkScheme.addEventListener('change', (e) => {
+    if (currentTheme === 'system') {
+      applyTheme(e.matches ? 'dark' : 'light');
+    }
+  });
+
+  function loadTheme() {
+    const savedTheme = localStorage.getItem(THEME_KEY);
+    if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
+      setTheme(savedTheme);
+    } else {
+      setTheme('system');
+    }
+  }
+  loadTheme();
+
+  inputElement.addEventListener('input', () => {
+    if (fakeInputDisplay && inputElement) {
+      fakeInputDisplay.textContent = inputElement.value;
+    }
+  });
+
+  if (terminalWrapper && inputElement) {
+    terminalWrapper.addEventListener('click', (e) => {
+      if (e.target instanceof HTMLAnchorElement) {
+        return;
+      }
+      inputElement.focus();
+    });
+  }
+
+  inputElement.addEventListener('blur', () => {
+    if (customCursorElement) customCursorElement.style.opacity = '0';
+  });
+  inputElement.addEventListener('focus', () => {
+    if (customCursorElement) customCursorElement.style.opacity = '1';
+  });
+
+  inputElement.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      let commandToExecute = inputElement.value.trim();
+
+      if (outputElement && commandToExecute) {
+        const commandHistoryLine = document.createElement('div');
+        commandHistoryLine.classList.add('flex', 'items-center', 'shrink-0', 'mt-1');
+        commandHistoryLine.innerHTML =
+          `<span class="text-[var(--nord-prompt-user)]">guest@<strong>icepuma.dev</strong></span>` +
+          `<span class="text-[var(--nord-prompt-symbol)] mx-1">&gt;</span>` +
+          `<span class="command-history-text ml-1 whitespace-pre">${commandToExecute}</span>`;
+        outputElement.appendChild(commandHistoryLine);
+        const resultContainer = document.createElement('div');
+        resultContainer.classList.add('mt-1');
+        outputElement.appendChild(resultContainer);
+        processCommand(commandToExecute, resultContainer);
+
+        inputElement.value = '';
+        if (fakeInputDisplay) fakeInputDisplay.textContent = '';
+        terminalWrapper.scrollTop = terminalWrapper.scrollHeight;
+      }
+    }
+  });
+
+  interface Command {
+    name: string;
+    description: string;
+    execute: (args: string[]) => string | HTMLElement;
+  }
+
+  const commands: Record<string, Command> = {};
+
+  function registerCommand(command: Command) {
+    commands[command.name] = command;
+  }
+
+  function processCommand(commandString: string, containerForOutput: HTMLElement) {
+    const [name, ...args] = commandString.split(' ');
+    const command = commands[name];
+
+    if (command) {
+      const result = command.execute(args);
+      if (typeof result === 'string') {
+        const pre = document.createElement('pre');
+        pre.classList.add('my-0');
+        pre.textContent = result;
+        containerForOutput.appendChild(pre);
+      } else {
+        containerForOutput.appendChild(result);
+      }
+    } else if (name) {
+      containerForOutput.textContent = `Command not found: ${name}`;
+      containerForOutput.classList.add('text-[var(--nord-error)]');
+    }
+  }
+
+  registerCommand({
+    name: 'help',
+    description: 'Lists all available commands.',
+    execute: () => {
+      const container = document.createElement('div');
+      container.style.display = 'grid';
+      container.style.gridTemplateColumns = 'max-content 1fr';
+      container.style.gap = '0.25rem 1rem';
+      container.classList.add('my-0');
+
+      Object.values(commands).forEach(cmd => {
+        const nameElement = document.createElement('strong');
+        nameElement.textContent = cmd.name;
+        container.appendChild(nameElement);
+
+        const descriptionElement = document.createElement('span');
+        descriptionElement.textContent = cmd.description;
+        container.appendChild(descriptionElement);
+      });
+      return container;
+    }
+  });
+
+  registerCommand({
+    name: 'clear',
+    description: 'Clears the terminal screen.',
+    execute: () => {
+      if(outputElement) {
+        outputElement.innerHTML = '';
+        terminalWrapper.scrollTop = terminalWrapper.scrollHeight;
+      }
+      return '';
+    }
+  });
+
+  registerCommand({
+    name: 'mode',
+    description: 'Sets the terminal theme. Usage: mode <dark|light|system>',
+    execute: (args) => {
+      const newTheme = args[0]?.toLowerCase();
+      if (newTheme && ['light', 'dark', 'system'].includes(newTheme)) {
+        setTheme(newTheme);
+        return `Theme set to ${newTheme}`;
+      } else {
+        return 'Invalid theme. Use: mode <dark|light|system>';
+      }
+    }
+  });
+
+  const socialLinks = [
+    { name: 'GitHub', url: 'https://github.com/icepuma' },
+    { name: 'Bluesky', url: 'https://bsky.app/profile/icepuma.dev' },
+    { name: 'LinkedIn', url: 'https://www.linkedin.com/in/stefan-ruzitschka/' },
+    { name: 'Rawkode Academy GitLab', url: 'https://code.rawkode.academy/icepuma' },
+    { name: 'Letterboxd', url: 'https://letterboxd.com/icepuma/' },
+  ];
+
+  registerCommand({
+    name: 'links',
+    description: 'Displays links to my profiles.',
+    execute: () => {
+      const container = document.createElement('div');
+      container.classList.add('mt-1');
+
+      container.style.display = 'grid';
+      container.style.gridTemplateColumns = 'max-content 1fr';
+      container.style.gap = '0.25rem 1rem';
+
+      if (socialLinks.length === 0) {
+        const noLinksText = document.createElement('span');
+        noLinksText.textContent = 'No links configured yet.';
+        noLinksText.style.gridColumn = 'span 2';
+        container.appendChild(noLinksText);
+        return container;
+      }
+
+      socialLinks.forEach(link => {
+        const nameSpan = document.createElement('span');
+        nameSpan.textContent = link.name;
+        nameSpan.classList.add('font-semibold', 'text-[var(--nord-neofetch-label)]', 'whitespace-nowrap');
+
+        const urlAnchor = document.createElement('a');
+        urlAnchor.href = link.url;
+        urlAnchor.textContent = link.url;
+        urlAnchor.target = '_blank';
+        urlAnchor.rel = 'noopener noreferrer';
+        urlAnchor.classList.add('text-[var(--nord-link)]', 'underline', 'inline-block', 'break-all', 'w-max');
+
+        container.appendChild(nameSpan);
+        container.appendChild(urlAnchor);
+      });
+
+      return container;
+    }
+  });
+
+  registerCommand({
+    name: 'bio',
+    description: 'Displays a short biography.',
+    execute: () => {
+      const container = document.createElement('div');
+      container.classList.add('mt-1');
+
+      const bioText = `I'm a 38-year-old software developer based in Berlin, Germany.
+I currently live on a small island with my wife and our 3-year-old black lab.
+
+My interests include:
+- 3D printing
+- Sci-fi (especially Stargate SG-1 and Warhammer 40k)
+- Open Source, with a particular fondness for Rust.
+
+I also contribute to building <a href="https://rawkode.studio" target="_blank" rel="noopener noreferrer" class="text-[var(--nord-link)] underline">rawkode.studio</a> for the <a href="https://rawkode.academy" target="_blank" rel="noopener noreferrer" class="text-[var(--nord-link)] underline">Rawkode Academy</a>.`;
+
+      const preElement = document.createElement('pre');
+      preElement.classList.add('my-0', 'whitespace-pre-wrap');
+      preElement.innerHTML = bioText;
+
+      container.appendChild(preElement);
+      return container;
+    }
+  });
+
+  registerCommand({
+    name: 'projects',
+    description: 'Lists all my projects.',
+    execute: () => {
+      const container = document.createElement('div');
+      container.classList.add('mt-1');
+
+      container.style.display = 'grid';
+      container.style.gridTemplateColumns = 'max-content max-content max-content';
+      container.style.gap = '0.25rem 1rem';
+
+      const projects = [
+        {
+          name: 'icepuma.dev',
+          description: 'My personal website with terminal interface.',
+          url: 'https://github.com/icepuma-dev/icepuma-dev',
+          role: 'Author'
+        },
+        {
+          name: 'fbtoggl',
+          description: 'Interact with track.toggl.com via terminal.',
+          url: 'https://github.com/icepuma/fbtoggl',
+          role: 'Author'
+        },
+        {
+          name: 'rawkode.studio',
+          description: 'A subproject within Rawkode Academy monorepository.',
+          url: 'https://github.com/RawkodeAcademy/RawkodeAcademy/tree/main/projects/rawkode.studio',
+          role: 'Maintainer'
+        }
+      ];
+
+      if (projects.length === 0) {
+        const noProjectsText = document.createElement('span');
+        noProjectsText.textContent = 'No projects listed yet.';
+        noProjectsText.style.gridColumn = 'span 3';
+        container.appendChild(noProjectsText);
+        return container;
+      }
+
+      // Add column headers
+      const headers = ['Project', 'Description', 'Role'];
+      headers.forEach(headerText => {
+        const header = document.createElement('div');
+        header.textContent = headerText;
+        header.classList.add('font-bold', 'text-[var(--nord-header)]', 'whitespace-nowrap', 'pb-1');
+        container.appendChild(header);
+      });
+
+      // Add a separator line
+      const separator = document.createElement('div');
+      separator.style.gridColumn = 'span 3';
+      separator.style.borderBottom = '1px solid var(--nord-border)';
+      separator.style.marginBottom = '0.5rem';
+      container.appendChild(separator);
+
+      projects.forEach(project => {
+        const nameLink = document.createElement('a');
+        nameLink.textContent = project.name;
+        nameLink.href = project.url;
+        nameLink.target = '_blank';
+        nameLink.rel = 'noopener noreferrer';
+        nameLink.classList.add('font-semibold', 'text-[var(--nord-link)]', 'underline', 'whitespace-nowrap');
+
+        const description = document.createElement('span');
+        description.textContent = project.description;
+
+        const role = document.createElement('span');
+        // Use role text directly without transformation
+        role.textContent = project.role || '-';
+        role.classList.add('whitespace-nowrap', 'text-[var(--nord-accent)]');
+
+        container.appendChild(nameLink);
+        container.appendChild(description);
+        container.appendChild(role);
+      });
+
+      return container;
+    }
+  });
+
+  const welcomeCommandsDiv = document.getElementById('welcome-commands-list');
+  if (welcomeCommandsDiv) {
+    welcomeCommandsDiv.innerHTML = '';
+
+    const introText = document.createElement('div');
+    introText.textContent = 'Available commands:';
+    introText.style.marginBottom = '0.25rem';
+    welcomeCommandsDiv.appendChild(introText);
+
+    const gridContainer = document.createElement('div');
+    gridContainer.style.display = 'grid';
+    gridContainer.style.gridTemplateColumns = 'max-content 1fr';
+    gridContainer.style.gap = '0.25rem 1rem';
+
+    const commandsToShow = Object.values(commands);
+    if (commandsToShow.length > 0) {
+      commandsToShow.forEach(command => {
+        const nameElement = document.createElement('strong');
+        nameElement.textContent = command.name;
+        gridContainer.appendChild(nameElement);
+
+        const descriptionElement = document.createElement('span');
+        descriptionElement.textContent = command.description;
+        gridContainer.appendChild(descriptionElement);
+      });
+      welcomeCommandsDiv.appendChild(gridContainer);
+    } else {
+      const noCommandsText = document.createElement('div');
+      noCommandsText.textContent = 'No commands currently available.';
+      welcomeCommandsDiv.appendChild(noCommandsText);
+    }
+  }
+
+</script>

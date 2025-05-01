@@ -1,0 +1,31 @@
+{
+	"name": "icepuma.dev",
+	"type": "module",
+	"version": "0.0.1",
+	"scripts": {
+		"dev": "astro dev",
+		"build": "biome check --fix && astro build"
+	},
+	"dependencies": {
+		"@astrojs/cloudflare": "^12.5.3",
+		"@fontsource/jetbrains-mono": "^5.2.5",
+		"@tailwindcss/vite": "^4.1.7",
+		"astro": "^5.7.13",
+		"tailwindcss": "^4.1.7"
+	},
+	"devDependencies": {
+		"@biomejs/biome": "1.9.4",
+		"@types/bun": "latest"
+	},
+	"trustedDependencies": [
+		"@biomejs/biome",
+		"@tailwindcss/oxide",
+		"esbuild",
+		"sharp",
+		"workerd"
+	],
+	"private": true,
+	"peerDependencies": {
+		"typescript": "^5"
+	}
+}

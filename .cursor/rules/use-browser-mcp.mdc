@@ -1,0 +1,8 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Always Use browser-mcp Server
+
+When interacting with the MCP (Multi-Capability Platform) server, always use the `browser-mcp` implementation. Do not use other MCP server implementations unless explicitly instructed otherwise for a specific task.

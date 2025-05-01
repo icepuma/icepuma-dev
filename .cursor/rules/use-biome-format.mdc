@@ -1,0 +1,12 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+# Format with Biome
+
+Always use Biome to format the entire project. Run the following command from the workspace root to format all supported files:
+
+```bash
+bun biome format --write .
+```

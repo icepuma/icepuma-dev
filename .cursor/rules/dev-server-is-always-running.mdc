@@ -1,0 +1,6 @@
+---
+description:
+globs:
+alwaysApply: true
+---
+Never start a dev server, I take care that it is always started.
