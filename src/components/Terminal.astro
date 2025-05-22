@@ -5,13 +5,16 @@
   <div id="output">
     <div>Welcome to <strong>icepuma.dev</strong></div>
     <div>&nbsp;</div>
+    <div style="font-style: italic; color: var(--nord-text-secondary);">Tip: Press TAB to auto-complete commands while typing.</div>
+    <div>&nbsp;</div>
     <div id="welcome-commands-list"></div>
   </div>
 
-  <div class="current-input-line flex items-center shrink-0 mt-1 relative">
+    <div class="current-input-line flex items-center shrink-0 mt-1 relative">
     <span class="text-[var(--nord-prompt-user)]">guest@<strong>icepuma.dev</strong></span>
     <span class="text-[var(--nord-prompt-symbol)] mx-1">&gt;</span>
     <span id="fake-input-display" class="pl-1 whitespace-pre"></span>
+    <span id="ghost-completion" class="opacity-50 text-[var(--nord-text-secondary)]"></span>
     <div id="custom-cursor" class="w-2 h-4 bg-[var(--nord-cursor)] animate-blink inline-block"></div>
     <input
       type="text"
@@ -43,9 +46,23 @@
   const terminalWrapper = document.getElementById('terminal-wrapper') as HTMLDivElement;
   const fakeInputDisplay = document.getElementById('fake-input-display') as HTMLSpanElement;
   const customCursorElement = document.getElementById('custom-cursor') as HTMLDivElement;
+  const ghostCompletionElement = document.getElementById('ghost-completion') as HTMLSpanElement;
 
   const THEME_KEY = 'terminal-theme';
   let currentTheme = 'system';
+
+  // Auto completion state
+  let completionState = {
+    suggestions: [] as string[],
+    currentIndex: -1,
+    originalInput: '',
+    isCompleting: false
+  };
+
+  // Argument map for commands that support arguments
+  const argumentMap: Record<string, string[]> = {
+    'mode': ['dark', 'light', 'system']
+  };
 
   function applyTheme(theme: string) {
     const htmlElement = document.documentElement;
@@ -84,11 +101,188 @@
   }
   loadTheme();
 
+  // Helper functions for autocompletion
+  function parseInput() {
+    const currentInput = inputElement.value;
+    const trimmedInput = currentInput.trim();
+    const words = trimmedInput.split(' ');
+    const commandPart = words[0] || '';
+    const isAfterSpace = currentInput.endsWith(' ') && words.length === 1;
+
+    return {
+      currentInput,
+      trimmedInput,
+      words,
+      commandPart,
+      isCompletingCommand: words.length === 1 && !isAfterSpace && commandPart.length > 0,
+      isCompletingArgument: (words.length > 1 || isAfterSpace) && commands[commandPart],
+      argPart: isAfterSpace ? '' : (words[words.length - 1] || '')
+    };
+  }
+
+  function getSuggestions(commandPart: string, argPart: string, isCompletingCommand: boolean) {
+    if (isCompletingCommand) {
+      return Object.keys(commands).filter(cmd => cmd.startsWith(commandPart.toLowerCase()));
+    } else {
+      const availableArgs = argumentMap[commandPart] || [];
+      return argPart === '' ? availableArgs : availableArgs.filter(arg => arg.startsWith(argPart.toLowerCase()));
+    }
+  }
+
+  function showGhostCompletion(input: string, suggestion: string) {
+    if (suggestion.startsWith(input.toLowerCase()) && suggestion.length > input.length) {
+      ghostCompletionElement.textContent = suggestion.substring(input.length);
+    } else {
+      ghostCompletionElement.textContent = input === '' ? suggestion : '';
+    }
+  }
+
+  function hideGhostCompletion() {
+    ghostCompletionElement.textContent = '';
+  }
+
+  function resetCompletion() {
+    completionState.suggestions = [];
+    completionState.currentIndex = -1;
+    completionState.originalInput = '';
+    completionState.isCompleting = false;
+    hideGhostCompletion();
+  }
+
+  function updateInputValue(newValue: string) {
+    inputElement.value = newValue;
+    fakeInputDisplay.textContent = newValue;
+  }
+
+  function applySuggestion(suggestion: string, parsed: any) {
+    if (parsed.isCompletingCommand) {
+      updateInputValue(suggestion);
+    } else if (parsed.isCompletingArgument) {
+      if (parsed.currentInput.endsWith(' ') && parsed.words.length === 1) {
+        updateInputValue(parsed.trimmedInput + ' ' + suggestion);
+      } else {
+        parsed.words[parsed.words.length - 1] = suggestion;
+        updateInputValue(parsed.words.join(' '));
+      }
+    }
+  }
+
+  let skipInputHandler = false;
+
   inputElement.addEventListener('input', () => {
-    if (fakeInputDisplay && inputElement) {
-      fakeInputDisplay.textContent = inputElement.value;
+    if (skipInputHandler) {
+      skipInputHandler = false;
+      return;
+    }
+
+    updateInputValue(inputElement.value);
+    resetCompletion();
+
+    const parsed = parseInput();
+
+    if (parsed.isCompletingCommand || parsed.isCompletingArgument) {
+      const targetPart = parsed.isCompletingCommand ? parsed.commandPart : parsed.argPart;
+      const suggestions = getSuggestions(parsed.commandPart, parsed.argPart, parsed.isCompletingCommand);
+
+      if (suggestions.length > 0) {
+        showGhostCompletion(targetPart, suggestions[0]);
+      } else {
+        hideGhostCompletion();
+      }
+    } else {
+      hideGhostCompletion();
     }
   });
+
+  function handleTabCompletion() {
+    const parsed = parseInput();
+
+    if (!parsed.isCompletingCommand && !parsed.isCompletingArgument) {
+      return;
+    }
+
+    // Get current suggestions based on the current input state
+    const suggestions = getSuggestions(parsed.commandPart, parsed.argPart, parsed.isCompletingCommand);
+
+    if (suggestions.length === 0) {
+      return;
+    }
+
+    // If there's ghost text and we're not cycling, complete it
+    if (ghostCompletionElement.textContent && !completionState.isCompleting) {
+      if (suggestions.length === 1) {
+        // Single suggestion - just apply it
+        applySuggestion(suggestions[0], parsed);
+        hideGhostCompletion();
+        return;
+      } else {
+        // Multiple suggestions - start cycling
+        completionState.suggestions = suggestions;
+        completionState.currentIndex = 0;  // Start with first suggestion
+        completionState.isCompleting = true;
+        const suggestion = suggestions[0];
+
+        // Handle exact command match
+        if (parsed.isCompletingCommand && suggestion === parsed.commandPart && commands[suggestion]) {
+          skipInputHandler = true;
+          updateInputValue(suggestion + ' ');
+          const argSuggestions = getSuggestions(suggestion, '', false);
+          resetCompletion();
+          if (argSuggestions.length > 0) {
+            ghostCompletionElement.textContent = argSuggestions[0];
+          }
+          return;
+        } else {
+          applySuggestion(suggestion, parsed);
+          hideGhostCompletion();
+          return;
+        }
+      }
+    }
+
+    // Continue cycling if we're already in cycling mode
+    if (completionState.isCompleting && completionState.suggestions.length > 0) {
+      completionState.currentIndex = (completionState.currentIndex + 1) % completionState.suggestions.length;
+      const suggestion = completionState.suggestions[completionState.currentIndex];
+
+      // Handle exact command match during cycling
+      if (parsed.isCompletingCommand && suggestion === parsed.commandPart && commands[suggestion]) {
+        skipInputHandler = true;
+        updateInputValue(suggestion + ' ');
+        const argSuggestions = getSuggestions(suggestion, '', false);
+        resetCompletion();
+        if (argSuggestions.length > 0) {
+          ghostCompletionElement.textContent = argSuggestions[0];
+        }
+        return;
+      } else {
+        applySuggestion(suggestion, parsed);
+        hideGhostCompletion();
+        return;
+      }
+    }
+
+    // Start new cycling session
+    completionState.suggestions = suggestions;
+    completionState.currentIndex = 0;
+    completionState.isCompleting = true;
+    const suggestion = suggestions[0];
+
+    // Handle exact command match
+    if (parsed.isCompletingCommand && suggestion === parsed.commandPart && commands[suggestion]) {
+      skipInputHandler = true;
+      updateInputValue(suggestion + ' ');
+      const argSuggestions = getSuggestions(suggestion, '', false);
+      resetCompletion();
+      if (argSuggestions.length > 0) {
+        ghostCompletionElement.textContent = argSuggestions[0];
+      }
+      return;
+    } else {
+      applySuggestion(suggestion, parsed);
+      hideGhostCompletion();
+    }
+  }
 
   if (terminalWrapper && inputElement) {
     terminalWrapper.addEventListener('click', (e) => {
@@ -107,6 +301,12 @@
   });
 
   inputElement.addEventListener('keydown', (event) => {
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      handleTabCompletion();
+      return;
+    }
+
     if (event.key === 'Enter') {
       let commandToExecute = inputElement.value.trim();
 
@@ -125,6 +325,7 @@
 
         inputElement.value = '';
         if (fakeInputDisplay) fakeInputDisplay.textContent = '';
+        resetCompletion();
         terminalWrapper.scrollTop = terminalWrapper.scrollHeight;
       }
     }
@@ -181,6 +382,7 @@
         descriptionElement.textContent = cmd.description;
         container.appendChild(descriptionElement);
       });
+
       return container;
     }
   });
