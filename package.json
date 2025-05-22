@@ -29,6 +29,9 @@
 		"sharp",
 		"workerd"
 	],
+	"engines": {
+		"node": ">=22.16.0"
+	},
 	"private": true,
 	"peerDependencies": {
 		"typescript": "^5"
