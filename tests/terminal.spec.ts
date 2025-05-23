@@ -277,6 +277,51 @@ test.describe("Terminal Autocompletion", () => {
 		await page.keyboard.press("Tab");
 		await expect(page.locator("#input")).toHaveValue("mode dark");
 	});
+
+	test("should work after command execution", async ({ page }) => {
+		// Execute a command first
+		await page.locator("#input").fill("help");
+		await page.keyboard.press("Enter");
+
+		// Wait for command to complete
+		await page.waitForTimeout(100);
+
+		// Now try autocompletion - should work normally
+		await page.locator("#input").fill("m");
+
+		await page.waitForTimeout(100);
+		const ghostText = await page.locator("#ghost-completion").textContent();
+		expect(ghostText).toBe("ode");
+
+		// TAB should complete to "mode"
+		await page.keyboard.press("Tab");
+		await expect(page.locator("#input")).toHaveValue("mode");
+	});
+
+	test("should work after successful autocompletion and command execution", async ({
+		page,
+	}) => {
+		// First, do a successful autocompletion and execute it
+		await page.locator("#input").fill("m");
+		await page.keyboard.press("Tab"); // Complete to "mode"
+		await page.keyboard.press("Tab"); // Transition to "mode "
+		await page.keyboard.press("Tab"); // Complete to "mode dark"
+		await page.keyboard.press("Enter"); // Execute the command
+
+		// Wait for command to complete
+		await page.waitForTimeout(200);
+
+		// Now try autocompletion again - this should work normally
+		await page.locator("#input").fill("m");
+
+		await page.waitForTimeout(100);
+		const ghostText = await page.locator("#ghost-completion").textContent();
+		expect(ghostText).toBe("ode");
+
+		// TAB should complete to "mode"
+		await page.keyboard.press("Tab");
+		await expect(page.locator("#input")).toHaveValue("mode");
+	});
 });
 
 test.describe("Terminal Theme Switching", () => {

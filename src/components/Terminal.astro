@@ -326,6 +326,7 @@
         inputElement.value = '';
         if (fakeInputDisplay) fakeInputDisplay.textContent = '';
         resetCompletion();
+        skipInputHandler = false;  // Ensure input handler works for next input
         terminalWrapper.scrollTop = terminalWrapper.scrollHeight;
       }
     }
