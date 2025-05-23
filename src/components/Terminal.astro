@@ -38,6 +38,17 @@
   #input {
     min-width: 1px;
   }
+
+  /* Hide scrollbars completely while maintaining scroll functionality */
+  #terminal-wrapper {
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* Internet Explorer 10+ */
+  }
+
+  /* Hide scrollbars on Webkit browsers (Chrome, Safari, Edge) */
+  #terminal-wrapper::-webkit-scrollbar {
+    display: none;
+  }
 </style>
 
 <script>

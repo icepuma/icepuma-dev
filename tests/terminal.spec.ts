@@ -440,4 +440,40 @@ test.describe("Terminal UI Elements", () => {
 
 		expect(scrollTop).toBeGreaterThanOrEqual(scrollHeight - clientHeight - 10); // Small tolerance
 	});
+
+	test("should have hidden scrollbars", async ({ page }) => {
+		const terminal = page.locator("#terminal-wrapper");
+
+		// Check that scrollbars are hidden via CSS
+		const scrollbarWidth = await terminal.evaluate((el) => {
+			const htmlEl = el as HTMLElement;
+			// Create overflow to trigger scrollbar, then measure
+			const originalHeight = htmlEl.style.height;
+			htmlEl.style.height = "100px";
+
+			// Force content to overflow
+			for (let i = 0; i < 10; i++) {
+				const div = document.createElement("div");
+				div.textContent = "Test line to create overflow";
+				htmlEl.appendChild(div);
+			}
+
+			// Measure difference between offsetWidth and clientWidth
+			const widthDiff = htmlEl.offsetWidth - htmlEl.clientWidth;
+
+			// Clean up
+			htmlEl.style.height = originalHeight;
+			const testDivs = htmlEl.querySelectorAll("div:last-child");
+			for (const div of testDivs) {
+				if (div.textContent === "Test line to create overflow") {
+					div.remove();
+				}
+			}
+
+			return widthDiff;
+		});
+
+		// Should be 0 if scrollbars are hidden
+		expect(scrollbarWidth).toBe(0);
+	});
 });
