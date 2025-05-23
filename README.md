@@ -77,3 +77,7 @@ Available terminal commands:
 - **Linting/Formatting**: [Biome](https://biomejs.dev/)
 - **Deployment**: [Cloudflare Pages](https://pages.cloudflare.com/)
 
+## Development Attribution
+
+This project was vibecoded with ❤️ using [Cursor](https://cursor.sh/) + [Claude 4 Sonnet](https://www.anthropic.com/claude) 🚀
+
