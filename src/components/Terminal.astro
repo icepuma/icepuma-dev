@@ -387,7 +387,8 @@
       container.style.gap = '0.25rem 1rem';
       container.classList.add('my-0');
 
-      Object.values(commands).forEach(cmd => {
+      const sortedCommands = Object.values(commands).sort((a, b) => a.name.localeCompare(b.name));
+      sortedCommands.forEach(cmd => {
         const nameElement = document.createElement('strong');
         nameElement.textContent = cmd.name;
         container.appendChild(nameElement);
@@ -678,7 +679,7 @@ I also contribute to building <a href="https://rawkode.studio" target="_blank" r
     gridContainer.style.gridTemplateColumns = 'max-content 1fr';
     gridContainer.style.gap = '0.25rem 1rem';
 
-    const commandsToShow = Object.values(commands);
+    const commandsToShow = Object.values(commands).sort((a, b) => a.name.localeCompare(b.name));
     if (commandsToShow.length > 0) {
       commandsToShow.forEach(command => {
         const nameElement = document.createElement('strong');
