@@ -52,6 +52,8 @@
 </style>
 
 <script>
+  import moviesData from '../data/movies.json';
+  
   const inputElement = document.getElementById('input') as HTMLInputElement;
   const outputElement = document.getElementById('output') as HTMLDivElement;
   const terminalWrapper = document.getElementById('terminal-wrapper') as HTMLDivElement;
@@ -574,6 +576,89 @@ I also contribute to building <a href="https://rawkode.studio" target="_blank" r
         container.appendChild(description);
         container.appendChild(role);
       });
+
+      return container;
+    }
+  });
+
+  registerCommand({
+    name: 'movies',
+    description: 'Displays my watched movies from Letterboxd.',
+    execute: () => {
+      const container = document.createElement('div');
+      container.classList.add('mt-1');
+
+      // Display summary and link on the same line
+      const headerLine = document.createElement('div');
+      headerLine.classList.add('mb-3', 'flex', 'items-center', 'gap-2');
+      
+      const summary = document.createElement('span');
+      summary.innerHTML = `<strong>Movies watched:</strong> ${moviesData.length}`;
+      summary.classList.add('text-[var(--nord-text-secondary)]');
+      
+      const spacer = document.createElement('span');
+      spacer.textContent = '•';
+      spacer.classList.add('text-[var(--nord-text-secondary)]');
+      
+      const anchor = document.createElement('a');
+      anchor.href = 'https://letterboxd.com/icepuma/films/';
+      anchor.target = '_blank';
+      anchor.rel = 'noopener noreferrer';
+      anchor.textContent = 'View on Letterboxd';
+      anchor.classList.add('text-[var(--nord-link)]', 'underline');
+      
+      headerLine.appendChild(summary);
+      headerLine.appendChild(spacer);
+      headerLine.appendChild(anchor);
+      container.appendChild(headerLine);
+
+      // Display all movies - sort into columns
+      const moviesList = document.createElement('div');
+      moviesList.style.display = 'grid';
+      // Responsive grid: 2 columns on mobile, 4 columns on larger screens
+      moviesList.style.gridTemplateColumns = 'repeat(2, 1fr)';
+      moviesList.style.gap = '0.25rem 1rem';
+      moviesList.style.gridAutoFlow = 'column';
+      
+      // Calculate rows needed for column distribution
+      const columnsOnMobile = 2;
+      const columnsOnDesktop = 4;
+      const totalMovies = moviesData.length;
+      const rowsOnMobile = Math.ceil(totalMovies / columnsOnMobile);
+      const rowsOnDesktop = Math.ceil(totalMovies / columnsOnDesktop);
+      
+      moviesList.style.gridTemplateRows = `repeat(${rowsOnMobile}, minmax(0, 1fr))`;
+      
+      // Add media query for larger screens
+      const style = document.createElement('style');
+      style.textContent = `
+        @media (min-width: 768px) {
+          #movies-grid {
+            grid-template-columns: repeat(4, 1fr) !important;
+            grid-template-rows: repeat(${rowsOnDesktop}, minmax(0, 1fr)) !important;
+          }
+        }
+      `;
+      moviesList.id = 'movies-grid';
+      container.appendChild(style);
+
+      // Show all movies
+      moviesData.forEach(movie => {
+        const movieLine = document.createElement('div');
+        movieLine.classList.add('text-sm', 'truncate');
+        
+        const link = document.createElement('a');
+        link.href = movie.url;
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.classList.add('text-[var(--nord-link)]', 'hover:underline');
+        link.textContent = movie.title;
+        
+        movieLine.appendChild(link);
+        moviesList.appendChild(movieLine);
+      });
+
+      container.appendChild(moviesList);
 
       return container;
     }

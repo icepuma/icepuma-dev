@@ -11,6 +11,7 @@
 		"test:debug": "playwright test --debug"
 	},
 	"dependencies": {
+		"@astrojs/check": "^0.9.4",
 		"@astrojs/cloudflare": "^12.5.3",
 		"@fontsource/jetbrains-mono": "^5.2.5",
 		"@tailwindcss/vite": "^4.1.7",
@@ -34,6 +35,6 @@
 	},
 	"private": true,
 	"peerDependencies": {
-		"typescript": "^5"
+		"typescript": "^5.8.3"
 	}
 }
