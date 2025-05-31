@@ -430,9 +430,10 @@
 
   const socialLinks = [
     { name: 'GitHub', url: 'https://github.com/icepuma' },
+    { name: 'Korora Tech', url: 'https://github.com/korora-tech' },
+    { name: 'Rawkode Academy', url: 'https://github.com/RawkodeAcademy' },
     { name: 'Bluesky', url: 'https://bsky.app/profile/icepuma.dev' },
     { name: 'LinkedIn', url: 'https://www.linkedin.com/in/stefan-ruzitschka/' },
-    { name: 'Rawkode Academy GitLab', url: 'https://code.rawkode.academy/icepuma' },
     { name: 'Letterboxd', url: 'https://letterboxd.com/icepuma/' },
   ];
 
@@ -509,40 +510,57 @@ I also contribute to building <a href="https://rawkode.studio" target="_blank" r
       container.classList.add('mt-1');
 
       container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'max-content max-content max-content';
+      container.style.gridTemplateColumns = 'max-content max-content max-content max-content';
       container.style.gap = '0.25rem 1rem';
 
       const projects = [
         {
-          name: 'icepuma.dev',
-          description: 'My personal website with terminal interface.',
-          url: 'https://github.com/icepuma-dev/icepuma-dev',
-          role: 'Author'
+          name: 'cidrrr',
+          description: 'CLI tool for converting CIDR blocks to IP lists.',
+          url: 'https://github.com/korora-tech/cidrrr',
+          role: 'Author',
+          stack: ['Rust', 'CLI']
         },
         {
           name: 'fbtoggl',
           description: 'Interact with track.toggl.com via terminal.',
           url: 'https://github.com/icepuma/fbtoggl',
-          role: 'Author'
+          role: 'Author',
+          stack: ['Rust', 'CLI']
+        },
+        {
+          name: 'icepuma.dev',
+          description: 'My personal website with terminal interface.',
+          url: 'https://github.com/icepuma/icepuma-dev',
+          role: 'Author',
+          stack: ['TypeScript', 'Astro', 'Tailwind CSS', 'Bun']
         },
         {
           name: 'rawkode.studio',
           description: 'A subproject within Rawkode Academy monorepository.',
           url: 'https://github.com/RawkodeAcademy/RawkodeAcademy/tree/main/projects/rawkode.studio',
-          role: 'Maintainer'
+          role: 'Maintainer',
+          stack: ['TypeScript', 'Astro', 'Drizzle ORM', 'Bun']
+        },
+        {
+          name: 'temps',
+          description: 'Library for parsing human-readable time expressions.',
+          url: 'https://github.com/korora-tech/temps',
+          role: 'Author',
+          stack: ['Rust', 'chrono', 'jiff']
         }
       ];
 
       if (projects.length === 0) {
         const noProjectsText = document.createElement('span');
         noProjectsText.textContent = 'No projects listed yet.';
-        noProjectsText.style.gridColumn = 'span 3';
+        noProjectsText.style.gridColumn = 'span 4';
         container.appendChild(noProjectsText);
         return container;
       }
 
       // Add column headers
-      const headers = ['Project', 'Description', 'Role'];
+      const headers = ['Project', 'Description', 'Role', 'Stack'];
       headers.forEach(headerText => {
         const header = document.createElement('div');
         header.textContent = headerText;
@@ -552,7 +570,7 @@ I also contribute to building <a href="https://rawkode.studio" target="_blank" r
 
       // Add a separator line
       const separator = document.createElement('div');
-      separator.style.gridColumn = 'span 3';
+      separator.style.gridColumn = 'span 4';
       separator.style.borderBottom = '1px solid var(--nord-border)';
       separator.style.marginBottom = '0.5rem';
       container.appendChild(separator);
@@ -573,9 +591,14 @@ I also contribute to building <a href="https://rawkode.studio" target="_blank" r
         role.textContent = project.role || '-';
         role.classList.add('whitespace-nowrap', 'text-[var(--nord-accent)]');
 
+        const stack = document.createElement('span');
+        stack.textContent = project.stack ? project.stack.join(', ') : '-';
+        stack.classList.add('text-[var(--nord-text-secondary)]', 'text-sm');
+
         container.appendChild(nameLink);
         container.appendChild(description);
         container.appendChild(role);
+        container.appendChild(stack);
       });
 
       return container;

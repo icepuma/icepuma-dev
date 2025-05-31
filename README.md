@@ -79,5 +79,5 @@ Available terminal commands:
 
 ## Development Attribution
 
-This project was vibecoded with ❤️ using [Cursor](https://cursor.sh/) + [Claude 4 Sonnet](https://www.anthropic.com/claude) 🚀
+This project was vibecoded with ❤️ using [Claude Code](https://claude.ai/code) + [Claude 4 Opus](https://www.anthropic.com/claude) 🚀
 
