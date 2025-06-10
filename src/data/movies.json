@@ -88,6 +88,10 @@
 		"url": "https://letterboxd.com/film/eraser/"
 	},
 	{
+		"title": "Everything Everywhere All at Once",
+		"url": "https://letterboxd.com/film/everything-everywhere-all-at-once/"
+	},
+	{
 		"title": "Flash Gordon",
 		"url": "https://letterboxd.com/film/flash-gordon-1980/"
 	},
@@ -216,6 +220,10 @@
 		"url": "https://letterboxd.com/film/raw-deal-1986/"
 	},
 	{
+		"title": "Redline",
+		"url": "https://letterboxd.com/film/redline/"
+	},
+	{
 		"title": "Restore Point",
 		"url": "https://letterboxd.com/film/restore-point/"
 	},
@@ -276,8 +284,16 @@
 		"url": "https://letterboxd.com/film/the-6th-day/"
 	},
 	{
+		"title": "The Banshees of Inisherin",
+		"url": "https://letterboxd.com/film/the-banshees-of-inisherin/"
+	},
+	{
 		"title": "The Beyond",
 		"url": "https://letterboxd.com/film/the-beyond-2017/"
+	},
+	{
+		"title": "The Cabin in the Woods",
+		"url": "https://letterboxd.com/film/the-cabin-in-the-woods/"
 	},
 	{
 		"title": "The Creator",

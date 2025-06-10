@@ -15,32 +15,30 @@ import re
 import sys
 import time
 from pathlib import Path
+from typing import TypedDict
 
 import requests
 from bs4 import BeautifulSoup
 
 
+class Movie(TypedDict):
+    title: str
+    url: str
+
+
 def extract_title_from_slug(film_slug: str) -> str:
     """Extract title from film slug like 'novocaine-2025' or 'the-lobster-2015'"""
-    # Remove year if present at the end
     slug_without_year = re.sub(r'-\d{4}$', '', film_slug)
-    # Convert slug to title case
-    title = slug_without_year.replace('-', ' ').title()
-    return title
+    return slug_without_year.replace('-', ' ').title()
 
 
-def fetch_letterboxd_page(username: str, page: int = 1) -> tuple[list[dict], bool]:
-    """Fetch a single page of movies from Letterboxd
-    
-    Returns: (movies_list, has_next_page)
-    """
-    if page == 1:
-        url = f"https://letterboxd.com/{username}/films/"
-    else:
-        url = f"https://letterboxd.com/{username}/films/page/{page}/"
+def fetch_letterboxd_page(username: str, page: int = 1) -> tuple[list[Movie], bool]:
+    """Fetch a single page of movies from Letterboxd. Returns (movies_list, has_next_page)"""
+    base_url = f"https://letterboxd.com/{username}/films"
+    url = f"{base_url}/page/{page}/" if page > 1 else f"{base_url}/"
     
     headers = {
-        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     }
     
@@ -62,28 +60,18 @@ def fetch_letterboxd_page(username: str, page: int = 1) -> tuple[list[dict], boo
             if not poster_div:
                 continue
             
-            # Get film slug
             film_slug = poster_div.get("data-film-slug", "")
             if not film_slug:
                 continue
             
-            # Extract title from slug
-            title = extract_title_from_slug(film_slug)
-            
-            # Get more accurate title from image alt text if available
+            # Get title from image alt text or extract from slug
             img = poster_div.find("img")
-            if img and img.get("alt"):
-                title = img["alt"]
+            title = img.get("alt") if img else extract_title_from_slug(film_slug)
             
-            # Build Letterboxd URL
-            film_url = f"https://letterboxd.com/film/{film_slug}/"
-            
-            movie_data = {
-                "title": title,
-                "url": film_url
-            }
-            
-            movies.append(movie_data)
+            movies.append(Movie(
+                title=title,
+                url=f"https://letterboxd.com/film/{film_slug}/"
+            ))
         
         # Check if there's a next page
         pagination = soup.find("div", class_="pagination")
@@ -96,31 +84,24 @@ def fetch_letterboxd_page(username: str, page: int = 1) -> tuple[list[dict], boo
         return [], False
 
 
-def fetch_all_movies(username: str = "icepuma") -> list[dict]:
+def fetch_all_movies(username: str = "icepuma", max_pages: int = 20) -> list[Movie]:
     """Fetch all movies from all pages"""
     all_movies = []
-    page = 1
     
-    while True:
+    for page in range(1, max_pages + 1):
         print(f"\nFetching page {page}...", file=sys.stderr)
         movies, has_next = fetch_letterboxd_page(username, page)
         
-        if movies:
-            all_movies.extend(movies)
-            print(f"Total movies so far: {len(all_movies)}", file=sys.stderr)
-        
-        if not movies or not has_next:
+        if not movies:
             break
             
-        page += 1
+        all_movies.extend(movies)
+        print(f"Total movies so far: {len(all_movies)}", file=sys.stderr)
         
-        # Be nice to the server
-        time.sleep(0.5)
-        
-        # Safety limit
-        if page > 20:
-            print("Reached page limit", file=sys.stderr)
+        if not has_next:
             break
+            
+        time.sleep(0.5)  # Be nice to the server
     
     return all_movies
 
@@ -135,28 +116,16 @@ def main():
         print("❌ No movies found!", file=sys.stderr)
         sys.exit(1)
     
-    # Remove duplicates (keep first occurrence)
-    seen = set()
-    unique_movies = []
-    for movie in movies:
-        key = movie["title"]
-        if key not in seen:
-            seen.add(key)
-            unique_movies.append(movie)
-    
-    # Sort movies alphanumerically by title
-    unique_movies.sort(key=lambda movie: movie["title"].lower())
+    # Remove duplicates and sort
+    unique_movies = list({movie["title"]: movie for movie in movies}.values())
+    unique_movies.sort(key=lambda m: m["title"].lower())
     
     # Save to JSON file
     output_file = Path("src/data/movies.json")
     output_file.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(output_file, "w") as f:
-        json.dump(unique_movies, f, indent="\t")
+    output_file.write_text(json.dumps(unique_movies, indent="\t"))
     
     print(f"\n✅ Fetched {len(unique_movies)} movies and saved to {output_file}", file=sys.stderr)
-    
-    # Show summary of recent movies
     print("\n📊 Recent movies:", file=sys.stderr)
     for movie in unique_movies[:10]:
         print(f"  • {movie['title']}", file=sys.stderr)

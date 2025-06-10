@@ -2,57 +2,67 @@
 @import "tailwindcss";
 
 :root {
-	/* Light Mode - Using Snow Storm for background, Polar Night for text */
-	--nord-bg-primary: #eceff4; /* nord6 */
-	--nord-bg-secondary: #e5e9f0; /* nord5 */
-	--nord-text-primary: #2e3440; /* nord0 */
-	--nord-text-secondary: #4c566a; /* nord3 */
-	--nord-text-placeholder: #4c566a; /* nord3 with some opacity or a lighter direct shade could be an option */
+	/* Nord color palette - Complete */
+	/* Polar Night */
+	--nord0: #2e3440;
+	--nord1: #3b4252;
+	--nord2: #434c5e;
+	--nord3: #4c566a;
 
-	/* Prompt colors for Light Mode */
-	--nord-prompt-user: #5e81ac; /* nord10 (Frost Blue) */
-	--nord-prompt-symbol: #a3be8c; /* nord14 (Aurora Green) */
+	/* Snow Storm */
+	--nord4: #d8dee9;
+	--nord5: #e5e9f0;
+	--nord6: #eceff4;
 
-	/* Other UI elements for Light Mode */
-	--nord-border: #d8dee9; /* nord4 */
-	--nord-cursor: #2e3440; /* nord0 */
-	--nord-error: #bf616a; /* nord11 (Aurora Red) */
+	/* Frost */
+	--nord7: #8fbcbb;
+	--nord8: #88c0d0;
+	--nord9: #81a1c1;
+	--nord10: #5e81ac;
 
-	/* Neofetch style colors (Light Mode) */
-	--nord-neofetch-logo: #5e81ac; /* nord10 */
-	--nord-neofetch-label: #434c5e; /* nord2 */
+	/* Aurora */
+	--nord11: #bf616a;
+	--nord12: #d08770;
+	--nord13: #ebcb8b;
+	--nord14: #a3be8c;
+	--nord15: #b48ead;
+
+	/* Light mode theme */
+	--nord-bg-primary: var(--nord6);
+	--nord-bg-secondary: var(--nord5);
+	--nord-text-primary: var(--nord0);
+	--nord-text-secondary: var(--nord3);
+	--nord-prompt-user: var(--nord10);
+	--nord-prompt-symbol: var(--nord14);
+	--nord-border: var(--nord4);
+	--nord-cursor: var(--nord0);
+	--nord-error: var(--nord11);
+	--nord-neofetch-logo: var(--nord10);
+	--nord-neofetch-label: var(--nord2);
+	--nord-link: var(--nord10);
+	--nord-header: var(--nord2);
+	--nord-accent: var(--nord9);
 }
 
 .dark {
-	/* Dark Mode - Using Polar Night for background, Snow Storm for text */
-	--nord-bg-primary: #2e3440; /* nord0 */
-	--nord-bg-secondary: #3b4252; /* nord1 */
-	--nord-text-primary: #eceff4; /* nord6 */
-	--nord-text-secondary: #d8dee9; /* nord4 */
-	--nord-text-placeholder: #4c566a; /* nord3 */
-
-	/* Prompt colors for Dark Mode */
-	--nord-prompt-user: #b48ead; /* nord15 (Aurora Purple) */
-	--nord-prompt-symbol: #a3be8c; /* nord14 (Aurora Green) */
-
-	/* Other UI elements for Dark Mode */
-	--nord-border: #4c566a; /* nord3 */
-	--nord-cursor: #eceff4; /* nord6 */
-	--nord-error: #bf616a; /* nord11 (Aurora Red) */
-
-	/* Neofetch style colors (Dark Mode) */
-	--nord-neofetch-logo: #88c0d0; /* nord8 (Frost Cyan) */
-	--nord-neofetch-label: #81a1c1; /* nord9 (Frost Light Blue)*/
+	--nord-bg-primary: var(--nord0);
+	--nord-bg-secondary: var(--nord1);
+	--nord-text-primary: var(--nord6);
+	--nord-text-secondary: var(--nord4);
+	--nord-prompt-user: var(--nord15);
+	--nord-cursor: var(--nord6);
+	--nord-neofetch-logo: var(--nord8);
+	--nord-neofetch-label: var(--nord9);
+	--nord-link: var(--nord8);
+	--nord-header: var(--nord4);
+	--nord-accent: var(--nord10);
 }
 
-/* Ensure body takes full height for background color */
 html,
 body {
 	height: 100%;
 	margin: 0;
 	background-color: var(--nord-bg-primary);
 	color: var(--nord-text-primary);
-	font-family: "JetBrains Mono", monospace; /* Apply JetBrains Mono globally */
+	font-family: "JetBrains Mono", monospace;
 }
-
-/* Additional global styles if any */

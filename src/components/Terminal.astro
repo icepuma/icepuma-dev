@@ -52,7 +52,15 @@
 </style>
 
 <script>
-  import moviesData from '../data/movies.json';
+  import { commands, argumentMap } from '../utils/terminal-commands';
+  import { 
+    createCompletionState, 
+    parseInput, 
+    getSuggestions, 
+    getGhostText, 
+    applySuggestion 
+  } from '../utils/terminal-autocomplete';
+  import { loadTheme, setupThemeListener, type Theme } from '../utils/theme';
   
   const inputElement = document.getElementById('input') as HTMLInputElement;
   const outputElement = document.getElementById('output') as HTMLDivElement;
@@ -61,93 +69,16 @@
   const customCursorElement = document.getElementById('custom-cursor') as HTMLDivElement;
   const ghostCompletionElement = document.getElementById('ghost-completion') as HTMLSpanElement;
 
-  const THEME_KEY = 'terminal-theme';
-  let currentTheme = 'system';
-
-  // Auto completion state
-  let completionState = {
-    suggestions: [] as string[],
-    currentIndex: -1,
-    originalInput: '',
-    isCompleting: false
-  };
-
-  // Argument map for commands that support arguments
-  const argumentMap: Record<string, string[]> = {
-    'mode': ['dark', 'light', 'system']
-  };
-
-  function applyTheme(theme: string) {
-    const htmlElement = document.documentElement;
-    if (theme === 'dark') {
-      htmlElement.classList.add('dark');
-    } else {
-      htmlElement.classList.remove('dark');
-    }
-  }
-
-  function setTheme(theme: string) {
+  let currentTheme: Theme = loadTheme();
+  let completionState = createCompletionState();
+  
+  setupThemeListener((theme) => {
     currentTheme = theme;
-    localStorage.setItem(THEME_KEY, theme);
-    if (theme === 'system') {
-      const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-      applyTheme(systemPrefersDark ? 'dark' : 'light');
-    } else {
-      applyTheme(theme);
-    }
-  }
-
-  const prefersDarkScheme = window.matchMedia('(prefers-color-scheme: dark)');
-  prefersDarkScheme.addEventListener('change', (e) => {
-    if (currentTheme === 'system') {
-      applyTheme(e.matches ? 'dark' : 'light');
-    }
   });
 
-  function loadTheme() {
-    const savedTheme = localStorage.getItem(THEME_KEY);
-    if (savedTheme && ['light', 'dark', 'system'].includes(savedTheme)) {
-      setTheme(savedTheme);
-    } else {
-      setTheme('system');
-    }
-  }
-  loadTheme();
-
-  // Helper functions for autocompletion
-  function parseInput() {
-    const currentInput = inputElement.value;
-    const trimmedInput = currentInput.trim();
-    const words = trimmedInput.split(' ');
-    const commandPart = words[0] || '';
-    const isAfterSpace = currentInput.endsWith(' ') && words.length === 1;
-
-    return {
-      currentInput,
-      trimmedInput,
-      words,
-      commandPart,
-      isCompletingCommand: words.length === 1 && !isAfterSpace && commandPart.length > 0,
-      isCompletingArgument: (words.length > 1 || isAfterSpace) && commands[commandPart],
-      argPart: isAfterSpace ? '' : (words[words.length - 1] || '')
-    };
-  }
-
-  function getSuggestions(commandPart: string, argPart: string, isCompletingCommand: boolean) {
-    if (isCompletingCommand) {
-      return Object.keys(commands).filter(cmd => cmd.startsWith(commandPart.toLowerCase()));
-    } else {
-      const availableArgs = argumentMap[commandPart] || [];
-      return argPart === '' ? availableArgs : availableArgs.filter(arg => arg.startsWith(argPart.toLowerCase()));
-    }
-  }
-
+  // Helper functions
   function showGhostCompletion(input: string, suggestion: string) {
-    if (suggestion.startsWith(input.toLowerCase()) && suggestion.length > input.length) {
-      ghostCompletionElement.textContent = suggestion.substring(input.length);
-    } else {
-      ghostCompletionElement.textContent = input === '' ? suggestion : '';
-    }
+    ghostCompletionElement.textContent = getGhostText(input, suggestion);
   }
 
   function hideGhostCompletion() {
@@ -155,29 +86,13 @@
   }
 
   function resetCompletion() {
-    completionState.suggestions = [];
-    completionState.currentIndex = -1;
-    completionState.originalInput = '';
-    completionState.isCompleting = false;
+    completionState = createCompletionState();
     hideGhostCompletion();
   }
 
   function updateInputValue(newValue: string) {
     inputElement.value = newValue;
     fakeInputDisplay.textContent = newValue;
-  }
-
-  function applySuggestion(suggestion: string, parsed: any) {
-    if (parsed.isCompletingCommand) {
-      updateInputValue(suggestion);
-    } else if (parsed.isCompletingArgument) {
-      if (parsed.currentInput.endsWith(' ') && parsed.words.length === 1) {
-        updateInputValue(parsed.trimmedInput + ' ' + suggestion);
-      } else {
-        parsed.words[parsed.words.length - 1] = suggestion;
-        updateInputValue(parsed.words.join(' '));
-      }
-    }
   }
 
   let skipInputHandler = false;
@@ -191,11 +106,11 @@
     updateInputValue(inputElement.value);
     resetCompletion();
 
-    const parsed = parseInput();
+    const parsed = parseInput(inputElement.value);
 
     if (parsed.isCompletingCommand || parsed.isCompletingArgument) {
       const targetPart = parsed.isCompletingCommand ? parsed.commandPart : parsed.argPart;
-      const suggestions = getSuggestions(parsed.commandPart, parsed.argPart, parsed.isCompletingCommand);
+      const suggestions = getSuggestions(parsed.commandPart, parsed.argPart, parsed.isCompletingCommand, commands, argumentMap);
 
       if (suggestions.length > 0) {
         showGhostCompletion(targetPart, suggestions[0]);
@@ -208,91 +123,60 @@
   });
 
   function handleTabCompletion() {
-    const parsed = parseInput();
+    const parsed = parseInput(inputElement.value);
 
     if (!parsed.isCompletingCommand && !parsed.isCompletingArgument) {
       return;
     }
 
-    // Get current suggestions based on the current input state
-    const suggestions = getSuggestions(parsed.commandPart, parsed.argPart, parsed.isCompletingCommand);
+    const suggestions = getSuggestions(parsed.commandPart, parsed.argPart, parsed.isCompletingCommand, commands, argumentMap);
 
     if (suggestions.length === 0) {
       return;
     }
 
-    // If there's ghost text and we're not cycling, complete it
+    // Handle single or first suggestion
     if (ghostCompletionElement.textContent && !completionState.isCompleting) {
       if (suggestions.length === 1) {
-        // Single suggestion - just apply it
-        applySuggestion(suggestions[0], parsed);
+        updateInputValue(applySuggestion(suggestions[0], parsed));
         hideGhostCompletion();
         return;
       } else {
-        // Multiple suggestions - start cycling
+        // Multiple suggestions - complete the first one (ghost text)
+        updateInputValue(applySuggestion(suggestions[0], parsed));
+        hideGhostCompletion();
+        // Set up cycling state for next TAB press
         completionState.suggestions = suggestions;
-        completionState.currentIndex = 0;  // Start with first suggestion
+        completionState.currentIndex = 0;
         completionState.isCompleting = true;
-        const suggestion = suggestions[0];
-
-        // Handle exact command match
-        if (parsed.isCompletingCommand && suggestion === parsed.commandPart && commands[suggestion]) {
-          skipInputHandler = true;
-          updateInputValue(suggestion + ' ');
-          const argSuggestions = getSuggestions(suggestion, '', false);
-          resetCompletion();
-          if (argSuggestions.length > 0) {
-            ghostCompletionElement.textContent = argSuggestions[0];
-          }
-          return;
-        } else {
-          applySuggestion(suggestion, parsed);
-          hideGhostCompletion();
-          return;
-        }
+        return;
       }
     }
 
-    // Continue cycling if we're already in cycling mode
+    // Cycle through suggestions
     if (completionState.isCompleting && completionState.suggestions.length > 0) {
+      // We're already cycling, move to next suggestion
       completionState.currentIndex = (completionState.currentIndex + 1) % completionState.suggestions.length;
-      const suggestion = completionState.suggestions[completionState.currentIndex];
-
-      // Handle exact command match during cycling
-      if (parsed.isCompletingCommand && suggestion === parsed.commandPart && commands[suggestion]) {
-        skipInputHandler = true;
-        updateInputValue(suggestion + ' ');
-        const argSuggestions = getSuggestions(suggestion, '', false);
-        resetCompletion();
-        if (argSuggestions.length > 0) {
-          ghostCompletionElement.textContent = argSuggestions[0];
-        }
-        return;
-      } else {
-        applySuggestion(suggestion, parsed);
-        hideGhostCompletion();
-        return;
-      }
+    } else {
+      // Start new cycling session
+      completionState.suggestions = suggestions;
+      completionState.currentIndex = 0;
+      completionState.isCompleting = true;
     }
-
-    // Start new cycling session
-    completionState.suggestions = suggestions;
-    completionState.currentIndex = 0;
-    completionState.isCompleting = true;
-    const suggestion = suggestions[0];
-
+    
+    const suggestion = completionState.suggestions[completionState.currentIndex];
+    
     // Handle exact command match
     if (parsed.isCompletingCommand && suggestion === parsed.commandPart && commands[suggestion]) {
       skipInputHandler = true;
       updateInputValue(suggestion + ' ');
-      const argSuggestions = getSuggestions(suggestion, '', false);
+      const argSuggestions = getSuggestions(suggestion, '', false, commands, argumentMap);
       resetCompletion();
       if (argSuggestions.length > 0) {
-        ghostCompletionElement.textContent = argSuggestions[0];
+        showGhostCompletion('', argSuggestions[0]);
       }
-      return;
     } else {
-      applySuggestion(suggestion, parsed);
+      updateInputValue(applySuggestion(suggestion, parsed));
       hideGhostCompletion();
     }
   }
@@ -345,18 +229,6 @@
     }
   });
 
-  interface Command {
-    name: string;
-    description: string;
-    execute: (args: string[]) => string | HTMLElement;
-  }
-
-  const commands: Record<string, Command> = {};
-
-  function registerCommand(command: Command) {
-    commands[command.name] = command;
-  }
-
   function processCommand(commandString: string, containerForOutput: HTMLElement) {
     const [name, ...args] = commandString.split(' ');
     const command = commands[name];
@@ -377,319 +249,12 @@
     }
   }
 
-  registerCommand({
-    name: 'help',
-    description: 'Lists all available commands.',
-    execute: () => {
-      const container = document.createElement('div');
-      container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'max-content 1fr';
-      container.style.gap = '0.25rem 1rem';
-      container.classList.add('my-0');
+  // Display welcome commands
+  function displayWelcomeCommands() {
 
-      const sortedCommands = Object.values(commands).sort((a, b) => a.name.localeCompare(b.name));
-      sortedCommands.forEach(cmd => {
-        const nameElement = document.createElement('strong');
-        nameElement.textContent = cmd.name;
-        container.appendChild(nameElement);
-
-        const descriptionElement = document.createElement('span');
-        descriptionElement.textContent = cmd.description;
-        container.appendChild(descriptionElement);
-      });
-
-      return container;
-    }
-  });
-
-  registerCommand({
-    name: 'clear',
-    description: 'Clears the terminal screen.',
-    execute: () => {
-      if(outputElement) {
-        outputElement.innerHTML = '';
-        terminalWrapper.scrollTop = terminalWrapper.scrollHeight;
-      }
-      return '';
-    }
-  });
-
-  registerCommand({
-    name: 'mode',
-    description: 'Sets the terminal theme. Usage: mode <dark|light|system>',
-    execute: (args) => {
-      const newTheme = args[0]?.toLowerCase();
-      if (newTheme && ['light', 'dark', 'system'].includes(newTheme)) {
-        setTheme(newTheme);
-        return `Theme set to ${newTheme}`;
-      } else {
-        return 'Invalid theme. Use: mode <dark|light|system>';
-      }
-    }
-  });
-
-  const socialLinks = [
-    { name: 'GitHub', url: 'https://github.com/icepuma' },
-    { name: 'Korora Tech', url: 'https://github.com/korora-tech' },
-    { name: 'Rawkode Academy', url: 'https://github.com/RawkodeAcademy' },
-    { name: 'Bluesky', url: 'https://bsky.app/profile/icepuma.dev' },
-    { name: 'LinkedIn', url: 'https://www.linkedin.com/in/stefan-ruzitschka/' },
-    { name: 'Letterboxd', url: 'https://letterboxd.com/icepuma/' },
-  ];
-
-  registerCommand({
-    name: 'links',
-    description: 'Displays links to my profiles.',
-    execute: () => {
-      const container = document.createElement('div');
-      container.classList.add('mt-1');
-
-      container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'max-content 1fr';
-      container.style.gap = '0.25rem 1rem';
-
-      if (socialLinks.length === 0) {
-        const noLinksText = document.createElement('span');
-        noLinksText.textContent = 'No links configured yet.';
-        noLinksText.style.gridColumn = 'span 2';
-        container.appendChild(noLinksText);
-        return container;
-      }
-
-      socialLinks.forEach(link => {
-        const nameSpan = document.createElement('span');
-        nameSpan.textContent = link.name;
-        nameSpan.classList.add('font-semibold', 'text-[var(--nord-neofetch-label)]', 'whitespace-nowrap');
-
-        const urlAnchor = document.createElement('a');
-        urlAnchor.href = link.url;
-        urlAnchor.textContent = link.url;
-        urlAnchor.target = '_blank';
-        urlAnchor.rel = 'noopener noreferrer';
-        urlAnchor.classList.add('text-[var(--nord-link)]', 'underline', 'inline-block', 'break-all', 'w-max');
-
-        container.appendChild(nameSpan);
-        container.appendChild(urlAnchor);
-      });
-
-      return container;
-    }
-  });
-
-  registerCommand({
-    name: 'bio',
-    description: 'Displays a short biography.',
-    execute: () => {
-      const container = document.createElement('div');
-      container.classList.add('mt-1');
-
-      const bioText = `I'm a 38-year-old software developer based in Berlin, Germany.
-I currently live on a small island with my wife and our 3-year-old black lab.
-
-My interests include:
-- 3D printing
-- Sci-fi (especially Stargate SG-1 and Warhammer 40k)
-- Open Source, with a particular fondness for Rust.
-
-I also contribute to building <a href="https://rawkode.studio" target="_blank" rel="noopener noreferrer" class="text-[var(--nord-link)] underline">rawkode.studio</a> for the <a href="https://rawkode.academy" target="_blank" rel="noopener noreferrer" class="text-[var(--nord-link)] underline">Rawkode Academy</a>.`;
-
-      const preElement = document.createElement('pre');
-      preElement.classList.add('my-0', 'whitespace-pre-wrap');
-      preElement.innerHTML = bioText;
-
-      container.appendChild(preElement);
-      return container;
-    }
-  });
-
-  registerCommand({
-    name: 'projects',
-    description: 'Lists all my projects.',
-    execute: () => {
-      const container = document.createElement('div');
-      container.classList.add('mt-1');
-
-      container.style.display = 'grid';
-      container.style.gridTemplateColumns = 'max-content max-content max-content max-content';
-      container.style.gap = '0.25rem 1rem';
-
-      const projects = [
-        {
-          name: 'cidrrr',
-          description: 'CLI tool for converting CIDR blocks to IP lists.',
-          url: 'https://github.com/korora-tech/cidrrr',
-          role: 'Author',
-          stack: ['Rust', 'CLI']
-        },
-        {
-          name: 'fbtoggl',
-          description: 'Interact with track.toggl.com via terminal.',
-          url: 'https://github.com/icepuma/fbtoggl',
-          role: 'Author',
-          stack: ['Rust', 'CLI']
-        },
-        {
-          name: 'icepuma.dev',
-          description: 'My personal website with terminal interface.',
-          url: 'https://github.com/icepuma/icepuma-dev',
-          role: 'Author',
-          stack: ['TypeScript', 'Astro', 'Tailwind CSS', 'Bun']
-        },
-        {
-          name: 'rawkode.studio',
-          description: 'A subproject within Rawkode Academy monorepository.',
-          url: 'https://github.com/RawkodeAcademy/RawkodeAcademy/tree/main/projects/rawkode.studio',
-          role: 'Maintainer',
-          stack: ['TypeScript', 'Astro', 'Drizzle ORM', 'Bun']
-        },
-        {
-          name: 'temps',
-          description: 'Library for parsing human-readable time expressions.',
-          url: 'https://github.com/korora-tech/temps',
-          role: 'Author',
-          stack: ['Rust', 'chrono', 'jiff']
-        }
-      ];
-
-      if (projects.length === 0) {
-        const noProjectsText = document.createElement('span');
-        noProjectsText.textContent = 'No projects listed yet.';
-        noProjectsText.style.gridColumn = 'span 4';
-        container.appendChild(noProjectsText);
-        return container;
-      }
-
-      // Add column headers
-      const headers = ['Project', 'Description', 'Role', 'Stack'];
-      headers.forEach(headerText => {
-        const header = document.createElement('div');
-        header.textContent = headerText;
-        header.classList.add('font-bold', 'text-[var(--nord-header)]', 'whitespace-nowrap', 'pb-1');
-        container.appendChild(header);
-      });
-
-      // Add a separator line
-      const separator = document.createElement('div');
-      separator.style.gridColumn = 'span 4';
-      separator.style.borderBottom = '1px solid var(--nord-border)';
-      separator.style.marginBottom = '0.5rem';
-      container.appendChild(separator);
-
-      projects.forEach(project => {
-        const nameLink = document.createElement('a');
-        nameLink.textContent = project.name;
-        nameLink.href = project.url;
-        nameLink.target = '_blank';
-        nameLink.rel = 'noopener noreferrer';
-        nameLink.classList.add('font-semibold', 'text-[var(--nord-link)]', 'underline', 'whitespace-nowrap');
-
-        const description = document.createElement('span');
-        description.textContent = project.description;
-
-        const role = document.createElement('span');
-        // Use role text directly without transformation
-        role.textContent = project.role || '-';
-        role.classList.add('whitespace-nowrap', 'text-[var(--nord-accent)]');
-
-        const stack = document.createElement('span');
-        stack.textContent = project.stack ? project.stack.join(', ') : '-';
-        stack.classList.add('text-[var(--nord-text-secondary)]', 'text-sm');
-
-        container.appendChild(nameLink);
-        container.appendChild(description);
-        container.appendChild(role);
-        container.appendChild(stack);
-      });
-
-      return container;
-    }
-  });
-
-  registerCommand({
-    name: 'movies',
-    description: 'Displays my watched movies from Letterboxd.',
-    execute: () => {
-      const container = document.createElement('div');
-      container.classList.add('mt-1');
-
-      // Display summary and link on the same line
-      const headerLine = document.createElement('div');
-      headerLine.classList.add('mb-3', 'flex', 'items-center', 'gap-2');
-      
-      const summary = document.createElement('span');
-      summary.innerHTML = `<strong>Movies watched:</strong> ${moviesData.length}`;
-      summary.classList.add('text-[var(--nord-text-secondary)]');
-      
-      const spacer = document.createElement('span');
-      spacer.textContent = '•';
-      spacer.classList.add('text-[var(--nord-text-secondary)]');
-      
-      const anchor = document.createElement('a');
-      anchor.href = 'https://letterboxd.com/icepuma/films/';
-      anchor.target = '_blank';
-      anchor.rel = 'noopener noreferrer';
-      anchor.textContent = 'View on Letterboxd';
-      anchor.classList.add('text-[var(--nord-link)]', 'underline');
-      
-      headerLine.appendChild(summary);
-      headerLine.appendChild(spacer);
-      headerLine.appendChild(anchor);
-      container.appendChild(headerLine);
-
-      // Display all movies - sort into columns
-      const moviesList = document.createElement('div');
-      moviesList.style.display = 'grid';
-      // Responsive grid: 2 columns on mobile, 4 columns on larger screens
-      moviesList.style.gridTemplateColumns = 'repeat(2, 1fr)';
-      moviesList.style.gap = '0.25rem 1rem';
-      moviesList.style.gridAutoFlow = 'column';
-      
-      // Calculate rows needed for column distribution
-      const columnsOnMobile = 2;
-      const columnsOnDesktop = 4;
-      const totalMovies = moviesData.length;
-      const rowsOnMobile = Math.ceil(totalMovies / columnsOnMobile);
-      const rowsOnDesktop = Math.ceil(totalMovies / columnsOnDesktop);
-      
-      moviesList.style.gridTemplateRows = `repeat(${rowsOnMobile}, minmax(0, 1fr))`;
-      
-      // Add media query for larger screens
-      const style = document.createElement('style');
-      style.textContent = `
-        @media (min-width: 768px) {
-          #movies-grid {
-            grid-template-columns: repeat(4, 1fr) !important;
-            grid-template-rows: repeat(${rowsOnDesktop}, minmax(0, 1fr)) !important;
-          }
-        }
-      `;
-      moviesList.id = 'movies-grid';
-      container.appendChild(style);
-
-      // Show all movies
-      moviesData.forEach(movie => {
-        const movieLine = document.createElement('div');
-        movieLine.classList.add('text-sm', 'truncate');
-        
-        const link = document.createElement('a');
-        link.href = movie.url;
-        link.target = '_blank';
-        link.rel = 'noopener noreferrer';
-        link.classList.add('text-[var(--nord-link)]', 'hover:underline');
-        link.textContent = movie.title;
-        
-        movieLine.appendChild(link);
-        moviesList.appendChild(movieLine);
-      });
-
-      container.appendChild(moviesList);
-
-      return container;
-    }
-  });
-
-  const welcomeCommandsDiv = document.getElementById('welcome-commands-list');
-  if (welcomeCommandsDiv) {
+    const welcomeCommandsDiv = document.getElementById('welcome-commands-list');
+    if (!welcomeCommandsDiv) return;
+    
     welcomeCommandsDiv.innerHTML = '';
 
     const introText = document.createElement('div');
@@ -703,22 +268,19 @@ I also contribute to building <a href="https://rawkode.studio" target="_blank" r
     gridContainer.style.gap = '0.25rem 1rem';
 
     const commandsToShow = Object.values(commands).sort((a, b) => a.name.localeCompare(b.name));
-    if (commandsToShow.length > 0) {
-      commandsToShow.forEach(command => {
-        const nameElement = document.createElement('strong');
-        nameElement.textContent = command.name;
-        gridContainer.appendChild(nameElement);
+    commandsToShow.forEach(command => {
+      const nameElement = document.createElement('strong');
+      nameElement.textContent = command.name;
+      gridContainer.appendChild(nameElement);
 
-        const descriptionElement = document.createElement('span');
-        descriptionElement.textContent = command.description;
-        gridContainer.appendChild(descriptionElement);
-      });
-      welcomeCommandsDiv.appendChild(gridContainer);
-    } else {
-      const noCommandsText = document.createElement('div');
-      noCommandsText.textContent = 'No commands currently available.';
-      welcomeCommandsDiv.appendChild(noCommandsText);
-    }
+      const descriptionElement = document.createElement('span');
+      descriptionElement.textContent = command.description;
+      gridContainer.appendChild(descriptionElement);
+    });
+    
+    welcomeCommandsDiv.appendChild(gridContainer);
   }
+  
+  displayWelcomeCommands();
 
 </script>

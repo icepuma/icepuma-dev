@@ -7,7 +7,16 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"ignore": ["dist", ".astro"]
+		"include": [
+			"src/**",
+			"scripts/**",
+			"tests/**",
+			"public/**",
+			"astro.config.ts",
+			"package.json",
+			"biome.json",
+			"tsconfig.json"
+		]
 	},
 	"formatter": {
 		"enabled": true,
