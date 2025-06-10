@@ -7,6 +7,7 @@ My personal website with a terminal interface built with Astro and TypeScript.
 - 🖥️ Interactive terminal interface
 - 🎨 Theme switching (dark/light/system)
 - ⌨️ Smart autocompletion with TAB cycling
+- 🎥 Letterboxd movie integration
 - 📱 Responsive design
 - ⚡ Built with Astro for optimal performance
 
@@ -35,27 +36,19 @@ This project uses Playwright for end-to-end testing. The tests cover:
 ### Running Tests
 
 ```bash
-# Run all tests headlessly
+# Run all tests headlessly (with dot reporter)
 bun run test
 
-# Run tests with UI mode (recommended for development)
+# Run tests with UI mode (for debugging)
 bun run test:ui
-
-# Run tests with browser visible
-bun run test:headed
-
-# Debug tests step by step
-bun run test:debug
 ```
 
-### Test Coverage
+### Data Updates
 
-- **Terminal Component**: Basic functionality, command execution, error handling
-- **Autocompletion**: Ghost text, TAB completion, argument cycling
-- **Theme Switching**: Dark/light/system modes, persistence
-- **UI Elements**: Cursor behavior, input display, scrolling
-
-The tests automatically start the development server, so make sure port 4321 is available.
+```bash
+# Update movie data from Letterboxd
+uv run scripts/fetch-letterboxd-movies.py
+```
 
 ## Commands
 
@@ -66,16 +59,18 @@ Available terminal commands:
 - `bio` - Display personal biography
 - `links` - Show social media links
 - `projects` - List my projects
+- `movies` - Display watched movies from Letterboxd
 - `mode <theme>` - Switch theme (dark/light/system)
 
 ## Technology Stack
 
 - **Framework**: [Astro](https://astro.build/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
+- **Styling**: [Tailwind CSS v4](https://tailwindcss.com/)
 - **Runtime**: [Bun](https://bun.sh/)
 - **Testing**: [Playwright](https://playwright.dev/)
-- **Linting/Formatting**: [Biome](https://biomejs.dev/)
+- **Code Quality**: [Biome](https://biomejs.dev/)
 - **Deployment**: [Cloudflare Pages](https://pages.cloudflare.com/)
+- **Font**: [JetBrains Mono](https://www.jetbrains.com/lp/mono/)
 
 ## Development Attribution
 
