@@ -21,8 +21,5 @@ export default defineConfig({
 		prefetchAll: true,
 		defaultStrategy: "viewport",
 	},
-	experimental: {
-		responsiveImages: true,
-	},
 	scopedStyleStrategy: "where",
 });
