@@ -47,17 +47,18 @@ const { title, description } = Astro.props;
 		</style>
 		<script is:inline>
 			// Apply theme immediately to prevent flash
-			const theme = (() => {
-				if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
-					return localStorage.getItem('theme');
-				}
-				if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-					return 'dark';
-				}
-				return 'light';
-			})();
+			const savedTheme = localStorage.getItem('theme');
+			const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 			
-			if (theme === 'dark') {
+			// Determine which theme to apply
+			let applyDarkTheme = false;
+			if (savedTheme === 'dark') {
+				applyDarkTheme = true;
+			} else if (savedTheme === 'system' || !savedTheme) {
+				applyDarkTheme = systemPrefersDark;
+			}
+			
+			if (applyDarkTheme) {
 				document.documentElement.setAttribute('data-theme', 'dark');
 			} else {
 				document.documentElement.removeAttribute('data-theme');
@@ -76,8 +77,11 @@ const { title, description } = Astro.props;
 		</nav>
 		<slot />
 		<script>
-			import { loadTheme } from "@/utils/theme";
+			import { loadTheme, setupThemeListener } from "@/utils/theme";
 			loadTheme();
+			setupThemeListener(() => {
+				// Theme has changed, no need to do anything as the theme is already applied
+			});
 		</script>
 	</body>
 </html>
