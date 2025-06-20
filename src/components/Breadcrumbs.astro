@@ -1,0 +1,38 @@
+---
+import Link from "./Link.astro";
+
+export interface BreadcrumbItem {
+	label: string;
+	href?: string;
+}
+
+export interface Props {
+	items: BreadcrumbItem[];
+	separator?: string;
+}
+
+const { items, separator = "/" } = Astro.props;
+---
+
+<nav aria-label="Breadcrumb" class="mb-4">
+	<ol class="flex items-center text-base">
+		{items.map((item, index) => (
+			<>
+				{index > 0 && (
+					<span class="mx-2 text-muted-foreground">
+						{separator}
+					</span>
+				)}
+				{item.href && index !== items.length - 1 ? (
+					<Link href={item.href} variant="muted">
+						{item.label}
+					</Link>
+				) : (
+					<span class="text-foreground">
+						{item.label}
+					</span>
+				)}
+			</>
+		))}
+	</ol>
+</nav>

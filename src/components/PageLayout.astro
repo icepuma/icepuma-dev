@@ -1,0 +1,21 @@
+---
+import MinimalLayout from "../layouts/MinimalLayout.astro";
+import PageHeader from "./PageHeader.astro";
+
+export interface Props {
+	title: string;
+	pageTitle?: string;
+	description?: string;
+	showHeader?: boolean;
+}
+
+const { title, pageTitle, description, showHeader = true } = Astro.props;
+const displayTitle = pageTitle || title;
+---
+
+<MinimalLayout title={title} description={description}>
+	<div class="xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 py-4 sm:py-6">
+		{showHeader && <PageHeader title={displayTitle} />}
+		<slot />
+	</div>
+</MinimalLayout>

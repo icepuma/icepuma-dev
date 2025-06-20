@@ -1,17 +1,64 @@
 ---
-import "@/styles/global.css";
-import Terminal from "@/components/Terminal.astro";
+import { getCollection } from "astro:content";
+import MinimalLayout from "@/layouts/MinimalLayout.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import Tag from "@/components/Tag.astro";
+
+const posts = (await getCollection("blog"))
+	.filter((post) => !post.data.draft)
+	.sort((a, b) => b.data.date.valueOf() - a.data.date.valueOf());
+
+const pageTitle = "Blog";
+const pageDescription =
+	"Thoughts on web development, programming, and technology";
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>icepuma.dev</title>
-	</head>
-	<body>
-		<Terminal />
-	</body>
-</html>
+<MinimalLayout title={pageTitle} description={pageDescription}>
+	<div class="xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 py-4 sm:py-6">
+		<PageHeader title={pageTitle} />
+		<main>
+			{posts.length === 0 ? (
+				<div class="text-center py-12">
+					<p class="text-muted-foreground">No blog posts yet. Check back soon!</p>
+				</div>
+			) : (
+				<div class="space-y-1">
+					{
+						posts.map((post) => (
+							<a
+								href={`/blog/${post.slug}`}
+								class="block py-1.5 px-2.5 -mx-2.5 hover:bg-muted rounded transition-colors"
+								data-astro-prefetch
+							>
+								<div class="flex flex-col sm:flex-row sm:items-baseline sm:gap-4">
+									<h2 class="text-base font-semibold text-foreground">
+										{post.data.title}
+									</h2>
+									<time class="text-xs sm:text-sm text-muted-foreground sm:ml-auto flex-shrink-0">
+										{post.data.date.toLocaleDateString("en-US", {
+											year: "numeric",
+											month: "short",
+											day: "numeric",
+										})}
+									</time>
+								</div>
+								<div class="mt-0.5">
+									<p class="text-sm text-muted-foreground line-clamp-1">
+										{post.data.description}
+									</p>
+									{post.data.tags && post.data.tags.length > 0 && (
+										<div class="flex flex-wrap gap-2 mt-1">
+											{post.data.tags.map((tag) => (
+												<Tag>{tag}</Tag>
+											))}
+										</div>
+									)}
+								</div>
+							</a>
+						))
+					}
+				</div>
+			)}
+		</main>
+	</div>
+</MinimalLayout>

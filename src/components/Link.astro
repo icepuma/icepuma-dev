@@ -1,0 +1,33 @@
+---
+export interface Props {
+	href: string;
+	external?: boolean;
+	variant?: "primary" | "muted" | "inherit";
+	class?: string;
+}
+
+const {
+	href,
+	external = false,
+	variant = "primary",
+	class: className = "",
+} = Astro.props;
+
+const variantClasses = {
+	primary: "text-primary hover:text-primary/80",
+	muted: "text-muted-foreground hover:text-foreground",
+	inherit: "",
+};
+
+const classes =
+	`${variantClasses[variant]} transition-colors ${className}`.trim();
+---
+
+<a
+	href={href}
+	class={classes}
+	target={external ? "_blank" : undefined}
+	rel={external ? "noopener noreferrer" : undefined}
+>
+	<slot />
+</a>

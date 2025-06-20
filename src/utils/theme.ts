@@ -1,13 +1,13 @@
-const THEME_KEY = "terminal-theme";
+const THEME_KEY = "theme";
 
 export type Theme = "dark" | "light" | "system";
 
 export function applyTheme(theme: "dark" | "light") {
 	const htmlElement = document.documentElement;
 	if (theme === "dark") {
-		htmlElement.classList.add("dark");
+		htmlElement.setAttribute("data-theme", "dark");
 	} else {
-		htmlElement.classList.remove("dark");
+		htmlElement.removeAttribute("data-theme");
 	}
 }
 

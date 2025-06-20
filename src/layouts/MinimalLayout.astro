@@ -1,0 +1,83 @@
+---
+import "@/styles/global.css";
+import ThemeSwitcher from "@/components/ThemeSwitcher.astro";
+import Nav from "@/components/Nav.astro";
+import { ViewTransitions } from "astro:transitions";
+
+export interface Props {
+	title: string;
+	description?: string;
+}
+
+const { title, description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		{description && <meta name="description" content={description} />}
+		<meta property="og:title" content={`${title} - icepuma.dev`} />
+		<meta property="og:description" content={description || "Software Developer · Berlin, Germany"} />
+		<meta property="og:type" content="website" />
+		<meta property="og:url" content={Astro.url} />
+		<meta name="twitter:card" content="summary" />
+		<meta name="twitter:title" content={`${title} - icepuma.dev`} />
+		<meta name="twitter:description" content={description || "Software Developer · Berlin, Germany"} />
+		<title>{title} - icepuma.dev</title>
+		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
+		<link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+		<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+		<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+		<link rel="manifest" href="/site.webmanifest" />
+		<link rel="sitemap" href="/sitemap-index.xml" />
+		<link rel="canonical" href={Astro.url} />
+		<ViewTransitions />
+		<style>
+			html {
+				-webkit-text-size-adjust: 100%;
+				-webkit-tap-highlight-color: transparent;
+			}
+			html, body {
+				height: 100%;
+				margin: 0;
+				overflow-x: hidden;
+			}
+		</style>
+		<script is:inline>
+			// Apply theme immediately to prevent flash
+			const theme = (() => {
+				if (typeof localStorage !== 'undefined' && localStorage.getItem('theme')) {
+					return localStorage.getItem('theme');
+				}
+				if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+					return 'dark';
+				}
+				return 'light';
+			})();
+			
+			if (theme === 'dark') {
+				document.documentElement.setAttribute('data-theme', 'dark');
+			} else {
+				document.documentElement.removeAttribute('data-theme');
+			}
+		</script>
+	</head>
+	<body class="min-h-screen bg-background text-foreground font-mono">
+		<!-- Minimal top navigation -->
+		<nav class="border-b border-border">
+			<div class="xl:max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 xl:px-8 py-3 sm:py-4">
+				<div class="flex items-center justify-between">
+					<Nav />
+					<ThemeSwitcher />
+				</div>
+			</div>
+		</nav>
+		<slot />
+		<script>
+			import { loadTheme } from "@/utils/theme";
+			loadTheme();
+		</script>
+	</body>
+</html>

@@ -1,0 +1,29 @@
+---
+import moviesData from "@/data/movies.json";
+
+interface Movie {
+	title: string;
+	url: string;
+}
+
+interface Props {
+	limit?: number;
+}
+
+const { limit } = Astro.props;
+const movies = (moviesData as Movie[]).slice(0, limit);
+---
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 sm:gap-2">
+	{movies.map((movie) => (
+		<a 
+			href={movie.url} 
+			target="_blank" 
+			rel="noopener noreferrer" 
+			class="text-primary hover:text-primary/80 hover:underline text-base truncate block py-1 transition-colors"
+			title={movie.title}
+		>
+			{movie.title}
+		</a>
+	))}
+</div>

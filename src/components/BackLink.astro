@@ -1,0 +1,15 @@
+---
+export interface Props {
+	href: string;
+	text: string;
+}
+
+const { href, text } = Astro.props;
+---
+
+<a
+	href={href}
+	class="text-sm sm:text-base text-primary hover:text-primary/80 font-medium transition-colors duration-200"
+>
+	← {text}
+</a>

@@ -1,0 +1,36 @@
+---
+const currentPath = Astro.url.pathname;
+
+const navItems = [
+	{ href: "/", text: "Blog" },
+	{ href: "/bio", text: "Bio" },
+	{ href: "/projects", text: "Projects" },
+	{ href: "/links", text: "Links" },
+	{ href: "/movies", text: "Movies" },
+];
+---
+
+<div class="flex items-center text-sm sm:text-base">
+	{navItems.map((item, index) => {
+		const isActive = currentPath === item.href || (item.href === "/" && currentPath.startsWith("/blog"));
+		return (
+			<>
+				{index > 0 && (
+					<span class="mx-2 text-muted-foreground">•</span>
+				)}
+				<a 
+					href={item.href} 
+					class={`transition-colors ${
+						isActive 
+							? "text-primary" 
+							: "text-muted-foreground hover:text-primary"
+					}`} 
+					data-astro-prefetch
+					aria-current={isActive ? "page" : undefined}
+				>
+					{item.text}
+				</a>
+			</>
+		);
+	})}
+</div>

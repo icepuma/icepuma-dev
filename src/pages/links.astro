@@ -1,0 +1,21 @@
+---
+import PageLayout from "@/components/PageLayout.astro";
+import { socialLinks } from "@/data/social-links";
+---
+
+<PageLayout title="Links" description="Find Stefan Ruzitschka on various platforms">
+	<ul class="list-disc list-inside space-y-2">
+		{socialLinks.map((link) => (
+			<li>
+				<a
+					href={link.url}
+					target="_blank"
+					rel="noopener noreferrer"
+					class="text-primary hover:text-primary/80 transition-colors"
+				>
+					{link.name}
+				</a>
+			</li>
+		))}
+	</ul>
+</PageLayout>

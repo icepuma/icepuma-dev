@@ -4,15 +4,13 @@
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "astro dev",
-		"build": "biome lint --write && biome format --write && astro check && astro build",
-		"test": "playwright test",
-		"test:ui": "playwright test --ui",
-		"test:headed": "playwright test --headed",
-		"test:debug": "playwright test --debug"
+		"build": "biome lint --write && biome format --write && astro check && astro build"
 	},
 	"dependencies": {
 		"@astrojs/check": "^0.9.4",
 		"@astrojs/cloudflare": "^12.5.5",
+		"@astrojs/mdx": "^4.3.0",
+		"@astrojs/sitemap": "^3.4.1",
 		"@fontsource/jetbrains-mono": "^5.2.6",
 		"@tailwindcss/vite": "^4.1.10",
 		"astro": "^5.9.4",
@@ -20,7 +18,7 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.0.0",
-		"@playwright/test": "^1.53.1",
+		"@tailwindcss/typography": "^0.5.16",
 		"@types/bun": "latest"
 	},
 	"trustedDependencies": [

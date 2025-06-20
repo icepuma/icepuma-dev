@@ -1,68 +1,114 @@
 @import "@fontsource/jetbrains-mono/400.css";
 @import "tailwindcss";
+@plugin "@tailwindcss/typography";
 
+/* CSS Variables for theming */
 :root {
-	/* Nord color palette - Complete */
+	/* Nord colors in HSL format for opacity support */
 	/* Polar Night */
-	--nord0: #2e3440;
-	--nord1: #3b4252;
-	--nord2: #434c5e;
-	--nord3: #4c566a;
+	--nord0: 220 16% 22%;
+	--nord1: 222 16% 28%;
+	--nord2: 220 17% 32%;
+	--nord3: 220 16% 36%;
 
 	/* Snow Storm */
-	--nord4: #d8dee9;
-	--nord5: #e5e9f0;
-	--nord6: #eceff4;
+	--nord4: 219 28% 88%;
+	--nord5: 218 27% 92%;
+	--nord6: 218 27% 94%;
 
 	/* Frost */
-	--nord7: #8fbcbb;
-	--nord8: #88c0d0;
-	--nord9: #81a1c1;
-	--nord10: #5e81ac;
+	--nord7: 179 25% 65%;
+	--nord8: 193 43% 67%;
+	--nord9: 210 34% 63%;
+	--nord10: 213 32% 52%;
 
 	/* Aurora */
-	--nord11: #bf616a;
-	--nord12: #d08770;
-	--nord13: #ebcb8b;
-	--nord14: #a3be8c;
-	--nord15: #b48ead;
+	--nord11: 354 42% 56%;
+	--nord12: 14 51% 63%;
+	--nord13: 40 71% 73%;
+	--nord14: 92 28% 65%;
+	--nord15: 311 20% 63%;
 
-	/* Light mode theme */
-	--nord-bg-primary: var(--nord6);
-	--nord-bg-secondary: var(--nord5);
-	--nord-text-primary: var(--nord0);
-	--nord-text-secondary: var(--nord3);
-	--nord-prompt-user: var(--nord10);
-	--nord-prompt-symbol: var(--nord14);
-	--nord-border: var(--nord4);
-	--nord-cursor: var(--nord0);
-	--nord-error: var(--nord11);
-	--nord-neofetch-logo: var(--nord10);
-	--nord-neofetch-label: var(--nord2);
-	--nord-link: var(--nord10);
-	--nord-header: var(--nord2);
-	--nord-accent: var(--nord9);
+	/* Light mode color mappings */
+	--background: var(--nord6);
+	--foreground: var(--nord0);
+	--card: var(--nord5);
+	--card-foreground: var(--nord1);
+	--primary: var(--nord10);
+	--primary-foreground: var(--nord6);
+	--secondary: var(--nord9);
+	--secondary-foreground: var(--nord6);
+	--muted: var(--nord4);
+	--muted-foreground: var(--nord2);
+	--accent: var(--nord8);
+	--accent-foreground: var(--nord0);
+	--destructive: var(--nord11);
+	--destructive-foreground: var(--nord6);
+	--border: var(--nord4);
+	--input: var(--nord5);
+	--ring: var(--nord10);
 }
 
-.dark {
-	--nord-bg-primary: var(--nord0);
-	--nord-bg-secondary: var(--nord1);
-	--nord-text-primary: var(--nord6);
-	--nord-text-secondary: var(--nord4);
-	--nord-prompt-user: var(--nord15);
-	--nord-cursor: var(--nord6);
-	--nord-neofetch-logo: var(--nord8);
-	--nord-neofetch-label: var(--nord9);
-	--nord-link: var(--nord8);
-	--nord-header: var(--nord4);
-	--nord-accent: var(--nord10);
+/* Dark mode color mappings */
+[data-theme="dark"] {
+	--background: var(--nord0);
+	--foreground: var(--nord6);
+	--card: var(--nord1);
+	--card-foreground: var(--nord5);
+	--primary: var(--nord8);
+	--primary-foreground: var(--nord0);
+	--secondary: var(--nord7);
+	--secondary-foreground: var(--nord0);
+	--muted: var(--nord2);
+	--muted-foreground: var(--nord4);
+	--accent: var(--nord9);
+	--accent-foreground: var(--nord0);
+	--destructive: var(--nord11);
+	--destructive-foreground: var(--nord6);
+	--border: var(--nord2);
+	--input: var(--nord1);
+	--ring: var(--nord8);
 }
 
-html,
-body {
-	height: 100%;
-	margin: 0;
-	background-color: var(--nord-bg-primary);
-	color: var(--nord-text-primary);
-	font-family: "JetBrains Mono", monospace;
+/* Tailwind theme configuration */
+@theme {
+	/* Map semantic colors to Tailwind utilities */
+	--color-background: hsl(var(--background));
+	--color-foreground: hsl(var(--foreground));
+	--color-card: hsl(var(--card));
+	--color-card-foreground: hsl(var(--card-foreground));
+	--color-primary: hsl(var(--primary));
+	--color-primary-foreground: hsl(var(--primary-foreground));
+	--color-secondary: hsl(var(--secondary));
+	--color-secondary-foreground: hsl(var(--secondary-foreground));
+	--color-muted: hsl(var(--muted));
+	--color-muted-foreground: hsl(var(--muted-foreground));
+	--color-accent: hsl(var(--accent));
+	--color-accent-foreground: hsl(var(--accent-foreground));
+	--color-destructive: hsl(var(--destructive));
+	--color-destructive-foreground: hsl(var(--destructive-foreground));
+	--color-border: hsl(var(--border));
+	--color-input: hsl(var(--input));
+	--color-ring: hsl(var(--ring));
+
+	/* Keep original Nord colors available */
+	--color-nord0: hsl(var(--nord0));
+	--color-nord1: hsl(var(--nord1));
+	--color-nord2: hsl(var(--nord2));
+	--color-nord3: hsl(var(--nord3));
+	--color-nord4: hsl(var(--nord4));
+	--color-nord5: hsl(var(--nord5));
+	--color-nord6: hsl(var(--nord6));
+	--color-nord7: hsl(var(--nord7));
+	--color-nord8: hsl(var(--nord8));
+	--color-nord9: hsl(var(--nord9));
+	--color-nord10: hsl(var(--nord10));
+	--color-nord11: hsl(var(--nord11));
+	--color-nord12: hsl(var(--nord12));
+	--color-nord13: hsl(var(--nord13));
+	--color-nord14: hsl(var(--nord14));
+	--color-nord15: hsl(var(--nord15));
 }
+
+/* Custom dark variant for data-theme attribute */
+@variant dark (&:where([data-theme="dark"] *));

@@ -1,0 +1,112 @@
+---
+---
+
+<style>
+	/* Fix code block spacing */
+	.prose pre {
+		padding: 1rem;
+		max-width: 100%;
+	}
+
+	.prose pre {
+		background: transparent;
+	}
+
+	.prose pre code {
+		padding: 0;
+		background: transparent;
+		white-space: pre;
+		display: block;
+		overflow-x: auto;
+	}
+
+	/* Remove default pre formatting that adds spaces */
+	.prose pre code::before,
+	.prose pre code::after {
+		content: none;
+	}
+</style>
+
+<div id="prose-content" class="prose prose-base dark:prose-invert max-w-none
+	prose-headings:text-foreground
+	prose-h1:text-xl sm:prose-h1:text-2xl lg:prose-h1:text-3xl
+	prose-h2:text-lg sm:prose-h2:text-xl lg:prose-h2:text-2xl
+	prose-h3:text-base sm:prose-h3:text-lg lg:prose-h3:text-xl
+	prose-p:text-foreground
+	prose-p:text-base
+	prose-a:text-primary hover:prose-a:text-primary/80
+	prose-strong:text-foreground
+	prose-code:text-foreground
+	prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:font-mono prose-code:text-[0.9em] prose-code:font-medium
+	prose-code:before:content-[''] prose-code:after:content-['']
+	prose-pre:text-foreground
+	prose-pre:border prose-pre:border-border
+	prose-pre:font-mono prose-pre:text-sm sm:prose-pre:text-base
+	prose-pre:overflow-x-auto prose-pre:max-w-full
+	prose-blockquote:border-muted-foreground
+	prose-blockquote:text-muted-foreground
+	prose-blockquote:pl-3 sm:prose-blockquote:pl-4
+	prose-hr:border-border
+	prose-th:text-sm sm:prose-th:text-base
+	prose-td:border-border
+	prose-td:text-sm sm:prose-td:text-base
+	prose-img:rounded-lg prose-img:border prose-img:border-border
+	prose-ul:list-disc prose-ul:pl-4 sm:prose-ul:pl-5
+	prose-ol:list-decimal prose-ol:pl-4 sm:prose-ol:pl-5
+	prose-li:text-foreground
+	prose-li:marker:text-muted-foreground
+	prose-li:my-0.5">
+	<slot />
+</div>
+
+<script>
+	// Function to add copy buttons to code blocks
+	function addCopyButtons() {
+		const codeBlocks = document.querySelectorAll('#prose-content pre');
+		
+		codeBlocks.forEach((pre) => {
+			// Skip if already processed
+			if (pre.parentElement?.classList.contains('code-block-wrapper')) return;
+			
+			// Create wrapper
+			const wrapper = document.createElement('div');
+			wrapper.className = 'relative group code-block-wrapper';
+			
+			// Create copy button
+			const button = document.createElement('button');
+			button.className = 'absolute top-2 right-2 px-2 py-1 text-xs font-medium rounded bg-muted text-muted-foreground hover:bg-muted/80 transition-colors duration-200';
+			button.innerHTML = '<span class="copy-text">Copy</span>';
+			
+			// Wrap pre element
+			pre.parentNode?.insertBefore(wrapper, pre);
+			wrapper.appendChild(pre);
+			wrapper.appendChild(button);
+			
+			// Add copy functionality
+			button.addEventListener('click', async () => {
+				const code = pre.querySelector('code');
+				const copyText = button.querySelector('.copy-text');
+				
+				if (code && copyText) {
+					try {
+						await navigator.clipboard.writeText(code.textContent || '');
+						copyText.textContent = 'Copied!';
+						button.classList.add('!bg-nord14', '!text-foreground');
+						
+						setTimeout(() => {
+							copyText.textContent = 'Copy';
+							button.classList.remove('!bg-nord14', '!text-foreground');
+						}, 2000);
+					} catch (err) {
+						console.error('Failed to copy:', err);
+					}
+				}
+			});
+		});
+	}
+
+	// Run on initial page load and after each navigation
+	document.addEventListener('astro:page-load', addCopyButtons);
+	// Also run immediately in case astro:page-load doesn't fire on initial load
+	addCopyButtons();
+</script>

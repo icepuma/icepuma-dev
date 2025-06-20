@@ -1,0 +1,20 @@
+---
+import PageLayout from "@/components/PageLayout.astro";
+import ListItem from "@/components/ListItem.astro";
+import { projects } from "@/data/projects";
+---
+
+<PageLayout title="Projects" description="Open source projects by Stefan Ruzitschka">
+	<div class="space-y-3">
+		{projects.map((project) => (
+			<ListItem
+				title={project.name}
+				href={project.url}
+				description={project.description}
+				tags={project.stack}
+				external={true}
+				aside={project.role}
+			/>
+		))}
+	</div>
+</PageLayout>
