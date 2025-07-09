@@ -1,29 +1,43 @@
 ---
-import moviesData from "@/data/movies.json";
-
-interface Movie {
-	title: string;
-	url: string;
-}
+import { getCollection } from "astro:content";
+import { Image } from "astro:assets";
 
 interface Props {
 	limit?: number;
 }
 
 const { limit } = Astro.props;
-const movies = (moviesData as Movie[]).slice(0, limit);
+const allMovies = await getCollection("movies");
+const movies = allMovies
+	.sort((a, b) => a.data.title.localeCompare(b.data.title))
+	.slice(0, limit);
 ---
 
-<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-1 sm:gap-2">
+<div id="movie-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
 	{movies.map((movie) => (
 		<a 
-			href={movie.url} 
+			href={movie.data.letterboxdUrl} 
 			target="_blank" 
 			rel="noopener noreferrer" 
-			class="text-primary hover:text-primary/80 hover:underline text-base truncate block py-1 transition-colors"
-			title={movie.title}
+			class="movie-item group relative aspect-[2/3] overflow-hidden rounded-lg bg-muted transition-all hover:scale-105"
+			title={movie.data.title}
+			data-title={movie.data.title.toLowerCase()}
 		>
-			{movie.title}
+			<Image
+				src={movie.data.poster}
+				alt={movie.data.title}
+				width={230}
+				height={345}
+				loading="lazy"
+				class="object-cover w-full h-full"
+			/>
+			<div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+				<div class="absolute bottom-0 left-0 right-0 p-3">
+					<p class="text-white text-sm font-medium line-clamp-2">
+						{movie.data.title}
+					</p>
+				</div>
+			</div>
 		</a>
 	))}
 </div>

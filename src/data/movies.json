@@ -1,430 +1,632 @@
 [
 	{
+		"title": "28 Years Later",
+		"url": "https://letterboxd.com/film/28-years-later/",
+		"slug": "28-years-later"
+	},
+	{
 		"title": "65",
-		"url": "https://letterboxd.com/film/65/"
+		"url": "https://letterboxd.com/film/65/",
+		"slug": "65"
 	},
 	{
 		"title": "About Time",
-		"url": "https://letterboxd.com/film/about-time/"
+		"url": "https://letterboxd.com/film/about-time/",
+		"slug": "about-time"
+	},
+	{
+		"title": "Ad Astra",
+		"url": "https://letterboxd.com/film/ad-astra-2019/",
+		"slug": "ad-astra"
+	},
+	{
+		"title": "AGGRO DR1FT",
+		"url": "https://letterboxd.com/film/aggro-dr1ft/",
+		"slug": "aggro-dr1ft"
 	},
 	{
 		"title": "Annihilation",
-		"url": "https://letterboxd.com/film/annihilation/"
+		"url": "https://letterboxd.com/film/annihilation/",
+		"slug": "annihilation"
 	},
 	{
 		"title": "Anora",
-		"url": "https://letterboxd.com/film/anora/"
+		"url": "https://letterboxd.com/film/anora/",
+		"slug": "anora"
 	},
 	{
 		"title": "Archive",
-		"url": "https://letterboxd.com/film/archive-2020/"
+		"url": "https://letterboxd.com/film/archive-2020/",
+		"slug": "archive"
 	},
 	{
 		"title": "Argylle",
-		"url": "https://letterboxd.com/film/argylle/"
+		"url": "https://letterboxd.com/film/argylle/",
+		"slug": "argylle"
 	},
 	{
 		"title": "Arrival",
-		"url": "https://letterboxd.com/film/arrival-2016/"
+		"url": "https://letterboxd.com/film/arrival-2016/",
+		"slug": "arrival"
 	},
 	{
 		"title": "Ash",
-		"url": "https://letterboxd.com/film/ash-2025/"
+		"url": "https://letterboxd.com/film/ash-2025/",
+		"slug": "ash"
 	},
 	{
 		"title": "Babygirl",
-		"url": "https://letterboxd.com/film/babygirl-2024/"
+		"url": "https://letterboxd.com/film/babygirl-2024/",
+		"slug": "babygirl"
+	},
+	{
+		"title": "Barbie",
+		"url": "https://letterboxd.com/film/barbie/",
+		"slug": "barbie"
 	},
 	{
 		"title": "Black Widow",
-		"url": "https://letterboxd.com/film/black-widow-2021/"
+		"url": "https://letterboxd.com/film/black-widow-2021/",
+		"slug": "black-widow"
 	},
 	{
 		"title": "Blade Runner",
-		"url": "https://letterboxd.com/film/blade-runner/"
+		"url": "https://letterboxd.com/film/blade-runner/",
+		"slug": "blade-runner"
 	},
 	{
 		"title": "Blade Runner 2049",
-		"url": "https://letterboxd.com/film/blade-runner-2049/"
+		"url": "https://letterboxd.com/film/blade-runner-2049/",
+		"slug": "blade-runner-2049"
 	},
 	{
 		"title": "Brazil",
-		"url": "https://letterboxd.com/film/brazil/"
+		"url": "https://letterboxd.com/film/brazil/",
+		"slug": "brazil"
+	},
+	{
+		"title": "Capricorn One",
+		"url": "https://letterboxd.com/film/capricorn-one/",
+		"slug": "capricorn-one"
 	},
 	{
 		"title": "Challengers",
-		"url": "https://letterboxd.com/film/challengers/"
+		"url": "https://letterboxd.com/film/challengers/",
+		"slug": "challengers"
 	},
 	{
 		"title": "Cleopatra Jones",
-		"url": "https://letterboxd.com/film/cleopatra-jones/"
+		"url": "https://letterboxd.com/film/cleopatra-jones/",
+		"slug": "cleopatra-jones"
 	},
 	{
 		"title": "Cobra",
-		"url": "https://letterboxd.com/film/cobra-1986/"
+		"url": "https://letterboxd.com/film/cobra-1986/",
+		"slug": "cobra"
 	},
 	{
 		"title": "Cocaine Bear",
-		"url": "https://letterboxd.com/film/cocaine-bear/"
+		"url": "https://letterboxd.com/film/cocaine-bear/",
+		"slug": "cocaine-bear"
 	},
 	{
 		"title": "Collateral Damage",
-		"url": "https://letterboxd.com/film/collateral-damage/"
+		"url": "https://letterboxd.com/film/collateral-damage/",
+		"slug": "collateral-damage"
 	},
 	{
 		"title": "Companion",
-		"url": "https://letterboxd.com/film/companion-2025/"
+		"url": "https://letterboxd.com/film/companion-2025/",
+		"slug": "companion"
 	},
 	{
 		"title": "Contact",
-		"url": "https://letterboxd.com/film/contact/"
+		"url": "https://letterboxd.com/film/contact/",
+		"slug": "contact"
 	},
 	{
 		"title": "Danger: Diabolik",
-		"url": "https://letterboxd.com/film/danger-diabolik/"
+		"url": "https://letterboxd.com/film/danger-diabolik/",
+		"slug": "danger-diabolik"
 	},
 	{
 		"title": "Dark Star",
-		"url": "https://letterboxd.com/film/dark-star/"
+		"url": "https://letterboxd.com/film/dark-star/",
+		"slug": "dark-star"
 	},
 	{
 		"title": "Drop",
-		"url": "https://letterboxd.com/film/drop-2025/"
+		"url": "https://letterboxd.com/film/drop-2025/",
+		"slug": "drop"
+	},
+	{
+		"title": "Dune",
+		"url": "https://letterboxd.com/film/dune/",
+		"slug": "dune"
 	},
 	{
 		"title": "Eraser",
-		"url": "https://letterboxd.com/film/eraser/"
+		"url": "https://letterboxd.com/film/eraser/",
+		"slug": "eraser"
 	},
 	{
 		"title": "Everything Everywhere All at Once",
-		"url": "https://letterboxd.com/film/everything-everywhere-all-at-once/"
+		"url": "https://letterboxd.com/film/everything-everywhere-all-at-once/",
+		"slug": "everything-everywhere-all-at-once"
 	},
 	{
 		"title": "Flash Gordon",
-		"url": "https://letterboxd.com/film/flash-gordon-1980/"
+		"url": "https://letterboxd.com/film/flash-gordon-1980/",
+		"slug": "flash-gordon"
 	},
 	{
 		"title": "Flow",
-		"url": "https://letterboxd.com/film/flow-2024/"
+		"url": "https://letterboxd.com/film/flow-2024/",
+		"slug": "flow"
 	},
 	{
 		"title": "Free Guy",
-		"url": "https://letterboxd.com/film/free-guy/"
+		"url": "https://letterboxd.com/film/free-guy/",
+		"slug": "free-guy"
 	},
 	{
 		"title": "Galaxy Quest",
-		"url": "https://letterboxd.com/film/galaxy-quest/"
+		"url": "https://letterboxd.com/film/galaxy-quest/",
+		"slug": "galaxy-quest"
 	},
 	{
 		"title": "Gattaca",
-		"url": "https://letterboxd.com/film/gattaca/"
+		"url": "https://letterboxd.com/film/gattaca/",
+		"slug": "gattaca"
 	},
 	{
 		"title": "Ghost in the Shell",
-		"url": "https://letterboxd.com/film/ghost-in-the-shell-2017/"
+		"url": "https://letterboxd.com/film/ghost-in-the-shell-2017/",
+		"slug": "ghost-in-the-shell"
 	},
 	{
 		"title": "Glass",
-		"url": "https://letterboxd.com/film/glass-2019/"
+		"url": "https://letterboxd.com/film/glass-2019/",
+		"slug": "glass"
 	},
 	{
 		"title": "Glass Onion",
-		"url": "https://letterboxd.com/film/glass-onion/"
+		"url": "https://letterboxd.com/film/glass-onion/",
+		"slug": "glass-onion"
 	},
 	{
 		"title": "Good Morning, Vietnam",
-		"url": "https://letterboxd.com/film/good-morning-vietnam/"
+		"url": "https://letterboxd.com/film/good-morning-vietnam/",
+		"slug": "good-morning-vietnam"
+	},
+	{
+		"title": "Gravity",
+		"url": "https://letterboxd.com/film/gravity-2013/",
+		"slug": "gravity"
 	},
 	{
 		"title": "Gunpowder Milkshake",
-		"url": "https://letterboxd.com/film/gunpowder-milkshake/"
+		"url": "https://letterboxd.com/film/gunpowder-milkshake/",
+		"slug": "gunpowder-milkshake"
 	},
 	{
 		"title": "Guns Akimbo",
-		"url": "https://letterboxd.com/film/guns-akimbo/"
+		"url": "https://letterboxd.com/film/guns-akimbo/",
+		"slug": "guns-akimbo"
 	},
 	{
 		"title": "Hackers",
-		"url": "https://letterboxd.com/film/hackers/"
+		"url": "https://letterboxd.com/film/hackers/",
+		"slug": "hackers"
 	},
 	{
 		"title": "Hardcore Henry",
-		"url": "https://letterboxd.com/film/hardcore-henry/"
+		"url": "https://letterboxd.com/film/hardcore-henry/",
+		"slug": "hardcore-henry"
 	},
 	{
 		"title": "High Life",
-		"url": "https://letterboxd.com/film/high-life-2018/"
+		"url": "https://letterboxd.com/film/high-life-2018/",
+		"slug": "high-life"
 	},
 	{
 		"title": "John Wick: Chapter 2",
-		"url": "https://letterboxd.com/film/john-wick-chapter-2/"
+		"url": "https://letterboxd.com/film/john-wick-chapter-2/",
+		"slug": "john-wick-chapter-2"
 	},
 	{
 		"title": "John Wick: Chapter 3 \u2013 Parabellum",
-		"url": "https://letterboxd.com/film/john-wick-chapter-3-parabellum/"
+		"url": "https://letterboxd.com/film/john-wick-chapter-3-parabellum/",
+		"slug": "john-wick-chapter-3-parabellum"
 	},
 	{
 		"title": "Joker: Folie \u00e0 Deux",
-		"url": "https://letterboxd.com/film/joker-folie-a-deux/"
+		"url": "https://letterboxd.com/film/joker-folie-a-deux/",
+		"slug": "joker-folie-\u00e0-deux"
 	},
 	{
 		"title": "Killing Gunther",
-		"url": "https://letterboxd.com/film/killing-gunther/"
+		"url": "https://letterboxd.com/film/killing-gunther/",
+		"slug": "killing-gunther"
 	},
 	{
 		"title": "Kingsman: The Golden Circle",
-		"url": "https://letterboxd.com/film/kingsman-the-golden-circle/"
+		"url": "https://letterboxd.com/film/kingsman-the-golden-circle/",
+		"slug": "kingsman-the-golden-circle"
 	},
 	{
 		"title": "Kingsman: The Secret Service",
-		"url": "https://letterboxd.com/film/kingsman-the-secret-service/"
+		"url": "https://letterboxd.com/film/kingsman-the-secret-service/",
+		"slug": "kingsman-the-secret-service"
 	},
 	{
 		"title": "Knives Out",
-		"url": "https://letterboxd.com/film/knives-out-2019/"
+		"url": "https://letterboxd.com/film/knives-out-2019/",
+		"slug": "knives-out"
+	},
+	{
+		"title": "KPop Demon Hunters",
+		"url": "https://letterboxd.com/film/kpop-demon-hunters/",
+		"slug": "kpop-demon-hunters"
 	},
 	{
 		"title": "Logan",
-		"url": "https://letterboxd.com/film/logan-2017/"
+		"url": "https://letterboxd.com/film/logan-2017/",
+		"slug": "logan"
+	},
+	{
+		"title": "Lommbock",
+		"url": "https://letterboxd.com/film/lommbock/",
+		"slug": "lommbock"
+	},
+	{
+		"title": "Loom",
+		"url": "https://letterboxd.com/film/loom-2012/",
+		"slug": "loom"
+	},
+	{
+		"title": "Looper",
+		"url": "https://letterboxd.com/film/looper/",
+		"slug": "looper"
 	},
 	{
 		"title": "Lucy",
-		"url": "https://letterboxd.com/film/lucy-2014/"
+		"url": "https://letterboxd.com/film/lucy-2014/",
+		"slug": "lucy"
 	},
 	{
 		"title": "Mickey 17",
-		"url": "https://letterboxd.com/film/mickey-17/"
+		"url": "https://letterboxd.com/film/mickey-17/",
+		"slug": "mickey-17"
 	},
 	{
 		"title": "Moon",
-		"url": "https://letterboxd.com/film/moon/"
+		"url": "https://letterboxd.com/film/moon/",
+		"slug": "moon"
 	},
 	{
 		"title": "Nobody",
-		"url": "https://letterboxd.com/film/nobody-2021/"
+		"url": "https://letterboxd.com/film/nobody-2021/",
+		"slug": "nobody"
 	},
 	{
 		"title": "Nosferatu",
-		"url": "https://letterboxd.com/film/nosferatu-2024/"
+		"url": "https://letterboxd.com/film/nosferatu-2024/",
+		"slug": "nosferatu"
 	},
 	{
 		"title": "Novocaine",
-		"url": "https://letterboxd.com/film/novocaine-2025/"
+		"url": "https://letterboxd.com/film/novocaine-2025/",
+		"slug": "novocaine"
 	},
 	{
 		"title": "Oldboy",
-		"url": "https://letterboxd.com/film/oldboy/"
+		"url": "https://letterboxd.com/film/oldboy/",
+		"slug": "oldboy"
+	},
+	{
+		"title": "Oppenheimer",
+		"url": "https://letterboxd.com/film/oppenheimer-2023/",
+		"slug": "oppenheimer"
 	},
 	{
 		"title": "Palm Springs",
-		"url": "https://letterboxd.com/film/palm-springs-2020/"
+		"url": "https://letterboxd.com/film/palm-springs-2020/",
+		"slug": "palm-springs"
 	},
 	{
 		"title": "Past Lives",
-		"url": "https://letterboxd.com/film/past-lives/"
+		"url": "https://letterboxd.com/film/past-lives/",
+		"slug": "past-lives"
 	},
 	{
 		"title": "Patlabor: The Movie",
-		"url": "https://letterboxd.com/film/patlabor-the-movie/"
+		"url": "https://letterboxd.com/film/patlabor-the-movie/",
+		"slug": "patlabor-the-movie"
 	},
 	{
 		"title": "Perfect Blue",
-		"url": "https://letterboxd.com/film/perfect-blue/"
+		"url": "https://letterboxd.com/film/perfect-blue/",
+		"slug": "perfect-blue"
 	},
 	{
 		"title": "Point of No Return",
-		"url": "https://letterboxd.com/film/point-of-no-return/"
+		"url": "https://letterboxd.com/film/point-of-no-return/",
+		"slug": "point-of-no-return"
 	},
 	{
 		"title": "Rap World",
-		"url": "https://letterboxd.com/film/rap-world/"
+		"url": "https://letterboxd.com/film/rap-world/",
+		"slug": "rap-world"
 	},
 	{
 		"title": "Raw Deal",
-		"url": "https://letterboxd.com/film/raw-deal-1986/"
+		"url": "https://letterboxd.com/film/raw-deal-1986/",
+		"slug": "raw-deal"
 	},
 	{
 		"title": "Redline",
-		"url": "https://letterboxd.com/film/redline/"
+		"url": "https://letterboxd.com/film/redline/",
+		"slug": "redline"
 	},
 	{
 		"title": "Restore Point",
-		"url": "https://letterboxd.com/film/restore-point/"
+		"url": "https://letterboxd.com/film/restore-point/",
+		"slug": "restore-point"
 	},
 	{
 		"title": "RoboCop",
-		"url": "https://letterboxd.com/film/robocop/"
+		"url": "https://letterboxd.com/film/robocop/",
+		"slug": "robocop"
 	},
 	{
 		"title": "RoboCop 2",
-		"url": "https://letterboxd.com/film/robocop-2/"
+		"url": "https://letterboxd.com/film/robocop-2/",
+		"slug": "robocop-2"
+	},
+	{
+		"title": "RoboCop 3",
+		"url": "https://letterboxd.com/film/robocop-3/",
+		"slug": "robocop-3"
 	},
 	{
 		"title": "Seven Psychopaths",
-		"url": "https://letterboxd.com/film/seven-psychopaths/"
+		"url": "https://letterboxd.com/film/seven-psychopaths/",
+		"slug": "seven-psychopaths"
 	},
 	{
 		"title": "Silent Running",
-		"url": "https://letterboxd.com/film/silent-running/"
+		"url": "https://letterboxd.com/film/silent-running/",
+		"slug": "silent-running"
+	},
+	{
+		"title": "Sinners",
+		"url": "https://letterboxd.com/film/sinners-2025/",
+		"slug": "sinners"
 	},
 	{
 		"title": "Slingshot",
-		"url": "https://letterboxd.com/film/slingshot-2024/"
+		"url": "https://letterboxd.com/film/slingshot-2024/",
+		"slug": "slingshot"
 	},
 	{
 		"title": "Sneakers",
-		"url": "https://letterboxd.com/film/sneakers/"
+		"url": "https://letterboxd.com/film/sneakers/",
+		"slug": "sneakers"
+	},
+	{
+		"title": "Source Code",
+		"url": "https://letterboxd.com/film/source-code/",
+		"slug": "source-code"
 	},
 	{
 		"title": "Soylent Green",
-		"url": "https://letterboxd.com/film/soylent-green/"
+		"url": "https://letterboxd.com/film/soylent-green/",
+		"slug": "soylent-green"
 	},
 	{
 		"title": "Spider-Man: Across the Spider-Verse",
-		"url": "https://letterboxd.com/film/spider-man-across-the-spider-verse/"
+		"url": "https://letterboxd.com/film/spider-man-across-the-spider-verse/",
+		"slug": "spider-man-across-the-spider-verse"
 	},
 	{
 		"title": "Spider-Man: Into the Spider-Verse",
-		"url": "https://letterboxd.com/film/spider-man-into-the-spider-verse/"
+		"url": "https://letterboxd.com/film/spider-man-into-the-spider-verse/",
+		"slug": "spider-man-into-the-spider-verse"
 	},
 	{
 		"title": "Star Trek III: The Search for Spock",
-		"url": "https://letterboxd.com/film/star-trek-iii-the-search-for-spock/"
+		"url": "https://letterboxd.com/film/star-trek-iii-the-search-for-spock/",
+		"slug": "star-trek-iii-the-search-for-spock"
 	},
 	{
 		"title": "Star Trek IV: The Voyage Home",
-		"url": "https://letterboxd.com/film/star-trek-iv-the-voyage-home/"
+		"url": "https://letterboxd.com/film/star-trek-iv-the-voyage-home/",
+		"slug": "star-trek-iv-the-voyage-home"
 	},
 	{
 		"title": "Star Trek: Section 31",
-		"url": "https://letterboxd.com/film/star-trek-section-31/"
+		"url": "https://letterboxd.com/film/star-trek-section-31/",
+		"slug": "star-trek-section-31"
 	},
 	{
 		"title": "Subservience",
-		"url": "https://letterboxd.com/film/subservience-2024/"
+		"url": "https://letterboxd.com/film/subservience-2024/",
+		"slug": "subservience"
 	},
 	{
 		"title": "Swiss Army Man",
-		"url": "https://letterboxd.com/film/swiss-army-man/"
+		"url": "https://letterboxd.com/film/swiss-army-man/",
+		"slug": "swiss-army-man"
+	},
+	{
+		"title": "T2 Trainspotting",
+		"url": "https://letterboxd.com/film/t2-trainspotting/",
+		"slug": "t2-trainspotting"
 	},
 	{
 		"title": "Taxi Driver",
-		"url": "https://letterboxd.com/film/taxi-driver/"
+		"url": "https://letterboxd.com/film/taxi-driver/",
+		"slug": "taxi-driver"
 	},
 	{
 		"title": "The 6th Day",
-		"url": "https://letterboxd.com/film/the-6th-day/"
+		"url": "https://letterboxd.com/film/the-6th-day/",
+		"slug": "the-6th-day"
 	},
 	{
 		"title": "The Banshees of Inisherin",
-		"url": "https://letterboxd.com/film/the-banshees-of-inisherin/"
+		"url": "https://letterboxd.com/film/the-banshees-of-inisherin/",
+		"slug": "the-banshees-of-inisherin"
 	},
 	{
 		"title": "The Beyond",
-		"url": "https://letterboxd.com/film/the-beyond-2017/"
+		"url": "https://letterboxd.com/film/the-beyond-2017/",
+		"slug": "the-beyond"
 	},
 	{
 		"title": "The Cabin in the Woods",
-		"url": "https://letterboxd.com/film/the-cabin-in-the-woods/"
+		"url": "https://letterboxd.com/film/the-cabin-in-the-woods/",
+		"slug": "the-cabin-in-the-woods"
 	},
 	{
 		"title": "The Creator",
-		"url": "https://letterboxd.com/film/the-creator-2023/"
+		"url": "https://letterboxd.com/film/the-creator-2023/",
+		"slug": "the-creator"
 	},
 	{
 		"title": "The Equalizer",
-		"url": "https://letterboxd.com/film/the-equalizer/"
+		"url": "https://letterboxd.com/film/the-equalizer/",
+		"slug": "the-equalizer"
 	},
 	{
 		"title": "The Equalizer 2",
-		"url": "https://letterboxd.com/film/the-equalizer-2/"
+		"url": "https://letterboxd.com/film/the-equalizer-2/",
+		"slug": "the-equalizer-2"
 	},
 	{
 		"title": "The Equalizer 3",
-		"url": "https://letterboxd.com/film/the-equalizer-3/"
+		"url": "https://letterboxd.com/film/the-equalizer-3/",
+		"slug": "the-equalizer-3"
 	},
 	{
 		"title": "The First Purge",
-		"url": "https://letterboxd.com/film/the-first-purge/"
+		"url": "https://letterboxd.com/film/the-first-purge/",
+		"slug": "the-first-purge"
 	},
 	{
 		"title": "The French Dispatch",
-		"url": "https://letterboxd.com/film/the-french-dispatch/"
+		"url": "https://letterboxd.com/film/the-french-dispatch/",
+		"slug": "the-french-dispatch"
 	},
 	{
 		"title": "The Hunger Games: The Ballad of Songbirds & Snakes",
-		"url": "https://letterboxd.com/film/the-hunger-games-the-ballad-of-songbirds-snakes/"
+		"url": "https://letterboxd.com/film/the-hunger-games-the-ballad-of-songbirds-snakes/",
+		"slug": "the-hunger-games-the-ballad-of-songbirds-snakes"
 	},
 	{
 		"title": "The King's Man",
-		"url": "https://letterboxd.com/film/the-kings-man/"
+		"url": "https://letterboxd.com/film/the-kings-man/",
+		"slug": "the-kings-man"
 	},
 	{
 		"title": "The Last Stand",
-		"url": "https://letterboxd.com/film/the-last-stand-2013/"
+		"url": "https://letterboxd.com/film/the-last-stand-2013/",
+		"slug": "the-last-stand"
+	},
+	{
+		"title": "The Last Starfighter",
+		"url": "https://letterboxd.com/film/the-last-starfighter/",
+		"slug": "the-last-starfighter"
 	},
 	{
 		"title": "The Lobster",
-		"url": "https://letterboxd.com/film/the-lobster/"
+		"url": "https://letterboxd.com/film/the-lobster/",
+		"slug": "the-lobster"
 	},
 	{
 		"title": "The Platform",
-		"url": "https://letterboxd.com/film/the-platform/"
+		"url": "https://letterboxd.com/film/the-platform/",
+		"slug": "the-platform"
 	},
 	{
 		"title": "The Platform 2",
-		"url": "https://letterboxd.com/film/the-platform-2/"
+		"url": "https://letterboxd.com/film/the-platform-2/",
+		"slug": "the-platform-2"
 	},
 	{
 		"title": "The Purge",
-		"url": "https://letterboxd.com/film/the-purge/"
+		"url": "https://letterboxd.com/film/the-purge/",
+		"slug": "the-purge"
 	},
 	{
 		"title": "The Purge: Anarchy",
-		"url": "https://letterboxd.com/film/the-purge-anarchy/"
+		"url": "https://letterboxd.com/film/the-purge-anarchy/",
+		"slug": "the-purge-anarchy"
 	},
 	{
 		"title": "The Purge: Election Year",
-		"url": "https://letterboxd.com/film/the-purge-election-year/"
+		"url": "https://letterboxd.com/film/the-purge-election-year/",
+		"slug": "the-purge-election-year"
 	},
 	{
 		"title": "The Running Man",
-		"url": "https://letterboxd.com/film/the-running-man/"
+		"url": "https://letterboxd.com/film/the-running-man/",
+		"slug": "the-running-man"
 	},
 	{
 		"title": "The Substance",
-		"url": "https://letterboxd.com/film/the-substance/"
+		"url": "https://letterboxd.com/film/the-substance/",
+		"slug": "the-substance"
 	},
 	{
 		"title": "The Wild Robot",
-		"url": "https://letterboxd.com/film/the-wild-robot/"
+		"url": "https://letterboxd.com/film/the-wild-robot/",
+		"slug": "the-wild-robot"
+	},
+	{
+		"title": "Tomorrowland",
+		"url": "https://letterboxd.com/film/tomorrowland/",
+		"slug": "tomorrowland"
 	},
 	{
 		"title": "Total Recall",
-		"url": "https://letterboxd.com/film/total-recall/"
+		"url": "https://letterboxd.com/film/total-recall/",
+		"slug": "total-recall"
+	},
+	{
+		"title": "Trainspotting",
+		"url": "https://letterboxd.com/film/trainspotting/",
+		"slug": "trainspotting"
 	},
 	{
 		"title": "True Lies",
-		"url": "https://letterboxd.com/film/true-lies/"
+		"url": "https://letterboxd.com/film/true-lies/",
+		"slug": "true-lies"
 	},
 	{
 		"title": "Under the Skin",
-		"url": "https://letterboxd.com/film/under-the-skin-2013/"
+		"url": "https://letterboxd.com/film/under-the-skin-2013/",
+		"slug": "under-the-skin"
 	},
 	{
 		"title": "Vanilla Sky",
-		"url": "https://letterboxd.com/film/vanilla-sky/"
+		"url": "https://letterboxd.com/film/vanilla-sky/",
+		"slug": "vanilla-sky"
 	},
 	{
 		"title": "Voyagers",
-		"url": "https://letterboxd.com/film/voyagers-2021/"
+		"url": "https://letterboxd.com/film/voyagers-2021/",
+		"slug": "voyagers"
 	},
 	{
 		"title": "War Dogs",
-		"url": "https://letterboxd.com/film/war-dogs-2016/"
+		"url": "https://letterboxd.com/film/war-dogs-2016/",
+		"slug": "war-dogs"
 	},
 	{
 		"title": "WarGames",
-		"url": "https://letterboxd.com/film/wargames/"
+		"url": "https://letterboxd.com/film/wargames/",
+		"slug": "wargames"
 	}
 ]

@@ -1,16 +1,18 @@
 ---
+import { getCollection } from "astro:content";
 import PageLayout from "@/components/PageLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import Link from "@/components/Link.astro";
 import MovieGrid from "@/components/MovieGrid.astro";
-import moviesData from "@/data/movies.json";
+
+const movies = await getCollection("movies");
 ---
 
 <PageLayout title="Movies" description="Movies watched by Stefan Ruzitschka" showHeader={false}>
 	<PageHeader title="Movies">
 		<div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-base mt-3">
 			<span class="text-muted-foreground">
-				Total watched: <strong class="text-foreground">{moviesData.length}</strong>
+				Total watched: <strong class="text-foreground">{movies.length}</strong>
 			</span>
 			<span class="text-muted-foreground hidden sm:inline">•</span>
 			<Link href="https://letterboxd.com/icepuma/films/" external>
@@ -19,5 +21,141 @@ import moviesData from "@/data/movies.json";
 		</div>
 	</PageHeader>
 	
+	<div class="mb-8">
+		<div class="relative">
+			<div class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none">
+				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-muted-foreground">
+					<circle cx="11" cy="11" r="8"></circle>
+					<path d="m21 21-4.35-4.35"></path>
+				</svg>
+			</div>
+			<input
+				type="text"
+				id="movie-search"
+				placeholder="Search movies..."
+				data-placeholder-full="Search movies... (Press / to focus)"
+				class="w-full pl-10 pr-10 py-2.5 text-base rounded-lg border-2 border-muted bg-muted/30 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary focus:bg-background transition-all"
+				autocomplete="off"
+			/>
+			<button
+				id="clear-search"
+				class="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-muted-foreground hover:text-foreground transition-colors hidden"
+				aria-label="Clear search"
+			>
+				<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+					<line x1="18" y1="6" x2="6" y2="18"></line>
+					<line x1="6" y1="6" x2="18" y2="18"></line>
+				</svg>
+			</button>
+		</div>
+	</div>
+	
 	<MovieGrid />
 </PageLayout>
+
+<script>
+	const searchInput = document.getElementById('movie-search') as HTMLInputElement;
+	const clearButton = document.getElementById('clear-search') as HTMLButtonElement;
+	const movieItems = document.querySelectorAll('.movie-item') as NodeListOf<HTMLElement>;
+	const totalMovies = movieItems.length;
+	const searchIcon = searchInput.parentElement?.querySelector('svg') as SVGElement;
+
+	function filterMovies() {
+		const searchTerm = searchInput.value.toLowerCase().trim();
+		let visibleMovies = 0;
+
+		movieItems.forEach((movie) => {
+			const title = movie.dataset.title || '';
+			const isVisible = searchTerm === '' || title.includes(searchTerm);
+			
+			if (isVisible) {
+				movie.style.display = '';
+				visibleMovies++;
+			} else {
+				movie.style.display = 'none';
+			}
+		});
+
+		// Show/hide clear button and update search icon
+		if (searchTerm !== '') {
+			clearButton.classList.remove('hidden');
+			searchIcon?.classList.remove('text-muted-foreground');
+			searchIcon?.classList.add('text-primary');
+		} else {
+			clearButton.classList.add('hidden');
+			searchIcon?.classList.remove('text-primary');
+			searchIcon?.classList.add('text-muted-foreground');
+		}
+
+
+		// Show message if no results
+		const grid = document.getElementById('movie-grid');
+		const noResultsMessage = document.getElementById('no-results-message');
+		
+		if (visibleMovies === 0 && searchTerm !== '') {
+			if (!noResultsMessage) {
+				const message = document.createElement('p');
+				message.id = 'no-results-message';
+				message.className = 'text-center text-muted-foreground py-8';
+				message.textContent = 'No movies found matching your search.';
+				grid?.parentElement?.insertBefore(message, grid.nextSibling);
+			}
+		} else if (noResultsMessage) {
+			noResultsMessage.remove();
+		}
+
+		// Update URL without reload
+		const url = new URL(window.location.href);
+		if (searchTerm) {
+			url.searchParams.set('search', searchTerm);
+		} else {
+			url.searchParams.delete('search');
+		}
+		window.history.replaceState({}, '', url);
+	}
+
+	function clearSearch() {
+		searchInput.value = '';
+		filterMovies();
+		searchInput.focus();
+	}
+
+	// Event listeners
+	searchInput.addEventListener('input', filterMovies);
+	clearButton.addEventListener('click', clearSearch);
+
+	// Keyboard shortcuts
+	document.addEventListener('keydown', (e) => {
+		// Focus search with / or Cmd+K / Ctrl+K
+		if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key === 'k')) {
+			e.preventDefault();
+			searchInput.focus();
+			searchInput.select();
+		}
+		
+		// Clear search with Escape
+		if (e.key === 'Escape' && document.activeElement === searchInput) {
+			clearSearch();
+		}
+	});
+
+	// Handle search on page load if there's a search term in URL
+	const urlParams = new URLSearchParams(window.location.search);
+	const searchParam = urlParams.get('search');
+	if (searchParam) {
+		searchInput.value = searchParam;
+		filterMovies();
+	}
+
+	// Update placeholder based on screen size
+	function updatePlaceholder() {
+		if (window.innerWidth >= 640) { // sm breakpoint
+			searchInput.placeholder = searchInput.dataset.placeholderFull || searchInput.placeholder;
+		} else {
+			searchInput.placeholder = "Search movies...";
+		}
+	}
+
+	updatePlaceholder();
+	window.addEventListener('resize', updatePlaceholder);
+</script>

@@ -11,6 +11,7 @@ Personal portfolio website built with Astro, TypeScript, and Tailwind CSS v4.
 - `src/components/Prose.astro` - Blog post content styling
 - `src/components/Tag.astro` - Tag pills for categories
 - `src/components/ListItem.astro` - List item for projects
+- `src/components/MovieGrid.astro` - Movie poster grid with images
 
 ### Layouts
 - `src/layouts/MinimalLayout.astro` - Base layout with theme support
@@ -21,8 +22,12 @@ Personal portfolio website built with Astro, TypeScript, and Tailwind CSS v4.
 ### Data
 - `src/data/projects.ts` - Project listings
 - `src/data/social-links.ts` - Social media links
-- `src/data/movies.json` - Letterboxd movie data
-- `scripts/fetch-letterboxd-movies.py` - Fetch movie data
+- `src/data/movies.json` - Movie list summary
+- `scripts/fetch-letterboxd-movies.py` - Fetch movie data and posters
+
+### Content Collections
+- `src/content/config.ts` - Content collection schemas
+- `src/content/movies/` - Movie entries with poster images
 
 ### Styling
 - `src/styles/global.css` - Theme definitions and CSS variables
@@ -37,7 +42,8 @@ bun run dev
 bun run build
 
 # Data Updates
-uv run scripts/fetch-letterboxd-movies.py
+uv run scripts/fetch-letterboxd-movies.py         # Uses 30-day cache
+uv run scripts/fetch-letterboxd-movies.py --force # Force refresh all data
 ```
 
 ## Theme System
@@ -62,6 +68,16 @@ border-border     /* Borders */
 /* Direct Nord colors still available */
 bg-nord0 through bg-nord15
 ```
+
+## Movie Collection
+
+The site fetches movie data from Letterboxd and displays posters:
+
+1. **Monthly caching**: Data cached for 30 days to minimize API calls
+2. **Smart updates**: Only downloads new/missing posters
+3. **Content collection**: Movies stored as individual JSON files with poster images
+4. **Search functionality**: Real-time filtering with keyboard shortcuts (/ or Cmd+K)
+5. **Image optimization**: Astro automatically converts posters to WebP format
 
 ## Conventions
 
