@@ -1,6 +1,6 @@
 {
-	"title": "Sneakers",
-	"letterboxdUrl": "https://letterboxd.com/film/sneakers/",
-	"poster": "./sneakers.jpg",
-	"slug": "sneakers"
+  "title": "Sneakers",
+  "letterboxdUrl": "https://letterboxd.com/film/sneakers/",
+  "poster": "./sneakers.jpg",
+  "slug": "sneakers"
 }

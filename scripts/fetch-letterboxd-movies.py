@@ -8,7 +8,7 @@
 # ]
 # ///
 
-"""Fetch movies from Letterboxd and update movies.json"""
+"""Fetch movies from Letterboxd. Only images are cached, movie data is always fetched fresh."""
 
 import hashlib
 import json
@@ -161,7 +161,7 @@ def get_film_poster_url(film_slug: str) -> str | None:
 
 
 def download_image(movie: Movie, cache_dir: Path) -> str | None:
-    """Download an image and save it to the cache directory"""
+    """Download an image and cache it. Images are the only cached data."""
     movie_title = movie["title"]
     
     # Extract film slug from URL
@@ -271,21 +271,13 @@ def main():
     content_dir = Path("src/content/movies")
     content_dir.mkdir(parents=True, exist_ok=True)
     
-    # Load existing movies
+    # Load existing movies (for comparison, not caching)
     existing_movies = load_existing_movies(content_dir)
-    print(f"📚 Found {len(existing_movies)} existing movies in cache", file=sys.stderr)
+    print(f"📚 Found {len(existing_movies)} existing movies", file=sys.stderr)
     
-    # Check if we need to fetch new data
+    # Always fetch fresh movie data from Letterboxd
+    # Images will still be cached and reused
     force_refresh = "--force" in sys.argv
-    if not force_refresh and existing_movies:
-        # Check if we fetched recently (within last month)
-        cache_file = content_dir / ".last_fetch"
-        if cache_file.exists():
-            last_fetch = cache_file.stat().st_mtime
-            days_old = (time.time() - last_fetch) / 86400
-            if days_old < 30:  # 30 days
-                print(f"✅ Using cached data ({days_old:.0f} days old). Use --force to refresh.", file=sys.stderr)
-                return
     
     movies = fetch_all_movies()
     
@@ -297,9 +289,7 @@ def main():
     unique_movies = list({movie["title"]: movie for movie in movies}.values())
     unique_movies.sort(key=lambda m: m["title"].lower())
     
-    # Update last fetch timestamp
-    cache_file = content_dir / ".last_fetch"
-    cache_file.touch()
+    # No longer tracking last fetch timestamp since we always fetch fresh data
     
     print(f"\n📁 Content collection directory: {content_dir}", file=sys.stderr)
     
@@ -314,19 +304,15 @@ def main():
         movie_slug = create_movie_slug(movie["title"])
         movie_title = movie["title"]
         
-        # Check if movie data needs updating
+        # Always update movie data (no caching of metadata)
         existing_movie = existing_movies.get(movie_title)
-        needs_update = (
-            not existing_movie or 
-            existing_movie.get("letterboxdUrl") != movie["url"] or
-            force_refresh
-        )
+        needs_update = True
         
         # Download image if needed
         image_filename = f"{movie_slug}.jpg"
         image_path = content_dir / image_filename
         
-        if not image_path.exists():
+        if not image_path.exists() or force_refresh:
             # Need to download the image
             cached_image = download_image(movie, content_dir)
             if cached_image:
@@ -378,7 +364,7 @@ def main():
     
     print(f"\n📊 Summary:", file=sys.stderr)
     print(f"  ✅ Downloaded {downloaded_count} new posters", file=sys.stderr)
-    print(f"  📦 {cached_count} posters already cached", file=sys.stderr)
+    print(f"  📦 Reused {cached_count} cached posters", file=sys.stderr)
     print(f"  🆕 Added {new_movies_count} new movies", file=sys.stderr)
     print(f"  🔄 Updated {updated_movies_count} existing movies", file=sys.stderr)
     if removed_count > 0:
@@ -413,9 +399,9 @@ if __name__ == "__main__":
         print("Fetch movies from Letterboxd and cache posters")
         print("\nUsage: python fetch-letterboxd-movies.py [options]")
         print("\nOptions:")
-        print("  --force    Force refresh all data (ignore 30-day cache)")
+        print("  --force    Force re-download all images")
         print("  --help     Show this help message")
-        print("\nBy default, the script uses cached data if less than 30 days old.")
+        print("\nImages are cached and reused. Movie data is always fetched fresh.")
         sys.exit(0)
     
     main()

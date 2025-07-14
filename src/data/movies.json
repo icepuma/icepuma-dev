@@ -60,6 +60,11 @@
 		"slug": "babygirl"
 	},
 	{
+		"title": "Ballerina",
+		"url": "https://letterboxd.com/film/ballerina-2025/",
+		"slug": "ballerina"
+	},
+	{
 		"title": "Barbie",
 		"url": "https://letterboxd.com/film/barbie/",
 		"slug": "barbie"
@@ -298,6 +303,11 @@
 		"title": "Mickey 17",
 		"url": "https://letterboxd.com/film/mickey-17/",
 		"slug": "mickey-17"
+	},
+	{
+		"title": "Midsommar",
+		"url": "https://letterboxd.com/film/midsommar/",
+		"slug": "midsommar"
 	},
 	{
 		"title": "Moon",

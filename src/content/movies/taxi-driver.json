@@ -1,6 +1,6 @@
 {
-	"title": "Taxi Driver",
-	"letterboxdUrl": "https://letterboxd.com/film/taxi-driver/",
-	"poster": "./taxi-driver.jpg",
-	"slug": "taxi-driver"
+  "title": "Taxi Driver",
+  "letterboxdUrl": "https://letterboxd.com/film/taxi-driver/",
+  "poster": "./taxi-driver.jpg",
+  "slug": "taxi-driver"
 }

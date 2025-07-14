@@ -1,6 +1,6 @@
 {
-	"title": "The Purge",
-	"letterboxdUrl": "https://letterboxd.com/film/the-purge/",
-	"poster": "./the-purge.jpg",
-	"slug": "the-purge"
+  "title": "The Purge",
+  "letterboxdUrl": "https://letterboxd.com/film/the-purge/",
+  "poster": "./the-purge.jpg",
+  "slug": "the-purge"
 }

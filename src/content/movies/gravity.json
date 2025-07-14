@@ -1,6 +1,6 @@
 {
-	"title": "Gravity",
-	"letterboxdUrl": "https://letterboxd.com/film/gravity-2013/",
-	"poster": "./gravity.jpg",
-	"slug": "gravity"
+  "title": "Gravity",
+  "letterboxdUrl": "https://letterboxd.com/film/gravity-2013/",
+  "poster": "./gravity.jpg",
+  "slug": "gravity"
 }

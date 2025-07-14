@@ -1,6 +1,6 @@
 {
-	"title": "Contact",
-	"letterboxdUrl": "https://letterboxd.com/film/contact/",
-	"poster": "./contact.jpg",
-	"slug": "contact"
+  "title": "Contact",
+  "letterboxdUrl": "https://letterboxd.com/film/contact/",
+  "poster": "./contact.jpg",
+  "slug": "contact"
 }

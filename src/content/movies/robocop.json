@@ -1,6 +1,6 @@
 {
-	"title": "RoboCop",
-	"letterboxdUrl": "https://letterboxd.com/film/robocop/",
-	"poster": "./robocop.jpg",
-	"slug": "robocop"
+  "title": "RoboCop",
+  "letterboxdUrl": "https://letterboxd.com/film/robocop/",
+  "poster": "./robocop.jpg",
+  "slug": "robocop"
 }
