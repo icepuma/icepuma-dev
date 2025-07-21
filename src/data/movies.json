@@ -70,6 +70,11 @@
 		"slug": "barbie"
 	},
 	{
+		"title": "Black Bag",
+		"url": "https://letterboxd.com/film/black-bag-2025/",
+		"slug": "black-bag"
+	},
+	{
 		"title": "Black Widow",
 		"url": "https://letterboxd.com/film/black-widow-2021/",
 		"slug": "black-widow"
@@ -95,9 +100,19 @@
 		"slug": "capricorn-one"
 	},
 	{
+		"title": "Carts of Darkness",
+		"url": "https://letterboxd.com/film/carts-of-darkness/",
+		"slug": "carts-of-darkness"
+	},
+	{
 		"title": "Challengers",
 		"url": "https://letterboxd.com/film/challengers/",
 		"slug": "challengers"
+	},
+	{
+		"title": "Chinatown",
+		"url": "https://letterboxd.com/film/chinatown/",
+		"slug": "chinatown"
 	},
 	{
 		"title": "Cleopatra Jones",
@@ -235,6 +250,16 @@
 		"slug": "high-life"
 	},
 	{
+		"title": "I Love You Forever",
+		"url": "https://letterboxd.com/film/i-love-you-forever-2024/",
+		"slug": "i-love-you-forever"
+	},
+	{
+		"title": "Interceptor",
+		"url": "https://letterboxd.com/film/interceptor/",
+		"slug": "interceptor"
+	},
+	{
 		"title": "John Wick: Chapter 2",
 		"url": "https://letterboxd.com/film/john-wick-chapter-2/",
 		"slug": "john-wick-chapter-2"
@@ -298,6 +323,11 @@
 		"title": "Lucy",
 		"url": "https://letterboxd.com/film/lucy-2014/",
 		"slug": "lucy"
+	},
+	{
+		"title": "Mars Express",
+		"url": "https://letterboxd.com/film/mars-express/",
+		"slug": "mars-express"
 	},
 	{
 		"title": "Mickey 17",
@@ -400,6 +430,16 @@
 		"slug": "robocop-3"
 	},
 	{
+		"title": "Safe House",
+		"url": "https://letterboxd.com/film/safe-house/",
+		"slug": "safe-house"
+	},
+	{
+		"title": "Saltburn",
+		"url": "https://letterboxd.com/film/saltburn/",
+		"slug": "saltburn"
+	},
+	{
 		"title": "Seven Psychopaths",
 		"url": "https://letterboxd.com/film/seven-psychopaths/",
 		"slug": "seven-psychopaths"
@@ -443,6 +483,11 @@
 		"title": "Spider-Man: Into the Spider-Verse",
 		"url": "https://letterboxd.com/film/spider-man-into-the-spider-verse/",
 		"slug": "spider-man-into-the-spider-verse"
+	},
+	{
+		"title": "Spy Games",
+		"url": "https://letterboxd.com/film/spy-games-1999/",
+		"slug": "spy-games"
 	},
 	{
 		"title": "Star Trek III: The Search for Spock",
@@ -503,6 +548,11 @@
 		"title": "The Creator",
 		"url": "https://letterboxd.com/film/the-creator-2023/",
 		"slug": "the-creator"
+	},
+	{
+		"title": "The Electric State",
+		"url": "https://letterboxd.com/film/the-electric-state/",
+		"slug": "the-electric-state"
 	},
 	{
 		"title": "The Equalizer",
@@ -638,5 +688,15 @@
 		"title": "WarGames",
 		"url": "https://letterboxd.com/film/wargames/",
 		"slug": "wargames"
+	},
+	{
+		"title": "Wolfs",
+		"url": "https://letterboxd.com/film/wolfs/",
+		"slug": "wolfs"
+	},
+	{
+		"title": "World War Z",
+		"url": "https://letterboxd.com/film/world-war-z/",
+		"slug": "world-war-z"
 	}
 ]
