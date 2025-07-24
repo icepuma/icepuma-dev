@@ -2,7 +2,7 @@ export const projects = [
 	{
 		name: "cidrrr",
 		description: "CLI tool for converting CIDR blocks to IP lists.",
-		url: "https://github.com/korora-tech/cidrrr",
+		url: "https://github.com/icepuma/cidrrr",
 		role: "Author",
 		stack: ["Rust", "CLI"],
 	},
@@ -30,7 +30,7 @@ export const projects = [
 	{
 		name: "temps",
 		description: "Library for parsing human-readable time expressions.",
-		url: "https://github.com/korora-tech/temps",
+		url: "https://github.com/icepuma/temps",
 		role: "Author",
 		stack: ["Rust", "chrono", "jiff"],
 	},
