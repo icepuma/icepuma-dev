@@ -15,7 +15,7 @@ export const projects = [
 	},
 	{
 		name: "icepuma.dev",
-		description: "My personal website with terminal interface.",
+		description: "My personal website.",
 		url: "https://github.com/icepuma/icepuma-dev",
 		role: "Author",
 		stack: ["TypeScript", "Astro", "Tailwind CSS", "Bun"],
