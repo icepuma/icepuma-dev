@@ -25,6 +25,11 @@
 		"slug": "aggro-dr1ft"
 	},
 	{
+		"title": "Almost Famous",
+		"url": "https://letterboxd.com/film/almost-famous/",
+		"slug": "almost-famous"
+	},
+	{
 		"title": "Annihilation",
 		"url": "https://letterboxd.com/film/annihilation/",
 		"slug": "annihilation"
@@ -68,6 +73,11 @@
 		"title": "Barbie",
 		"url": "https://letterboxd.com/film/barbie/",
 		"slug": "barbie"
+	},
+	{
+		"title": "Before Sunset",
+		"url": "https://letterboxd.com/film/before-sunset/",
+		"slug": "before-sunset"
 	},
 	{
 		"title": "Black Bag",
@@ -118,6 +128,11 @@
 		"title": "Cleopatra Jones",
 		"url": "https://letterboxd.com/film/cleopatra-jones/",
 		"slug": "cleopatra-jones"
+	},
+	{
+		"title": "Clueless",
+		"url": "https://letterboxd.com/film/clueless/",
+		"slug": "clueless"
 	},
 	{
 		"title": "Cobra",
@@ -173,6 +188,11 @@
 		"title": "Everything Everywhere All at Once",
 		"url": "https://letterboxd.com/film/everything-everywhere-all-at-once/",
 		"slug": "everything-everywhere-all-at-once"
+	},
+	{
+		"title": "Finding Jesus",
+		"url": "https://letterboxd.com/film/finding-jesus/",
+		"slug": "finding-jesus"
 	},
 	{
 		"title": "Flash Gordon",
@@ -255,6 +275,11 @@
 		"slug": "i-love-you-forever"
 	},
 	{
+		"title": "Ingrid Goes West",
+		"url": "https://letterboxd.com/film/ingrid-goes-west/",
+		"slug": "ingrid-goes-west"
+	},
+	{
 		"title": "Interceptor",
 		"url": "https://letterboxd.com/film/interceptor/",
 		"slug": "interceptor"
@@ -300,6 +325,11 @@
 		"slug": "kpop-demon-hunters"
 	},
 	{
+		"title": "Lady Bird",
+		"url": "https://letterboxd.com/film/lady-bird/",
+		"slug": "lady-bird"
+	},
+	{
 		"title": "Logan",
 		"url": "https://letterboxd.com/film/logan-2017/",
 		"slug": "logan"
@@ -325,9 +355,24 @@
 		"slug": "lucy"
 	},
 	{
+		"title": "Made in Abyss: Dawn of the Deep Soul",
+		"url": "https://letterboxd.com/film/made-in-abyss-dawn-of-the-deep-soul/",
+		"slug": "made-in-abyss-dawn-of-the-deep-soul"
+	},
+	{
 		"title": "Mars Express",
 		"url": "https://letterboxd.com/film/mars-express/",
 		"slug": "mars-express"
+	},
+	{
+		"title": "Materialists",
+		"url": "https://letterboxd.com/film/materialists/",
+		"slug": "materialists"
+	},
+	{
+		"title": "Megalopolis",
+		"url": "https://letterboxd.com/film/megalopolis-2024/",
+		"slug": "megalopolis"
 	},
 	{
 		"title": "Mickey 17",
@@ -393,6 +438,11 @@
 		"title": "Point of No Return",
 		"url": "https://letterboxd.com/film/point-of-no-return/",
 		"slug": "point-of-no-return"
+	},
+	{
+		"title": "Promising Young Woman",
+		"url": "https://letterboxd.com/film/promising-young-woman/",
+		"slug": "promising-young-woman"
 	},
 	{
 		"title": "Rap World",
@@ -525,6 +575,11 @@
 		"slug": "taxi-driver"
 	},
 	{
+		"title": "Terminal",
+		"url": "https://letterboxd.com/film/terminal-2018/",
+		"slug": "terminal"
+	},
+	{
 		"title": "The 6th Day",
 		"url": "https://letterboxd.com/film/the-6th-day/",
 		"slug": "the-6th-day"
@@ -580,6 +635,11 @@
 		"slug": "the-french-dispatch"
 	},
 	{
+		"title": "The Grand Budapest Hotel",
+		"url": "https://letterboxd.com/film/the-grand-budapest-hotel/",
+		"slug": "the-grand-budapest-hotel"
+	},
+	{
 		"title": "The Hunger Games: The Ballad of Songbirds & Snakes",
 		"url": "https://letterboxd.com/film/the-hunger-games-the-ballad-of-songbirds-snakes/",
 		"slug": "the-hunger-games-the-ballad-of-songbirds-snakes"
@@ -603,6 +663,11 @@
 		"title": "The Lobster",
 		"url": "https://letterboxd.com/film/the-lobster/",
 		"slug": "the-lobster"
+	},
+	{
+		"title": "The Outrun",
+		"url": "https://letterboxd.com/film/the-outrun/",
+		"slug": "the-outrun"
 	},
 	{
 		"title": "The Platform",
@@ -658,6 +723,11 @@
 		"title": "Trainspotting",
 		"url": "https://letterboxd.com/film/trainspotting/",
 		"slug": "trainspotting"
+	},
+	{
+		"title": "Triangle of Sadness",
+		"url": "https://letterboxd.com/film/triangle-of-sadness/",
+		"slug": "triangle-of-sadness"
 	},
 	{
 		"title": "True Lies",
