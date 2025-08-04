@@ -1,6 +1,6 @@
 {
-  "title": "Logan",
-  "letterboxdUrl": "https://letterboxd.com/film/logan-2017/",
-  "poster": "./logan.jpg",
-  "slug": "logan"
+	"title": "Logan",
+	"letterboxdUrl": "https://letterboxd.com/film/logan-2017/",
+	"poster": "./logan.jpg",
+	"slug": "logan"
 }

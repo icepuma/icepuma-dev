@@ -54,108 +54,129 @@ const movies = await getCollection("movies");
 </PageLayout>
 
 <script>
-	const searchInput = document.getElementById('movie-search') as HTMLInputElement;
-	const clearButton = document.getElementById('clear-search') as HTMLButtonElement;
-	const movieItems = document.querySelectorAll('.movie-item') as NodeListOf<HTMLElement>;
-	const totalMovies = movieItems.length;
-	const searchIcon = searchInput.parentElement?.querySelector('svg') as SVGElement;
+	// Store event listener references to prevent duplicate bindings
+	let keydownHandler: ((e: KeyboardEvent) => void) | null = null;
+	let resizeHandler: (() => void) | null = null;
 
-	function filterMovies() {
-		const searchTerm = searchInput.value.toLowerCase().trim();
-		let visibleMovies = 0;
+	document.addEventListener('astro:page-load', () => {
+		const searchInput = document.getElementById('movie-search') as HTMLInputElement;
+		const clearButton = document.getElementById('clear-search') as HTMLButtonElement;
+		const movieItems = document.querySelectorAll('.movie-item') as NodeListOf<HTMLElement>;
+		const totalMovies = movieItems.length;
+		const searchIcon = searchInput?.parentElement?.querySelector('svg') as SVGElement;
 
-		movieItems.forEach((movie) => {
-			const title = movie.dataset.title || '';
-			const isVisible = searchTerm === '' || title.includes(searchTerm);
-			
-			if (isVisible) {
-				movie.style.display = '';
-				visibleMovies++;
+		// Exit early if elements don't exist (not on movies page)
+		if (!searchInput || !clearButton) return;
+
+		function filterMovies() {
+			const searchTerm = searchInput.value.toLowerCase().trim();
+			let visibleMovies = 0;
+
+			movieItems.forEach((movie) => {
+				const title = movie.dataset.title || '';
+				const isVisible = searchTerm === '' || title.includes(searchTerm);
+				
+				if (isVisible) {
+					movie.style.display = '';
+					visibleMovies++;
+				} else {
+					movie.style.display = 'none';
+				}
+			});
+
+			// Show/hide clear button and update search icon
+			if (searchTerm !== '') {
+				clearButton.classList.remove('hidden');
+				searchIcon?.classList.remove('text-muted-foreground');
+				searchIcon?.classList.add('text-primary');
 			} else {
-				movie.style.display = 'none';
+				clearButton.classList.add('hidden');
+				searchIcon?.classList.remove('text-primary');
+				searchIcon?.classList.add('text-muted-foreground');
 			}
-		});
-
-		// Show/hide clear button and update search icon
-		if (searchTerm !== '') {
-			clearButton.classList.remove('hidden');
-			searchIcon?.classList.remove('text-muted-foreground');
-			searchIcon?.classList.add('text-primary');
-		} else {
-			clearButton.classList.add('hidden');
-			searchIcon?.classList.remove('text-primary');
-			searchIcon?.classList.add('text-muted-foreground');
-		}
 
 
-		// Show message if no results
-		const grid = document.getElementById('movie-grid');
-		const noResultsMessage = document.getElementById('no-results-message');
-		
-		if (visibleMovies === 0 && searchTerm !== '') {
-			if (!noResultsMessage) {
-				const message = document.createElement('p');
-				message.id = 'no-results-message';
-				message.className = 'text-center text-muted-foreground py-8';
-				message.textContent = 'No movies found matching your search.';
-				grid?.parentElement?.insertBefore(message, grid.nextSibling);
+			// Show message if no results
+			const grid = document.getElementById('movie-grid');
+			const noResultsMessage = document.getElementById('no-results-message');
+			
+			if (visibleMovies === 0 && searchTerm !== '') {
+				if (!noResultsMessage) {
+					const message = document.createElement('p');
+					message.id = 'no-results-message';
+					message.className = 'text-center text-muted-foreground py-8';
+					message.textContent = 'No movies found matching your search.';
+					grid?.parentElement?.insertBefore(message, grid.nextSibling);
+				}
+			} else if (noResultsMessage) {
+				noResultsMessage.remove();
 			}
-		} else if (noResultsMessage) {
-			noResultsMessage.remove();
+
+			// Update URL without reload
+			const url = new URL(window.location.href);
+			if (searchTerm) {
+				url.searchParams.set('search', searchTerm);
+			} else {
+				url.searchParams.delete('search');
+			}
+			window.history.replaceState({}, '', url);
 		}
 
-		// Update URL without reload
-		const url = new URL(window.location.href);
-		if (searchTerm) {
-			url.searchParams.set('search', searchTerm);
-		} else {
-			url.searchParams.delete('search');
-		}
-		window.history.replaceState({}, '', url);
-	}
-
-	function clearSearch() {
-		searchInput.value = '';
-		filterMovies();
-		searchInput.focus();
-	}
-
-	// Event listeners
-	searchInput.addEventListener('input', filterMovies);
-	clearButton.addEventListener('click', clearSearch);
-
-	// Keyboard shortcuts
-	document.addEventListener('keydown', (e) => {
-		// Focus search with / or Cmd+K / Ctrl+K
-		if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key === 'k')) {
-			e.preventDefault();
+		function clearSearch() {
+			searchInput.value = '';
+			filterMovies();
 			searchInput.focus();
-			searchInput.select();
 		}
-		
-		// Clear search with Escape
-		if (e.key === 'Escape' && document.activeElement === searchInput) {
-			clearSearch();
+
+		// Event listeners
+		searchInput.addEventListener('input', filterMovies);
+		clearButton.addEventListener('click', clearSearch);
+
+		// Remove old keyboard shortcut handler if it exists
+		if (keydownHandler) {
+			document.removeEventListener('keydown', keydownHandler);
 		}
+
+		// Keyboard shortcuts
+		keydownHandler = (e: KeyboardEvent) => {
+			// Focus search with / or Cmd+K / Ctrl+K
+			if (e.key === '/' || ((e.metaKey || e.ctrlKey) && e.key === 'k')) {
+				e.preventDefault();
+				searchInput.focus();
+				searchInput.select();
+			}
+			
+			// Clear search with Escape
+			if (e.key === 'Escape' && document.activeElement === searchInput) {
+				clearSearch();
+			}
+		};
+		document.addEventListener('keydown', keydownHandler);
+
+		// Handle search on page load if there's a search term in URL
+		const urlParams = new URLSearchParams(window.location.search);
+		const searchParam = urlParams.get('search');
+		if (searchParam) {
+			searchInput.value = searchParam;
+			filterMovies();
+		}
+
+		// Update placeholder based on screen size
+		function updatePlaceholder() {
+			if (window.innerWidth >= 640) { // sm breakpoint
+				searchInput.placeholder = searchInput.dataset.placeholderFull || searchInput.placeholder;
+			} else {
+				searchInput.placeholder = "Search movies...";
+			}
+		}
+
+		// Remove old resize handler if it exists
+		if (resizeHandler) {
+			window.removeEventListener('resize', resizeHandler);
+		}
+
+		resizeHandler = updatePlaceholder;
+		updatePlaceholder();
+		window.addEventListener('resize', resizeHandler);
 	});
-
-	// Handle search on page load if there's a search term in URL
-	const urlParams = new URLSearchParams(window.location.search);
-	const searchParam = urlParams.get('search');
-	if (searchParam) {
-		searchInput.value = searchParam;
-		filterMovies();
-	}
-
-	// Update placeholder based on screen size
-	function updatePlaceholder() {
-		if (window.innerWidth >= 640) { // sm breakpoint
-			searchInput.placeholder = searchInput.dataset.placeholderFull || searchInput.placeholder;
-		} else {
-			searchInput.placeholder = "Search movies...";
-		}
-	}
-
-	updatePlaceholder();
-	window.addEventListener('resize', updatePlaceholder);
 </script>
