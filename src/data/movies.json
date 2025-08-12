@@ -215,6 +215,11 @@
 		"slug": "flow"
 	},
 	{
+		"title": "Freaky Friday",
+		"url": "https://letterboxd.com/film/freaky-friday-2003/",
+		"slug": "freaky-friday"
+	},
+	{
 		"title": "Free Guy",
 		"url": "https://letterboxd.com/film/free-guy/",
 		"slug": "free-guy"
@@ -270,6 +275,16 @@
 		"slug": "hackers"
 	},
 	{
+		"title": "Happy Gilmore",
+		"url": "https://letterboxd.com/film/happy-gilmore/",
+		"slug": "happy-gilmore"
+	},
+	{
+		"title": "Happy Gilmore 2",
+		"url": "https://letterboxd.com/film/happy-gilmore-2/",
+		"slug": "happy-gilmore-2"
+	},
+	{
 		"title": "Hardcore Henry",
 		"url": "https://letterboxd.com/film/hardcore-henry/",
 		"slug": "hardcore-henry"
@@ -288,6 +303,11 @@
 		"title": "Ingrid Goes West",
 		"url": "https://letterboxd.com/film/ingrid-goes-west/",
 		"slug": "ingrid-goes-west"
+	},
+	{
+		"title": "Inheritance",
+		"url": "https://letterboxd.com/film/inheritance-2024-7/",
+		"slug": "inheritance"
 	},
 	{
 		"title": "Interceptor",
@@ -400,6 +420,11 @@
 		"slug": "moon"
 	},
 	{
+		"title": "My Oxford Year",
+		"url": "https://letterboxd.com/film/my-oxford-year/",
+		"slug": "my-oxford-year"
+	},
+	{
 		"title": "Nobody",
 		"url": "https://letterboxd.com/film/nobody-2021/",
 		"slug": "nobody"
@@ -450,6 +475,11 @@
 		"slug": "point-of-no-return"
 	},
 	{
+		"title": "Pretty Woman",
+		"url": "https://letterboxd.com/film/pretty-woman/",
+		"slug": "pretty-woman"
+	},
+	{
 		"title": "Promising Young Woman",
 		"url": "https://letterboxd.com/film/promising-young-woman/",
 		"slug": "promising-young-woman"
@@ -473,6 +503,11 @@
 		"title": "Restore Point",
 		"url": "https://letterboxd.com/film/restore-point/",
 		"slug": "restore-point"
+	},
+	{
+		"title": "Revolver",
+		"url": "https://letterboxd.com/film/revolver/",
+		"slug": "revolver"
 	},
 	{
 		"title": "RoboCop",
@@ -533,6 +568,11 @@
 		"title": "Soylent Green",
 		"url": "https://letterboxd.com/film/soylent-green/",
 		"slug": "soylent-green"
+	},
+	{
+		"title": "Spaceman",
+		"url": "https://letterboxd.com/film/spaceman-2024/",
+		"slug": "spaceman"
 	},
 	{
 		"title": "Spider-Man: Across the Spider-Verse",
@@ -645,6 +685,11 @@
 		"slug": "the-french-dispatch"
 	},
 	{
+		"title": "The Gentlemen",
+		"url": "https://letterboxd.com/film/the-gentlemen/",
+		"slug": "the-gentlemen"
+	},
+	{
 		"title": "The Grand Budapest Hotel",
 		"url": "https://letterboxd.com/film/the-grand-budapest-hotel/",
 		"slug": "the-grand-budapest-hotel"
@@ -715,6 +760,11 @@
 		"slug": "the-substance"
 	},
 	{
+		"title": "The VelociPastor",
+		"url": "https://letterboxd.com/film/the-velocipastor/",
+		"slug": "the-velocipastor"
+	},
+	{
 		"title": "The Wild Robot",
 		"url": "https://letterboxd.com/film/the-wild-robot/",
 		"slug": "the-wild-robot"
@@ -743,6 +793,11 @@
 		"title": "True Lies",
 		"url": "https://letterboxd.com/film/true-lies/",
 		"slug": "true-lies"
+	},
+	{
+		"title": "T\u00c1R",
+		"url": "https://letterboxd.com/film/tar-2022/",
+		"slug": "t\u00e1r"
 	},
 	{
 		"title": "Under the Skin",

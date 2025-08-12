@@ -1,9 +1,9 @@
 ---
 import { getCollection } from "astro:content";
-import PageLayout from "@/components/PageLayout.astro";
-import PageHeader from "@/components/PageHeader.astro";
 import Link from "@/components/Link.astro";
 import MovieGrid from "@/components/MovieGrid.astro";
+import PageHeader from "@/components/PageHeader.astro";
+import PageLayout from "@/components/PageLayout.astro";
 
 const movies = await getCollection("movies");
 ---

@@ -1,8 +1,8 @@
 ---
 import { getCollection } from "astro:content";
-import MinimalLayout from "@/layouts/MinimalLayout.astro";
 import PageHeader from "@/components/PageHeader.astro";
 import Tag from "@/components/Tag.astro";
+import MinimalLayout from "@/layouts/MinimalLayout.astro";
 
 const posts = (await getCollection("blog"))
 	.filter((post) => !post.data.draft)
