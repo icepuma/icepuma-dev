@@ -28,3 +28,7 @@ pnpm-debug.log*
 test-results/
 playwright-report/
 .claude
+
+# python cache
+__pycache__/
+*.pyc
