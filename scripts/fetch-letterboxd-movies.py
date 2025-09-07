@@ -5,21 +5,29 @@
 #   "beautifulsoup4",
 #   "requests",
 #   "lxml",
+#   "playwright",
 # ]
 # ///
 
 """Fetch movies from Letterboxd. Only images are cached, movie data is always fetched fresh."""
 
-import hashlib
 import json
 import re
 import sys
 import time
 from pathlib import Path
-from typing import TypedDict
+from typing import TypedDict, NotRequired
 
 import requests
 from bs4 import BeautifulSoup
+from urllib.parse import urlsplit
+
+# Headless support for resolving poster URLs rendered client-side (required)
+try:
+    from playwright.sync_api import sync_playwright, Browser, Page
+except Exception:
+    sync_playwright = None  # type: ignore
+    Browser = Page = None  # type: ignore
 
 
 class Movie(TypedDict):
@@ -27,6 +35,9 @@ class Movie(TypedDict):
     url: str
     image_url: str | None
     cached_image: str | None
+    film_id: NotRequired[int | None]
+    film_slug: NotRequired[str | None]
+    cache_busting_key: NotRequired[str | None]
 
 
 def extract_title_from_slug(film_slug: str) -> str:
@@ -36,69 +47,148 @@ def extract_title_from_slug(film_slug: str) -> str:
 
 
 def fetch_letterboxd_page(username: str, page: int = 1) -> tuple[list[Movie], bool]:
-    """Fetch a single page of movies from Letterboxd. Returns (movies_list, has_next_page)"""
+    """Fetch a single page of movies from Letterboxd. Returns (movies_list, has_next_page)
+
+    Supports both the legacy server-rendered markup (li.poster-container) and the
+    current LazyPoster React components rendered server-side as placeholders.
+    """
     base_url = f"https://letterboxd.com/{username}/films"
     url = f"{base_url}/page/{page}/" if page > 1 else f"{base_url}/"
-    
+
     headers = {
         "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
         "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
     }
-    
+
     try:
         response = requests.get(url, headers=headers, timeout=30)
         response.raise_for_status()
-        
+
         soup = BeautifulSoup(response.content, "lxml")
-        movies = []
-        
-        # Find all film poster containers
-        film_containers = soup.find_all("li", class_="poster-container")
-        
-        print(f"Found {len(film_containers)} movies on page {page}", file=sys.stderr)
-        
-        for container in film_containers:
-            # Find the poster div with film data
-            poster_div = container.find("div", class_=re.compile(r"film-poster"))
-            if not poster_div:
-                continue
-            
-            film_slug = poster_div.get("data-film-slug", "")
-            if not film_slug:
-                continue
-            
-            # Get title from image alt text or extract from slug
-            img = poster_div.find("img")
-            title = img.get("alt") if img else extract_title_from_slug(film_slug)
-            
-            # Extract image URL
-            image_url = None
-            
-            # Try to get the poster URL from data-poster-url attribute
-            poster_url = poster_div.get("data-poster-url")
-            if poster_url:
-                # Convert relative URL to absolute URL
-                image_url = f"https://letterboxd.com{poster_url}"
-            elif img:
-                # Fallback to img src if data-poster-url not found
-                image_url = img.get("data-src") or img.get("src")
-                # Skip placeholder images
-                if image_url and "empty-poster" in image_url:
-                    image_url = None
-            
-            movies.append(Movie(
-                title=title,
-                url=f"https://letterboxd.com/film/{film_slug}/",
-                image_url=image_url,
-                cached_image=None
-            ))
-        
-        # Check if there's a next page
+        movies: list[Movie] = []
+
+        # 1) New markup: React component placeholders for posters
+        lazy_posters = soup.find_all(
+            "div",
+            class_="react-component",
+            attrs={"data-component-class": "globals.comps.LazyPoster"},
+        )
+
+        if lazy_posters:
+            for el in lazy_posters:
+                target_link = el.get("data-item-link") or el.get("data-target-link")
+                # Derive slug strictly from the URL when available
+                slug_from_url = None
+                if target_link and "/film/" in target_link:
+                    try:
+                        slug_from_url = target_link.rstrip("/").split("/")[-1]
+                    except Exception:
+                        slug_from_url = None
+                # Fallback to attribute if URL missing
+                attr_slug = el.get("data-item-slug")
+                film_slug = slug_from_url or attr_slug
+                film_id_val = None
+                try:
+                    film_id_str = el.get("data-film-id")
+                    if film_id_str:
+                        film_id_val = int(film_id_str)
+                except Exception:
+                    film_id_val = None
+
+                # Prefer original title with year from the list markup
+                title_with_year = el.get("data-original-title")
+                name = el.get("data-item-name") or ""
+                title = (title_with_year or name).strip() or (
+                    extract_title_from_slug(film_slug) if film_slug else None
+                )
+
+                if not film_slug or not title:
+                    continue
+
+                absolute_url = (
+                    f"https://letterboxd.com{target_link}"
+                    if target_link and target_link.startswith("/")
+                    else (f"https://letterboxd.com/film/{film_slug}/" if film_slug else None)
+                )
+                if not absolute_url:
+                    continue
+
+                # parse cache busting key if present
+                cache_key = None
+                try:
+                    rpp = el.get("data-resolvable-poster-path")
+                    if rpp:
+                        obj = json.loads(rpp)
+                        cache_key = obj.get("cacheBustingKey")
+                except Exception:
+                    cache_key = None
+
+                # We don’t rely on list image URL for downloads
+                poster_url_attr = el.get("data-poster-url")
+                image_url = (
+                    f"https://letterboxd.com{poster_url_attr}"
+                    if poster_url_attr and poster_url_attr.startswith("/")
+                    else None
+                )
+
+                movies.append(
+                    Movie(
+                        title=title,
+                        url=absolute_url,
+                        image_url=image_url,
+                        cached_image=None,
+                        film_id=film_id_val,
+                        film_slug=film_slug,
+                        cache_busting_key=cache_key,
+                    )
+                )
+        else:
+            # 2) Legacy markup fallback
+            film_containers = soup.find_all("li", class_="poster-container")
+            for container in film_containers:
+                poster_div = container.find("div", class_=re.compile(r"film-poster"))
+                if not poster_div:
+                    continue
+
+                film_slug = poster_div.get("data-film-slug", "")
+                if not film_slug:
+                    continue
+
+                img = poster_div.find("img")
+                # Prefer original title with year when available
+                title_oy = poster_div.get("data-original-title") or (img.get("data-original-title") if img else None)
+                title = (
+                    title_oy
+                    if title_oy
+                    else (img.get("alt") if img else extract_title_from_slug(film_slug))
+                )
+
+                image_url = None
+                poster_url = poster_div.get("data-poster-url")
+                if poster_url:
+                    image_url = f"https://letterboxd.com{poster_url}"
+                elif img:
+                    image_url = img.get("data-src") or img.get("src")
+                    if image_url and "empty-poster" in image_url:
+                        image_url = None
+
+                movies.append(
+                    Movie(
+                        title=title,
+                        url=f"https://letterboxd.com/film/{film_slug}/",
+                        image_url=image_url,
+                        cached_image=None,
+                    )
+                )
+
+        print(f"Found {len(movies)} movies on page {page}", file=sys.stderr)
+
+        # Check if there's a next page (present in both markups)
         pagination = soup.find("div", class_="pagination")
         has_next = bool(pagination and pagination.find("a", class_="next"))
-        
+
         return movies, has_next
-        
+
     except requests.RequestException as e:
         print(f"Error fetching page {page}: {e}", file=sys.stderr)
         return [], False
@@ -119,61 +209,189 @@ def get_image_filename(movie_title: str, image_url: str) -> str:
     return f"{safe_title}{extension}"
 
 
-def get_film_poster_url(film_slug: str) -> str | None:
-    """Get the actual poster image URL via the AJAX endpoint"""
-    try:
-        # Use the poster AJAX endpoint
-        poster_url = f"https://letterboxd.com/ajax/poster/film/{film_slug}/std/230x345/"
-        
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Referer": f"https://letterboxd.com/film/{film_slug}/",
-        }
-        
-        response = requests.get(poster_url, headers=headers, timeout=30)
-        response.raise_for_status()
-        
-        soup = BeautifulSoup(response.content, "lxml")
-        
-        # Find the poster image
-        img = soup.find("img", class_="image")
-        if img and not "-empty-poster-" in img.get("class", []):
-            # Get the high-res version from srcset if available
-            srcset = img.get("srcset")
-            if srcset:
-                # Extract the 2x URL from srcset
-                urls = srcset.split()
-                for i, part in enumerate(urls):
-                    if part.endswith("2x") and i > 0:
-                        return urls[i-1]
-            
-            # Fallback to regular src
-            src = img.get("src")
-            if src and "empty-poster" not in src:
-                return src
-        
-        return None
-        
-    except requests.RequestException as e:
-        print(f"Error fetching poster for {film_slug}: {e}", file=sys.stderr)
-        return None
+"""Utilities for resolving Letterboxd poster URLs via headless browser only."""
 
 
-def download_image(movie: Movie, cache_dir: Path) -> str | None:
+class HeadlessPosterResolver:
+    """Resolve the poster URL via the film page and do a simple size swap.
+
+    - Find the `<img>` whose alt starts with "Poster for" (the correct poster).
+    - Read its src/srcset/currentSrc and perform a simple string replacement:
+      `-0-230-0-345-` -> `-0-2000-0-3000-` (query string preserved).
+    - Always return the rewritten URL; downloading uses that exact URL.
+    """
+
+    def __init__(self, user_agent: str | None = None) -> None:
+        if not sync_playwright:
+            raise RuntimeError("playwright is not installed. Install browsers with: uvx playwright install chromium")
+        self._play = sync_playwright().start()
+        self._browser: Browser = self._play.chromium.launch(headless=True)
+        context_args = {"viewport": {"width": 1280, "height": 1000}}
+        if user_agent:
+            context_args["user_agent"] = user_agent
+        self._context = self._browser.new_context(**context_args)
+        self._page: Page | None = None
+
+    def _page_obj(self) -> Page:
+        if self._page is None:
+            self._page = self._context.new_page()
+        return self._page
+
+    def close(self) -> None:
+        try:
+            if self._page:
+                self._page.close()
+            self._context.close()
+            self._browser.close()
+        finally:
+            self._play.stop()
+
+    def _pick_src_from_img(self, page: Page, selector: str) -> str | None:
+        # Prefer currentSrc, then srcset last candidate, then src
+        js = """
+            sel => {
+                const el = document.querySelector(sel);
+                if (!el) return null;
+                // prefer currentSrc
+                if (el.currentSrc && !el.currentSrc.includes('empty-poster')) return el.currentSrc;
+                const ss = el.getAttribute('srcset');
+                if (ss) {
+                    const parts = ss.split(',').map(s => s.trim()).filter(Boolean);
+                    if (parts.length) {
+                        const last = parts[parts.length - 1].split(/\s+/)[0];
+                        if (last && !last.includes('empty-poster')) return last;
+                    }
+                }
+                const s = el.getAttribute('src') || el.getAttribute('data-src');
+                if (s && !s.includes('empty-poster')) return s;
+                return null;
+            }
+        """
+        try:
+            return page.eval_on_selector(selector, js)
+        except Exception:
+            return None
+
+    def _rewrite_hi_res(self, url: str) -> str | None:
+        """Stupid replacement: turn -0-230-0-345- into -0-2000-0-3000- (preserve query).
+
+        Returns the rewritten URL string or None if no 230/345 pattern found.
+        """
+        # Keep query (?v=...) if present
+        base, qs = (url.split("?", 1) + [""])[:2]
+        replaced = base.replace("-0-230-", "-0-2000-").replace("-0-345-", "-0-3000-")
+        if replaced == base:
+            return None
+        return replaced + ("?" + qs if qs else "")
+
+    def _scan_for_poster_src(self, page: Page) -> str | None:
+        """Select the film poster by alt text only: `img[alt^="Poster for"]`.
+
+        Rules:
+        - Only consider images whose alt starts with 'Poster for'
+        - Exclude any 'empty-poster' placeholders
+        - Return a Letterboxd CDN resized path (sm/upload or film-poster) if present
+        """
+        js = """
+            () => {
+                const pickSrc = (el) => {
+                    if (!el) return null;
+                    if (el.currentSrc && !el.currentSrc.includes('empty-poster')) return el.currentSrc;
+                    const ss = el.getAttribute('srcset');
+                    if (ss) {
+                        const parts = ss.split(',').map(s => s.trim()).filter(Boolean);
+                        if (parts.length) {
+                            const last = parts[parts.length - 1].split(/\s+/)[0];
+                            if (last && !last.includes('empty-poster')) return last;
+                        }
+                    }
+                    const s = el.getAttribute('src') || el.getAttribute('data-src');
+                    if (s && !s.includes('empty-poster')) return s;
+                    return null;
+                };
+
+                const isLbxCdn = (u) => typeof u === 'string' && /https?:\/\/a\.ltrbxd\.com\/resized\/(?:sm\/upload|film-poster)\//.test(u);
+
+                // Only consider images explicitly marked as posters by alt text
+                const candidates = Array.from(document.querySelectorAll('img[alt^="Poster for"]'));
+                for (const el of candidates) {
+                    const cand = pickSrc(el);
+                    // Prefer Letterboxd CDN poster URLs where we can rewrite sizes
+                    if (isLbxCdn(cand)) return cand;
+                }
+                // If none match CDN, return the first valid poster-for src (even if not rewritable)
+                for (const el of candidates) {
+                    const cand = pickSrc(el);
+                    if (cand) return cand;
+                }
+                return null;
+            }
+        """
+        try:
+            return page.evaluate(js)
+        except Exception:
+            return None
+
+    def resolve(self, film_slug: str) -> str | None:
+        page = self._page_obj()
+        url = f"https://letterboxd.com/film/{film_slug}/"
+        # Log the page we're about to visit
+        print(f"➡️  Visiting film page: {url}", file=sys.stderr)
+        page.goto(url, wait_until="networkidle", timeout=40000)
+        # Log the final loaded URL (after any redirects/canonicalization)
+        try:
+            print(f"   Loaded: {page.url}", file=sys.stderr)
+        except Exception:
+            pass
+        # (Debug print of all <img> tags removed by request)
+        # Only look for the explicit 'Poster for …' image on the page.
+        scanned = self._scan_for_poster_src(page)
+        if scanned:
+            print(f"   Found poster src: {scanned}", file=sys.stderr)
+            rewritten = self._rewrite_hi_res(scanned)
+            if not rewritten:
+                print("   ✗ Could not rewrite poster src to 2000x3000 (no 230/345 found)", file=sys.stderr)
+                raise RuntimeError("Rewrite failed: no 230/345 pattern found")
+            print(f"   Rewritten poster src: {rewritten}", file=sys.stderr)
+            # Always return the rewritten URL; downloading uses this exact URL
+            return rewritten
+        # If we couldn't read a src via 'Poster for' alt image, fail
+        raise RuntimeError(f"Poster image src not found via 'Poster for' alt on page {url}")
+
+
+## No non-headless fallback logic below — headless is required.
+
+
+def download_image(movie: Movie, cache_dir: Path, resolver: HeadlessPosterResolver | None = None) -> str | None:
     """Download an image and cache it. Images are the only cached data."""
     movie_title = movie["title"]
     
-    # Extract film slug from URL
-    film_slug = movie["url"].rstrip("/").split("/")[-1]
+    # Extract film slug and id
+    film_slug = (movie.get("film_slug") or movie["url"].rstrip("/").split("/")[-1])
+    film_id = movie.get("film_id")
+    cache_key = movie.get("cache_busting_key")
     
-    # Get the actual poster URL via AJAX endpoint
-    real_image_url = get_film_poster_url(film_slug)
+    # Headless-only: derive poster from the film page image
+    if resolver is None:
+        print("❌ Headless resolver is required (Playwright). Aborting poster download.", file=sys.stderr)
+        return None
+    real_image_url: str | None = None
+    try:
+        real_image_url = resolver.resolve(film_slug)
+    except Exception as e:
+        print(f"Headless poster resolve failed for {film_slug}: {e}", file=sys.stderr)
+        real_image_url = None
     
     if not real_image_url:
         return None
     
-    filename = get_image_filename(movie_title, real_image_url)
+    # Use slug-based filename for stability
+    extension = ".jpg"
+    if "." in real_image_url.split("?")[0]:
+        ext = real_image_url.split("?")[0].split(".")[-1].lower()
+        if ext in ["jpg", "jpeg", "png", "webp"]:
+            extension = f".{ext}"
+    filename = f"{film_slug}{extension}"
     cache_path = cache_dir / filename
     
     # Skip if already cached
@@ -201,6 +419,7 @@ def download_image(movie: Movie, cache_dir: Path) -> str | None:
             "Referer": "https://letterboxd.com/",
         }
         
+        print(f"   Downloading from: {real_image_url}", file=sys.stderr)
         response = requests.get(real_image_url, headers=headers, timeout=30)
         response.raise_for_status()
         
@@ -299,9 +518,19 @@ def main():
     cached_count = 0
     new_movies_count = 0
     updated_movies_count = 0
+
+    # Initialize headless resolver (required)
+    resolver: HeadlessPosterResolver | None = None
+    try:
+        resolver = HeadlessPosterResolver(user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
+    except Exception as e:
+        print(f"❌ Headless (Playwright) not available: {e}", file=sys.stderr)
+        print("Please install browsers: `uvx playwright install chromium`", file=sys.stderr)
+        sys.exit(2)
+
     
     for i, movie in enumerate(unique_movies):
-        movie_slug = create_movie_slug(movie["title"])
+        movie_slug = movie.get("film_slug") or create_movie_slug(movie["title"])
         movie_title = movie["title"]
         
         # Always update movie data (no caching of metadata)
@@ -314,9 +543,12 @@ def main():
         
         if not image_path.exists() or force_refresh:
             # Need to download the image
-            cached_image = download_image(movie, content_dir)
+            cached_image = download_image(movie, content_dir, resolver=resolver)
             if cached_image:
                 downloaded_count += 1
+            else:
+                print(f"❌ Failed to resolve poster via headless XPath for: {movie_title} ({movie_slug})", file=sys.stderr)
+                sys.exit(3)
         else:
             # Image already exists
             cached_count += 1
@@ -349,7 +581,7 @@ def main():
             time.sleep(0.5)
     
     # Clean up old movies that are no longer in the list
-    current_slugs = {create_movie_slug(movie["title"]) for movie in unique_movies}
+    current_slugs = {(movie.get("film_slug") or create_movie_slug(movie["title"])) for movie in unique_movies}
     removed_count = 0
     
     for json_file in content_dir.glob("*.json"):
@@ -376,13 +608,22 @@ def main():
         {
             "title": movie["title"],
             "url": movie["url"],
-            "slug": create_movie_slug(movie["title"])
+            "slug": (movie.get("film_slug") or create_movie_slug(movie["title"]))
         }
         for movie in unique_movies
     ]
     summary_file.write_text(json.dumps(summary_data, indent="\t"))
     
     print(f"\n✅ Total {len(unique_movies)} movies in collection", file=sys.stderr)
+
+    # Clean up headless
+    try:
+        if resolver:
+            resolver.close()
+    except Exception:
+        pass
+
+    # No headless resources to clean up
     
     if new_movies_count > 0:
         print("\n🆕 Recently added movies:", file=sys.stderr)
