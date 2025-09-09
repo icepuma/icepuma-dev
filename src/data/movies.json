@@ -90,6 +90,11 @@
 		"slug": "before-sunset"
 	},
 	{
+		"title": "Belladonna of Sadness (1973)",
+		"url": "https://letterboxd.com/film/belladonna-of-sadness/",
+		"slug": "belladonna-of-sadness"
+	},
+	{
 		"title": "Black Bag (2025)",
 		"url": "https://letterboxd.com/film/black-bag-2025/",
 		"slug": "black-bag-2025"
@@ -108,6 +113,11 @@
 		"title": "Blade Runner 2049 (2017)",
 		"url": "https://letterboxd.com/film/blade-runner-2049/",
 		"slug": "blade-runner-2049"
+	},
+	{
+		"title": "Bombshell (2019)",
+		"url": "https://letterboxd.com/film/bombshell-2019/",
+		"slug": "bombshell-2019"
 	},
 	{
 		"title": "Brazil (1985)",
@@ -205,6 +215,11 @@
 		"slug": "dune"
 	},
 	{
+		"title": "Elephant (2003)",
+		"url": "https://letterboxd.com/film/elephant-2003/",
+		"slug": "elephant-2003"
+	},
+	{
 		"title": "Eraser (1996)",
 		"url": "https://letterboxd.com/film/eraser/",
 		"slug": "eraser"
@@ -225,9 +240,19 @@
 		"slug": "flash-gordon-1980"
 	},
 	{
+		"title": "Flightplan (2005)",
+		"url": "https://letterboxd.com/film/flightplan/",
+		"slug": "flightplan"
+	},
+	{
 		"title": "Flow (2024)",
 		"url": "https://letterboxd.com/film/flow-2024/",
 		"slug": "flow-2024"
+	},
+	{
+		"title": "Foxes (1980)",
+		"url": "https://letterboxd.com/film/foxes/",
+		"slug": "foxes"
 	},
 	{
 		"title": "Frances Ha (2012)",
@@ -385,6 +410,16 @@
 		"slug": "lady-bird"
 	},
 	{
+		"title": "Legally Blonde (2001)",
+		"url": "https://letterboxd.com/film/legally-blonde/",
+		"slug": "legally-blonde"
+	},
+	{
+		"title": "Legally Blonde 2: Red, White & Blonde (2003)",
+		"url": "https://letterboxd.com/film/legally-blonde-2-red-white-blonde/",
+		"slug": "legally-blonde-2-red-white-blonde"
+	},
+	{
 		"title": "Logan (2017)",
 		"url": "https://letterboxd.com/film/logan-2017/",
 		"slug": "logan-2017"
@@ -428,6 +463,11 @@
 		"title": "Megalopolis (2024)",
 		"url": "https://letterboxd.com/film/megalopolis-2024/",
 		"slug": "megalopolis-2024"
+	},
+	{
+		"title": "Miami Vice: Brother's Keeper (1984)",
+		"url": "https://letterboxd.com/film/miami-vice-brothers-keeper/",
+		"slug": "miami-vice-brothers-keeper"
 	},
 	{
 		"title": "Mickey 17 (2025)",
@@ -500,6 +540,11 @@
 		"slug": "perfect-blue"
 	},
 	{
+		"title": "Phone Booth (2002)",
+		"url": "https://letterboxd.com/film/phone-booth/",
+		"slug": "phone-booth"
+	},
+	{
 		"title": "Point of No Return (1993)",
 		"url": "https://letterboxd.com/film/point-of-no-return/",
 		"slug": "point-of-no-return"
@@ -570,9 +615,19 @@
 		"slug": "saltburn"
 	},
 	{
+		"title": "See How They Run (2022)",
+		"url": "https://letterboxd.com/film/see-how-they-run-2022/",
+		"slug": "see-how-they-run-2022"
+	},
+	{
 		"title": "Seven Psychopaths (2012)",
 		"url": "https://letterboxd.com/film/seven-psychopaths/",
 		"slug": "seven-psychopaths"
+	},
+	{
+		"title": "She's All That (1999)",
+		"url": "https://letterboxd.com/film/shes-all-that/",
+		"slug": "shes-all-that"
 	},
 	{
 		"title": "Shiva Baby (2020)",
@@ -598,6 +653,11 @@
 		"title": "Sneakers (1992)",
 		"url": "https://letterboxd.com/film/sneakers/",
 		"slug": "sneakers"
+	},
+	{
+		"title": "Sound of Hope: The Story of Possum Trot (2024)",
+		"url": "https://letterboxd.com/film/sound-of-hope-the-story-of-possum-trot/",
+		"slug": "sound-of-hope-the-story-of-possum-trot"
 	},
 	{
 		"title": "Source Code (2011)",
@@ -690,14 +750,39 @@
 		"slug": "the-beyond-2017"
 	},
 	{
+		"title": "The Bling Ring (2013)",
+		"url": "https://letterboxd.com/film/the-bling-ring/",
+		"slug": "the-bling-ring"
+	},
+	{
+		"title": "The Brave One (2007)",
+		"url": "https://letterboxd.com/film/the-brave-one/",
+		"slug": "the-brave-one"
+	},
+	{
 		"title": "The Cabin in the Woods (2011)",
 		"url": "https://letterboxd.com/film/the-cabin-in-the-woods/",
 		"slug": "the-cabin-in-the-woods"
 	},
 	{
+		"title": "The Calm (2023)",
+		"url": "https://letterboxd.com/film/the-calm-2023/",
+		"slug": "the-calm-2023"
+	},
+	{
+		"title": "The Con Is On (2018)",
+		"url": "https://letterboxd.com/film/the-con-is-on/",
+		"slug": "the-con-is-on"
+	},
+	{
 		"title": "The Creator (2023)",
 		"url": "https://letterboxd.com/film/the-creator-2023/",
 		"slug": "the-creator-2023"
+	},
+	{
+		"title": "The Doom Generation (1995)",
+		"url": "https://letterboxd.com/film/the-doom-generation/",
+		"slug": "the-doom-generation"
 	},
 	{
 		"title": "The Electric State (2025)",
@@ -743,6 +828,11 @@
 		"title": "The Hunger Games: The Ballad of Songbirds & Snakes (2023)",
 		"url": "https://letterboxd.com/film/the-hunger-games-the-ballad-of-songbirds-snakes/",
 		"slug": "the-hunger-games-the-ballad-of-songbirds-snakes"
+	},
+	{
+		"title": "The Hunt (2020)",
+		"url": "https://letterboxd.com/film/the-hunt-2020/",
+		"slug": "the-hunt-2020"
 	},
 	{
 		"title": "The King's Man (2021)",
@@ -805,6 +895,11 @@
 		"slug": "the-substance"
 	},
 	{
+		"title": "The Thursday Murder Club (2025)",
+		"url": "https://letterboxd.com/film/the-thursday-murder-club/",
+		"slug": "the-thursday-murder-club"
+	},
+	{
 		"title": "The VelociPastor (2017)",
 		"url": "https://letterboxd.com/film/the-velocipastor/",
 		"slug": "the-velocipastor"
@@ -848,6 +943,11 @@
 		"title": "Under the Skin (2013)",
 		"url": "https://letterboxd.com/film/under-the-skin-2013/",
 		"slug": "under-the-skin-2013"
+	},
+	{
+		"title": "Up in the Air (2009)",
+		"url": "https://letterboxd.com/film/up-in-the-air/",
+		"slug": "up-in-the-air"
 	},
 	{
 		"title": "Vanilla Sky (2001)",
