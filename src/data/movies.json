@@ -40,6 +40,11 @@
 		"slug": "almost-famous"
 	},
 	{
+		"title": "American Heist (2014)",
+		"url": "https://letterboxd.com/film/american-heist/",
+		"slug": "american-heist"
+	},
+	{
 		"title": "Annihilation (2018)",
 		"url": "https://letterboxd.com/film/annihilation/",
 		"slug": "annihilation"
@@ -150,6 +155,11 @@
 		"slug": "chinatown"
 	},
 	{
+		"title": "Claire's Camera (2017)",
+		"url": "https://letterboxd.com/film/claires-camera/",
+		"slug": "claires-camera"
+	},
+	{
 		"title": "Cleopatra Jones (1973)",
 		"url": "https://letterboxd.com/film/cleopatra-jones/",
 		"slug": "cleopatra-jones"
@@ -215,6 +225,11 @@
 		"slug": "dune"
 	},
 	{
+		"title": "Easy A (2010)",
+		"url": "https://letterboxd.com/film/easy-a/",
+		"slug": "easy-a"
+	},
+	{
 		"title": "Elephant (2003)",
 		"url": "https://letterboxd.com/film/elephant-2003/",
 		"slug": "elephant-2003"
@@ -228,6 +243,11 @@
 		"title": "Everything Everywhere All at Once (2022)",
 		"url": "https://letterboxd.com/film/everything-everywhere-all-at-once/",
 		"slug": "everything-everywhere-all-at-once"
+	},
+	{
+		"title": "Fallen Angels (1995)",
+		"url": "https://letterboxd.com/film/fallen-angels/",
+		"slug": "fallen-angels"
 	},
 	{
 		"title": "Finding Jesus (2020)",
@@ -338,6 +358,11 @@
 		"title": "High Life (2018)",
 		"url": "https://letterboxd.com/film/high-life-2018/",
 		"slug": "high-life-2018"
+	},
+	{
+		"title": "Highway (2002)",
+		"url": "https://letterboxd.com/film/highway/",
+		"slug": "highway"
 	},
 	{
 		"title": "I Love You Forever (2024)",
@@ -503,6 +528,11 @@
 		"title": "Novocaine (2025)",
 		"url": "https://letterboxd.com/film/novocaine-2025/",
 		"slug": "novocaine-2025"
+	},
+	{
+		"title": "Old Guy (2024)",
+		"url": "https://letterboxd.com/film/old-guy/",
+		"slug": "old-guy"
 	},
 	{
 		"title": "Oldboy (2003)",
@@ -683,6 +713,11 @@
 		"title": "Spider-Man: Into the Spider-Verse (2018)",
 		"url": "https://letterboxd.com/film/spider-man-into-the-spider-verse/",
 		"slug": "spider-man-into-the-spider-verse"
+	},
+	{
+		"title": "Spree (2020)",
+		"url": "https://letterboxd.com/film/spree-2020/",
+		"slug": "spree-2020"
 	},
 	{
 		"title": "Spy Games (1999)",
@@ -973,6 +1008,11 @@
 		"title": "WarGames (1983)",
 		"url": "https://letterboxd.com/film/wargames/",
 		"slug": "wargames"
+	},
+	{
+		"title": "Watching the Detectives (2007)",
+		"url": "https://letterboxd.com/film/watching-the-detectives/",
+		"slug": "watching-the-detectives"
 	},
 	{
 		"title": "Wolfs (2024)",
