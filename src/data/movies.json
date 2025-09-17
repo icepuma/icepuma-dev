@@ -85,6 +85,16 @@
 		"slug": "ballerina-2025"
 	},
 	{
+		"title": "Ballistic: Ecks vs. Sever (2002)",
+		"url": "https://letterboxd.com/film/ballistic-ecks-vs-sever/",
+		"slug": "ballistic-ecks-vs-sever"
+	},
+	{
+		"title": "Bang (1995)",
+		"url": "https://letterboxd.com/film/bang/",
+		"slug": "bang"
+	},
+	{
 		"title": "Barbie (2023)",
 		"url": "https://letterboxd.com/film/barbie/",
 		"slug": "barbie"
@@ -155,6 +165,11 @@
 		"slug": "chinatown"
 	},
 	{
+		"title": "Chinese Roulette (1976)",
+		"url": "https://letterboxd.com/film/chinese-roulette/",
+		"slug": "chinese-roulette"
+	},
+	{
 		"title": "Claire's Camera (2017)",
 		"url": "https://letterboxd.com/film/claires-camera/",
 		"slug": "claires-camera"
@@ -205,6 +220,11 @@
 		"slug": "dark-star"
 	},
 	{
+		"title": "Detachment (2011)",
+		"url": "https://letterboxd.com/film/detachment/",
+		"slug": "detachment"
+	},
+	{
 		"title": "Drive (2011)",
 		"url": "https://letterboxd.com/film/drive-2011/",
 		"slug": "drive-2011"
@@ -238,6 +258,11 @@
 		"title": "Eraser (1996)",
 		"url": "https://letterboxd.com/film/eraser/",
 		"slug": "eraser"
+	},
+	{
+		"title": "Escape from New York (1981)",
+		"url": "https://letterboxd.com/film/escape-from-new-york/",
+		"slug": "escape-from-new-york"
 	},
 	{
 		"title": "Everything Everywhere All at Once (2022)",
@@ -298,6 +323,11 @@
 		"title": "Gattaca (1997)",
 		"url": "https://letterboxd.com/film/gattaca/",
 		"slug": "gattaca"
+	},
+	{
+		"title": "Get Duked! (2019)",
+		"url": "https://letterboxd.com/film/get-duked/",
+		"slug": "get-duked"
 	},
 	{
 		"title": "Ghost in the Shell (2017)",
@@ -490,6 +520,11 @@
 		"slug": "megalopolis-2024"
 	},
 	{
+		"title": "Metropolis (1927)",
+		"url": "https://letterboxd.com/film/metropolis/",
+		"slug": "metropolis"
+	},
+	{
 		"title": "Miami Vice: Brother's Keeper (1984)",
 		"url": "https://letterboxd.com/film/miami-vice-brothers-keeper/",
 		"slug": "miami-vice-brothers-keeper"
@@ -515,9 +550,19 @@
 		"slug": "my-oxford-year"
 	},
 	{
+		"title": "New York Ninja (2021)",
+		"url": "https://letterboxd.com/film/new-york-ninja/",
+		"slug": "new-york-ninja"
+	},
+	{
 		"title": "Nobody (2021)",
 		"url": "https://letterboxd.com/film/nobody-2021/",
 		"slug": "nobody-2021"
+	},
+	{
+		"title": "Nomads (2010)",
+		"url": "https://letterboxd.com/film/film:143650/",
+		"slug": "film:143650"
 	},
 	{
 		"title": "Nosferatu (2024)",
@@ -588,6 +633,11 @@
 		"title": "Promising Young Woman (2020)",
 		"url": "https://letterboxd.com/film/promising-young-woman/",
 		"slug": "promising-young-woman"
+	},
+	{
+		"title": "Punch-Drunk Love (2002)",
+		"url": "https://letterboxd.com/film/punch-drunk-love/",
+		"slug": "punch-drunk-love"
 	},
 	{
 		"title": "Rap World (2024)",
@@ -933,6 +983,11 @@
 		"title": "The Thursday Murder Club (2025)",
 		"url": "https://letterboxd.com/film/the-thursday-murder-club/",
 		"slug": "the-thursday-murder-club"
+	},
+	{
+		"title": "The Toxic Avenger Unrated (2023)",
+		"url": "https://letterboxd.com/film/the-toxic-avenger-unrated/",
+		"slug": "the-toxic-avenger-unrated"
 	},
 	{
 		"title": "The VelociPastor (2017)",
