@@ -5,7 +5,6 @@
 #   "beautifulsoup4",
 #   "requests",
 #   "lxml",
-#   "playwright",
 # ]
 # ///
 
@@ -20,14 +19,6 @@ from typing import TypedDict, NotRequired
 
 import requests
 from bs4 import BeautifulSoup
-from urllib.parse import urlsplit
-
-# Headless support for resolving poster URLs rendered client-side (required)
-try:
-    from playwright.sync_api import sync_playwright, Browser, Page
-except Exception:
-    sync_playwright = None  # type: ignore
-    Browser = Page = None  # type: ignore
 
 
 class Movie(TypedDict):
@@ -68,11 +59,11 @@ def fetch_letterboxd_page(username: str, page: int = 1) -> tuple[list[Movie], bo
         movies: list[Movie] = []
 
         # 1) New markup: React component placeholders for posters
-        lazy_posters = soup.find_all(
-            "div",
-            class_="react-component",
-            attrs={"data-component-class": "globals.comps.LazyPoster"},
-        )
+        lazy_posters = [
+            el
+            for el in soup.find_all("div", class_="react-component")
+            if (el.get("data-component-class") == "LazyPoster" or str(el.get("data-component-class", "")).endswith(".LazyPoster"))
+        ]
 
         if lazy_posters:
             for el in lazy_posters:
@@ -209,178 +200,58 @@ def get_image_filename(movie_title: str, image_url: str) -> str:
     return f"{safe_title}{extension}"
 
 
-"""Utilities for resolving Letterboxd poster URLs via headless browser only."""
+POSTER_CDN_RE = re.compile(r'https://a\.ltrbxd\.com/resized/film-poster/[^\\"\'\s>]+', re.IGNORECASE)
+UPLOAD_CDN_RE = re.compile(r'https://a\.ltrbxd\.com/resized/sm/upload/[^\\"\'\s>]+', re.IGNORECASE)
 
 
-class HeadlessPosterResolver:
-    """Resolve the poster URL via the film page and do a simple size swap.
-
-    - Find the `<img>` whose alt starts with "Poster for" (the correct poster).
-    - Read its src/srcset/currentSrc and perform a simple string replacement:
-      `-0-230-0-345-` -> `-0-2000-0-3000-` (query string preserved).
-    - Always return the rewritten URL; downloading uses that exact URL.
-    """
-
-    def __init__(self, user_agent: str | None = None) -> None:
-        if not sync_playwright:
-            raise RuntimeError("playwright is not installed. Install browsers with: uvx playwright install chromium")
-        self._play = sync_playwright().start()
-        self._browser: Browser = self._play.chromium.launch(headless=True)
-        context_args = {"viewport": {"width": 1280, "height": 1000}}
-        if user_agent:
-            context_args["user_agent"] = user_agent
-        self._context = self._browser.new_context(**context_args)
-        self._page: Page | None = None
-
-    def _page_obj(self) -> Page:
-        if self._page is None:
-            self._page = self._context.new_page()
-        return self._page
-
-    def close(self) -> None:
-        try:
-            if self._page:
-                self._page.close()
-            self._context.close()
-            self._browser.close()
-        finally:
-            self._play.stop()
-
-    def _pick_src_from_img(self, page: Page, selector: str) -> str | None:
-        # Prefer currentSrc, then srcset last candidate, then src
-        js = """
-            sel => {
-                const el = document.querySelector(sel);
-                if (!el) return null;
-                // prefer currentSrc
-                if (el.currentSrc && !el.currentSrc.includes('empty-poster')) return el.currentSrc;
-                const ss = el.getAttribute('srcset');
-                if (ss) {
-                    const parts = ss.split(',').map(s => s.trim()).filter(Boolean);
-                    if (parts.length) {
-                        const last = parts[parts.length - 1].split(/\s+/)[0];
-                        if (last && !last.includes('empty-poster')) return last;
-                    }
-                }
-                const s = el.getAttribute('src') || el.getAttribute('data-src');
-                if (s && !s.includes('empty-poster')) return s;
-                return null;
-            }
-        """
-        try:
-            return page.eval_on_selector(selector, js)
-        except Exception:
-            return None
-
-    def _rewrite_hi_res(self, url: str) -> str | None:
-        """Stupid replacement: turn -0-230-0-345- into -0-2000-0-3000- (preserve query).
-
-        Returns the rewritten URL string or None if no 230/345 pattern found.
-        """
-        # Keep query (?v=...) if present
-        base, qs = (url.split("?", 1) + [""])[:2]
-        replaced = base.replace("-0-230-", "-0-2000-").replace("-0-345-", "-0-3000-")
-        if replaced == base:
-            return None
-        return replaced + ("?" + qs if qs else "")
-
-    def _scan_for_poster_src(self, page: Page) -> str | None:
-        """Select the film poster by alt text only: `img[alt^="Poster for"]`.
-
-        Rules:
-        - Only consider images whose alt starts with 'Poster for'
-        - Exclude any 'empty-poster' placeholders
-        - Return a Letterboxd CDN resized path (sm/upload or film-poster) if present
-        """
-        js = """
-            () => {
-                const pickSrc = (el) => {
-                    if (!el) return null;
-                    if (el.currentSrc && !el.currentSrc.includes('empty-poster')) return el.currentSrc;
-                    const ss = el.getAttribute('srcset');
-                    if (ss) {
-                        const parts = ss.split(',').map(s => s.trim()).filter(Boolean);
-                        if (parts.length) {
-                            const last = parts[parts.length - 1].split(/\s+/)[0];
-                            if (last && !last.includes('empty-poster')) return last;
-                        }
-                    }
-                    const s = el.getAttribute('src') || el.getAttribute('data-src');
-                    if (s && !s.includes('empty-poster')) return s;
-                    return null;
-                };
-
-                const isLbxCdn = (u) => typeof u === 'string' && /https?:\/\/a\.ltrbxd\.com\/resized\/(?:sm\/upload|film-poster)\//.test(u);
-
-                // Only consider images explicitly marked as posters by alt text
-                const candidates = Array.from(document.querySelectorAll('img[alt^="Poster for"]'));
-                for (const el of candidates) {
-                    const cand = pickSrc(el);
-                    // Prefer Letterboxd CDN poster URLs where we can rewrite sizes
-                    if (isLbxCdn(cand)) return cand;
-                }
-                // If none match CDN, return the first valid poster-for src (even if not rewritable)
-                for (const el of candidates) {
-                    const cand = pickSrc(el);
-                    if (cand) return cand;
-                }
-                return null;
-            }
-        """
-        try:
-            return page.evaluate(js)
-        except Exception:
-            return None
-
-    def resolve(self, film_slug: str) -> str | None:
-        page = self._page_obj()
-        url = f"https://letterboxd.com/film/{film_slug}/"
-        # Log the page we're about to visit
-        print(f"➡️  Visiting film page: {url}", file=sys.stderr)
-        page.goto(url, wait_until="networkidle", timeout=40000)
-        # Log the final loaded URL (after any redirects/canonicalization)
-        try:
-            print(f"   Loaded: {page.url}", file=sys.stderr)
-        except Exception:
-            pass
-        # (Debug print of all <img> tags removed by request)
-        # Only look for the explicit 'Poster for …' image on the page.
-        scanned = self._scan_for_poster_src(page)
-        if scanned:
-            print(f"   Found poster src: {scanned}", file=sys.stderr)
-            rewritten = self._rewrite_hi_res(scanned)
-            if not rewritten:
-                print("   ✗ Could not rewrite poster src to 2000x3000 (no 230/345 found)", file=sys.stderr)
-                raise RuntimeError("Rewrite failed: no 230/345 pattern found")
-            print(f"   Rewritten poster src: {rewritten}", file=sys.stderr)
-            # Always return the rewritten URL; downloading uses this exact URL
-            return rewritten
-        # If we couldn't read a src via 'Poster for' alt image, fail
-        raise RuntimeError(f"Poster image src not found via 'Poster for' alt on page {url}")
+def _rewrite_hi_res(url: str) -> str | None:
+    """Replace 230x345 poster sizes with 2000x3000 while keeping any query string."""
+    base, qs = (url.split("?", 1) + [""])[:2]
+    replaced = base.replace("-0-230-", "-0-2000-").replace("-0-345-", "-0-3000-")
+    if replaced == base:
+        return None
+    return replaced + ("?" + qs if qs else "")
 
 
-## No non-headless fallback logic below — headless is required.
+def resolve_poster_from_html(film_slug: str) -> str | None:
+    """Pull the poster CDN path straight from the film page HTML."""
+    page_url = f"https://letterboxd.com/film/{film_slug}/"
+    print(f"➡️  Fetching film page for poster: {page_url}", file=sys.stderr)
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    }
+    try:
+        resp = requests.get(page_url, headers=headers, timeout=30)
+        resp.raise_for_status()
+    except Exception as exc:
+        print(f"   ✗ Failed to fetch film page: {exc}", file=sys.stderr)
+        return None
+
+    html = resp.text
+    for pattern in (POSTER_CDN_RE, UPLOAD_CDN_RE):
+        match = pattern.search(html)
+        if not match:
+            continue
+        found = match.group(0)
+        rewritten = _rewrite_hi_res(found)
+        final = rewritten or found
+        print(f"   ✓ Poster URL resolved: {final}", file=sys.stderr)
+        return final
+
+    print("   ✗ No poster CDN URL found in film page HTML", file=sys.stderr)
+    return None
 
 
-def download_image(movie: Movie, cache_dir: Path, resolver: HeadlessPosterResolver | None = None) -> str | None:
+def download_image(movie: Movie, cache_dir: Path) -> str | None:
     """Download an image and cache it. Images are the only cached data."""
     movie_title = movie["title"]
     
-    # Extract film slug and id
+    # Extract film slug
     film_slug = (movie.get("film_slug") or movie["url"].rstrip("/").split("/")[-1])
-    film_id = movie.get("film_id")
-    cache_key = movie.get("cache_busting_key")
     
-    # Headless-only: derive poster from the film page image
-    if resolver is None:
-        print("❌ Headless resolver is required (Playwright). Aborting poster download.", file=sys.stderr)
-        return None
-    real_image_url: str | None = None
-    try:
-        real_image_url = resolver.resolve(film_slug)
-    except Exception as e:
-        print(f"Headless poster resolve failed for {film_slug}: {e}", file=sys.stderr)
-        real_image_url = None
+    # Resolve poster directly from the film page HTML
+    real_image_url = resolve_poster_from_html(film_slug)
     
     if not real_image_url:
         return None
@@ -518,16 +389,6 @@ def main():
     cached_count = 0
     new_movies_count = 0
     updated_movies_count = 0
-
-    # Initialize headless resolver (required)
-    resolver: HeadlessPosterResolver | None = None
-    try:
-        resolver = HeadlessPosterResolver(user_agent="Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36")
-    except Exception as e:
-        print(f"❌ Headless (Playwright) not available: {e}", file=sys.stderr)
-        print("Please install browsers: `uvx playwright install chromium`", file=sys.stderr)
-        sys.exit(2)
-
     
     for i, movie in enumerate(unique_movies):
         movie_slug = movie.get("film_slug") or create_movie_slug(movie["title"])
@@ -543,11 +404,11 @@ def main():
         
         if not image_path.exists() or force_refresh:
             # Need to download the image
-            cached_image = download_image(movie, content_dir, resolver=resolver)
+            cached_image = download_image(movie, content_dir)
             if cached_image:
                 downloaded_count += 1
             else:
-                print(f"❌ Failed to resolve poster via headless XPath for: {movie_title} ({movie_slug})", file=sys.stderr)
+                print(f"❌ Failed to resolve poster for: {movie_title} ({movie_slug})", file=sys.stderr)
                 sys.exit(3)
         else:
             # Image already exists
@@ -615,15 +476,6 @@ def main():
     summary_file.write_text(json.dumps(summary_data, indent="\t"))
     
     print(f"\n✅ Total {len(unique_movies)} movies in collection", file=sys.stderr)
-
-    # Clean up headless
-    try:
-        if resolver:
-            resolver.close()
-    except Exception:
-        pass
-
-    # No headless resources to clean up
     
     if new_movies_count > 0:
         print("\n🆕 Recently added movies:", file=sys.stderr)

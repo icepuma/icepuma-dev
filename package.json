@@ -7,18 +7,18 @@
 		"build": "biome lint --write && biome format --write && astro check && astro build"
 	},
 	"dependencies": {
-		"@astrojs/check": "^0.9.4",
-		"@astrojs/cloudflare": "12.6.8",
-		"@astrojs/mdx": "^4.3.5",
-		"@astrojs/sitemap": "^3.5.1",
-		"@fontsource/jetbrains-mono": "^5.2.6",
-		"@tailwindcss/vite": "^4.1.13",
-		"astro": "5.13.7",
-		"tailwindcss": "^4.1.13"
+		"@astrojs/check": "^0.9.5",
+		"@astrojs/cloudflare": "12.6.11",
+		"@astrojs/mdx": "^4.3.11",
+		"@astrojs/sitemap": "^3.6.0",
+		"@fontsource/jetbrains-mono": "^5.2.8",
+		"@tailwindcss/vite": "^4.1.17",
+		"astro": "5.15.9",
+		"tailwindcss": "^4.1.17"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.2.4",
-		"@tailwindcss/typography": "^0.5.16",
+		"@biomejs/biome": "2.3.6",
+		"@tailwindcss/typography": "^0.5.19",
 		"@types/bun": "latest"
 	},
 	"trustedDependencies": [

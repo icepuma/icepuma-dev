@@ -1,24 +1,10 @@
----
+import BioContent from "@/components/BioContent.astro";
 import PageLayout from "@/components/PageLayout.astro";
-import Prose from "@/components/Prose.astro";
----
+----
 
-<PageLayout title="Bio" description="About Stefan Ruzitschka">
-	<Prose>
-		<p>I'm a 38-year-old software developer based in Berlin, Germany.</p>
-		
-		<p>I currently live on a small island with my wife and our 3-year-old black lab.</p>
-		
-		<h2>My interests include:</h2>
-		<ul>
-			<li>3D printing</li>
-			<li>Sci-fi (especially Stargate SG-1 and Warhammer 40k)</li>
-			<li>Open Source, with a particular fondness for Rust.</li>
-		</ul>
-		
-		<p>
-			I also contribute to building <a href="https://rawkode.studio" target="_blank" rel="noopener noreferrer">rawkode.studio</a> 
-			for the <a href="https://rawkode.academy" target="_blank" rel="noopener noreferrer">Rawkode Academy</a>.
-		</p>
-	</Prose>
+<PageLayout
+	title="Bio"
+	description="Senior software & DevOps engineer in Berlin who ships products end-to-end"
+>
+	<BioContent />
 </PageLayout>

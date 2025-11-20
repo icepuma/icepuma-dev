@@ -15,6 +15,11 @@
 		"slug": "65"
 	},
 	{
+		"title": "A Working Man (2025)",
+		"url": "https://letterboxd.com/film/a-working-man/",
+		"slug": "a-working-man"
+	},
+	{
 		"title": "About Time (2013)",
 		"url": "https://letterboxd.com/film/about-time/",
 		"slug": "about-time"
@@ -28,6 +33,11 @@
 		"title": "AGGRO DR1FT (2023)",
 		"url": "https://letterboxd.com/film/aggro-dr1ft/",
 		"slug": "aggro-dr1ft"
+	},
+	{
+		"title": "Air Force One (1997)",
+		"url": "https://letterboxd.com/film/air-force-one/",
+		"slug": "air-force-one"
 	},
 	{
 		"title": "Airplane II: The Sequel (1982)",
@@ -98,6 +108,11 @@
 		"title": "Barbie (2023)",
 		"url": "https://letterboxd.com/film/barbie/",
 		"slug": "barbie"
+	},
+	{
+		"title": "Basic Instinct (1992)",
+		"url": "https://letterboxd.com/film/basic-instinct/",
+		"slug": "basic-instinct"
 	},
 	{
 		"title": "Before Sunset (2004)",
@@ -225,6 +240,11 @@
 		"slug": "detachment"
 	},
 	{
+		"title": "Dracula: A Love Tale (2025)",
+		"url": "https://letterboxd.com/film/dracula-a-love-tale/",
+		"slug": "dracula-a-love-tale"
+	},
+	{
 		"title": "Drive (2011)",
 		"url": "https://letterboxd.com/film/drive-2011/",
 		"slug": "drive-2011"
@@ -248,6 +268,11 @@
 		"title": "Easy A (2010)",
 		"url": "https://letterboxd.com/film/easy-a/",
 		"slug": "easy-a"
+	},
+	{
+		"title": "Eddington (2025)",
+		"url": "https://letterboxd.com/film/eddington/",
+		"slug": "eddington"
 	},
 	{
 		"title": "Elephant (2003)",
@@ -305,6 +330,11 @@
 		"slug": "frances-ha"
 	},
 	{
+		"title": "Frankenstein (2025)",
+		"url": "https://letterboxd.com/film/frankenstein-2025/",
+		"slug": "frankenstein-2025"
+	},
+	{
 		"title": "Freaky Friday (2003)",
 		"url": "https://letterboxd.com/film/freaky-friday-2003/",
 		"slug": "freaky-friday-2003"
@@ -343,6 +373,21 @@
 		"title": "Glass Onion (2022)",
 		"url": "https://letterboxd.com/film/glass-onion/",
 		"slug": "glass-onion"
+	},
+	{
+		"title": "Go (1999)",
+		"url": "https://letterboxd.com/film/go/",
+		"slug": "go"
+	},
+	{
+		"title": "Good Boy (2025)",
+		"url": "https://letterboxd.com/film/good-boy-2025/",
+		"slug": "good-boy-2025"
+	},
+	{
+		"title": "Good Fortune (2025)",
+		"url": "https://letterboxd.com/film/good-fortune-2025/",
+		"slug": "good-fortune-2025"
 	},
 	{
 		"title": "Good Morning, Vietnam (1987)",
@@ -393,6 +438,21 @@
 		"title": "Highway (2002)",
 		"url": "https://letterboxd.com/film/highway/",
 		"slug": "highway"
+	},
+	{
+		"title": "HIM (2025)",
+		"url": "https://letterboxd.com/film/him-2025/",
+		"slug": "him-2025"
+	},
+	{
+		"title": "Honey Don't! (2025)",
+		"url": "https://letterboxd.com/film/honey-dont/",
+		"slug": "honey-dont"
+	},
+	{
+		"title": "I Care a Lot (2020)",
+		"url": "https://letterboxd.com/film/i-care-a-lot/",
+		"slug": "i-care-a-lot"
 	},
 	{
 		"title": "I Love You Forever (2024)",
@@ -560,6 +620,11 @@
 		"slug": "nobody-2021"
 	},
 	{
+		"title": "Nobody 2 (2025)",
+		"url": "https://letterboxd.com/film/nobody-2/",
+		"slug": "nobody-2"
+	},
+	{
 		"title": "Nomads (2010)",
 		"url": "https://letterboxd.com/film/film:143650/",
 		"slug": "film:143650"
@@ -623,6 +688,16 @@
 		"title": "Point of No Return (1993)",
 		"url": "https://letterboxd.com/film/point-of-no-return/",
 		"slug": "point-of-no-return"
+	},
+	{
+		"title": "Premium Rush (2012)",
+		"url": "https://letterboxd.com/film/premium-rush/",
+		"slug": "premium-rush"
+	},
+	{
+		"title": "Present Perfect (2024)",
+		"url": "https://letterboxd.com/film/present-perfect-2024/",
+		"slug": "present-perfect-2024"
 	},
 	{
 		"title": "Pretty Woman (1990)",
@@ -713,6 +788,11 @@
 		"title": "Shiva Baby (2020)",
 		"url": "https://letterboxd.com/film/shiva-baby-2020/",
 		"slug": "shiva-baby-2020"
+	},
+	{
+		"title": "Shopgirl (2005)",
+		"url": "https://letterboxd.com/film/shopgirl/",
+		"slug": "shopgirl"
 	},
 	{
 		"title": "Silent Running (1972)",
@@ -840,6 +920,11 @@
 		"slug": "the-bling-ring"
 	},
 	{
+		"title": "The Bodyguard (1992)",
+		"url": "https://letterboxd.com/film/the-bodyguard-1992/",
+		"slug": "the-bodyguard-1992"
+	},
+	{
 		"title": "The Brave One (2007)",
 		"url": "https://letterboxd.com/film/the-brave-one/",
 		"slug": "the-brave-one"
@@ -868,6 +953,11 @@
 		"title": "The Doom Generation (1995)",
 		"url": "https://letterboxd.com/film/the-doom-generation/",
 		"slug": "the-doom-generation"
+	},
+	{
+		"title": "The Drop (2014)",
+		"url": "https://letterboxd.com/film/the-drop-2014/",
+		"slug": "the-drop-2014"
 	},
 	{
 		"title": "The Electric State (2025)",
@@ -920,6 +1010,11 @@
 		"slug": "the-hunt-2020"
 	},
 	{
+		"title": "The Interpreter (2005)",
+		"url": "https://letterboxd.com/film/the-interpreter/",
+		"slug": "the-interpreter"
+	},
+	{
 		"title": "The King's Man (2021)",
 		"url": "https://letterboxd.com/film/the-kings-man/",
 		"slug": "the-kings-man"
@@ -938,6 +1033,11 @@
 		"title": "The Lobster (2015)",
 		"url": "https://letterboxd.com/film/the-lobster/",
 		"slug": "the-lobster"
+	},
+	{
+		"title": "The Mexican (2001)",
+		"url": "https://letterboxd.com/film/the-mexican/",
+		"slug": "the-mexican"
 	},
 	{
 		"title": "The Outrun (2024)",
@@ -970,6 +1070,11 @@
 		"slug": "the-purge-election-year"
 	},
 	{
+		"title": "The Roses (2025)",
+		"url": "https://letterboxd.com/film/the-roses-2025/",
+		"slug": "the-roses-2025"
+	},
+	{
 		"title": "The Running Man (1987)",
 		"url": "https://letterboxd.com/film/the-running-man/",
 		"slug": "the-running-man"
@@ -985,9 +1090,9 @@
 		"slug": "the-thursday-murder-club"
 	},
 	{
-		"title": "The Toxic Avenger Unrated (2023)",
-		"url": "https://letterboxd.com/film/the-toxic-avenger-unrated/",
-		"slug": "the-toxic-avenger-unrated"
+		"title": "The Toxic Avenger (2023)",
+		"url": "https://letterboxd.com/film/the-toxic-avenger-2023/",
+		"slug": "the-toxic-avenger-2023"
 	},
 	{
 		"title": "The VelociPastor (2017)",
@@ -998,6 +1103,11 @@
 		"title": "The Wild Robot (2024)",
 		"url": "https://letterboxd.com/film/the-wild-robot/",
 		"slug": "the-wild-robot"
+	},
+	{
+		"title": "Till Death (2021)",
+		"url": "https://letterboxd.com/film/till-death-2021/",
+		"slug": "till-death-2021"
 	},
 	{
 		"title": "Tomorrowland (2015)",
@@ -1035,6 +1145,11 @@
 		"slug": "under-the-skin-2013"
 	},
 	{
+		"title": "Unlocked (2017)",
+		"url": "https://letterboxd.com/film/unlocked/",
+		"slug": "unlocked"
+	},
+	{
 		"title": "Up in the Air (2009)",
 		"url": "https://letterboxd.com/film/up-in-the-air/",
 		"slug": "up-in-the-air"
@@ -1043,6 +1158,11 @@
 		"title": "Vanilla Sky (2001)",
 		"url": "https://letterboxd.com/film/vanilla-sky/",
 		"slug": "vanilla-sky"
+	},
+	{
+		"title": "Vantage Point (2008)",
+		"url": "https://letterboxd.com/film/vantage-point/",
+		"slug": "vantage-point"
 	},
 	{
 		"title": "Voll Normaaal (1994)",
@@ -1068,6 +1188,11 @@
 		"title": "Watching the Detectives (2007)",
 		"url": "https://letterboxd.com/film/watching-the-detectives/",
 		"slug": "watching-the-detectives"
+	},
+	{
+		"title": "Where'd You Go, Bernadette (2019)",
+		"url": "https://letterboxd.com/film/whered-you-go-bernadette/",
+		"slug": "whered-you-go-bernadette"
 	},
 	{
 		"title": "Wolfs (2024)",

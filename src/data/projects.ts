@@ -21,11 +21,20 @@ export const projects = [
 		stack: ["TypeScript", "Astro", "Tailwind CSS", "Bun"],
 	},
 	{
-		name: "rawkode.studio",
-		description: "A subproject within Rawkode Academy monorepository.",
-		url: "https://github.com/RawkodeAcademy/RawkodeAcademy/tree/main/projects/rawkode.studio",
-		role: "Maintainer",
-		stack: ["TypeScript", "Astro", "Drizzle ORM", "Bun"],
+		name: "intar.dev",
+		description:
+			" A DevOps training platform. People learn how to fix different scenarios e.g. a broken k8s cluster. The scenarios are backed by cloud-hypervisor VMs.",
+		url: "https://intar.dev",
+		role: "Author",
+		stack: ["Astro", "React", "Rust", "cloud-hypervisor"],
+	},
+	{
+		name: "Advent of AI security 2025",
+		description:
+			"10 doors explaining attacks against AI models and how to mitigate them",
+		url: "https://advent-of-ai-security.com",
+		role: "Author",
+		stack: ["Typescript", "Astro", "React"],
 	},
 	{
 		name: "temps",
