@@ -1,14 +1,16 @@
 export const projects = [
 	{
 		name: "cidrrr",
-		description: "CLI tool for converting CIDR blocks to IP lists.",
+		description:
+			"Network utility for inspecting IPv4/IPv6 CIDR blocks. Shows first/last IPs or exports full IP lists as JSON.",
 		url: "https://github.com/icepuma/cidrrr",
 		role: "Author",
 		stack: ["Rust", "CLI"],
 	},
 	{
 		name: "fbtoggl",
-		description: "Interact with track.toggl.com via terminal.",
+		description:
+			"Full-featured CLI for Toggl Track. Start/stop timers, manage entries, generate reports, and validate German work law (ArbZG) compliance.",
 		url: "https://github.com/icepuma/fbtoggl",
 		role: "Author",
 		stack: ["Rust", "CLI"],
@@ -23,22 +25,23 @@ export const projects = [
 	{
 		name: "intar.dev",
 		description:
-			" A DevOps training platform. People learn how to fix different scenarios e.g. a broken k8s cluster. The scenarios are backed by cloud-hypervisor VMs.",
+			"Interactive DevOps training platform. Break and repair clusters, fix failing nodes, roll back deploys, rotate tokens, and recover from outages in cloud-hypervisor VMs.",
 		url: "https://intar.dev",
 		role: "Author",
 		stack: ["Astro", "React", "Rust", "cloud-hypervisor"],
 	},
 	{
-		name: "Advent of AI security 2025",
+		name: "Advent of AI Security 2025",
 		description:
-			"10 doors explaining attacks against AI models and how to mitigate them",
+			"Interactive advent calendar covering the OWASP Top 10 for LLM Applications 2025. Progressively unlocking doors teach security vulnerabilities through hands-on learning.",
 		url: "https://advent-of-ai-security.com",
 		role: "Author",
-		stack: ["Typescript", "Astro", "React"],
+		stack: ["TypeScript", "Astro", "React"],
 	},
 	{
 		name: "temps",
-		description: "Library for parsing human-readable time expressions.",
+		description:
+			"Multi-language library for parsing human-readable time expressions. Supports relative times, weekdays, dates, and combined expressions in English and German.",
 		url: "https://github.com/icepuma/temps",
 		role: "Author",
 		stack: ["Rust", "chrono", "jiff"],
