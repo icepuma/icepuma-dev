@@ -31,6 +31,14 @@ export const projects = [
 		stack: ["Astro", "React", "Rust", "cloud-hypervisor"],
 	},
 	{
+		name: "intar-cli",
+		description:
+			"CLI for a QEMU-based DevOps lab that runs HCL scenarios in local VMs, evaluates probes, and shows progress in a TUI.",
+		url: "https://github.com/intar-dev/intar-cli",
+		role: "Author",
+		stack: ["Rust", "QEMU", "HCL", "CLI", "TUI", "cloud-init"],
+	},
+	{
 		name: "Advent of AI Security 2025",
 		description:
 			"Interactive advent calendar covering the OWASP Top 10 for LLM Applications 2025. Progressively unlocking doors teach security vulnerabilities through hands-on learning.",
@@ -45,5 +53,13 @@ export const projects = [
 		url: "https://github.com/icepuma/temps",
 		role: "Author",
 		stack: ["Rust", "chrono", "jiff"],
+	},
+	{
+		name: "Rust for the Rusty",
+		description:
+			"Free and open source beginner Rust course for rusty engineers and newcomers, with short 5-10 minute modules.",
+		url: "https://rawkode.academy/courses/rust-for-the-rusty",
+		role: "Author",
+		stack: ["Rust"],
 	},
 ];
