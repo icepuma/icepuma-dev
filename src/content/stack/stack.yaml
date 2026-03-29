@@ -1,0 +1,24 @@
+- id: 1
+  category: Languages
+  items:
+    - Rust
+    - TypeScript
+    - Kotlin
+    - Java
+    - Go
+
+- id: 2
+  category: Frameworks
+  items:
+    - Astro
+    - Ktor
+
+- id: 3
+  category: Tools
+  items:
+    - Cloudflare Workers
+    - Kubernetes
+    - PostgreSQL
+    - OpenTofu
+    - Bitwarden
+    - AWS

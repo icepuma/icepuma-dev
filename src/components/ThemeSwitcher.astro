@@ -1,122 +1,85 @@
 ---
+const icons = {
+	light:
+		'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>',
+	dark: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
+	system:
+		'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>',
+};
 ---
 
 <button
-	id="theme-toggle"
-	class="p-2 rounded-lg bg-muted hover:bg-muted/80 transition-colors relative group"
-	aria-label="Toggle theme"
+	data-theme-switcher
+	type="button"
+	aria-label="Switch theme"
+	class="inline-flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
 >
-	<!-- Dark mode icon (moon) -->
-	<svg
-		id="theme-dark"
-		class="w-5 h-5 hidden text-foreground"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke="currentColor"
-	>
-		<path
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			stroke-width="2"
-			d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"
-		/>
-	</svg>
-
-	<!-- Light mode icon (sun) -->
-	<svg
-		id="theme-light"
-		class="w-5 h-5 hidden text-foreground"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke="currentColor"
-	>
-		<path
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			stroke-width="2"
-			d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"
-		/>
-	</svg>
-
-	<!-- System mode icon (monitor) -->
-	<svg
-		id="theme-system"
-		class="w-5 h-5 hidden text-foreground"
-		fill="none"
-		viewBox="0 0 24 24"
-		stroke="currentColor"
-	>
-		<path
-			stroke-linecap="round"
-			stroke-linejoin="round"
-			stroke-width="2"
-			d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
-		/>
-	</svg>
-
-	<!-- Tooltip -->
-	<span
-		id="theme-tooltip"
-		class="absolute top-1/2 right-full -translate-y-1/2 mr-3 px-3 py-1.5 text-xs font-medium bg-card text-card-foreground rounded border border-border opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap shadow-lg z-50"
-	>
-		<span id="tooltip-text">System</span>
-		<span class="absolute top-1/2 left-full -translate-y-1/2 -ml-[3px] w-2 h-2 bg-card border-r border-t border-border rotate-45"></span>
-	</span>
+	{
+		Object.entries(icons).map(([id, svg]) => (
+			<span
+				data-theme-icon={id}
+				data-active="false"
+				class="inline-flex items-center justify-center data-[active=false]:hidden"
+			>
+				<Fragment set:html={svg} />
+			</span>
+		))
+	}
 </button>
 
 <script>
-	import { loadTheme, setTheme } from "@/utils/theme";
+	import { loadTheme, setTheme, setupThemeListener } from "@/utils/theme";
 	import type { Theme } from "@/utils/theme";
 
+	const CYCLE: Record<Theme, Theme> = {
+		light: "dark",
+		dark: "system",
+		system: "light",
+	};
+
 	function initThemeSwitcher() {
-		const button = document.getElementById("theme-toggle");
-		const darkIcon = document.getElementById("theme-dark");
-		const lightIcon = document.getElementById("theme-light");
-		const systemIcon = document.getElementById("theme-system");
-		const tooltipText = document.getElementById("tooltip-text");
+		const root = document.documentElement;
+		if (root.dataset.themeSwitcherController === "true") {
+			return;
+		}
+		root.dataset.themeSwitcherController = "true";
 
-		if (!button) return;
+		const buttons = Array.from(
+			document.querySelectorAll<HTMLButtonElement>(
+				"button[data-theme-switcher]",
+			),
+		);
 
-		let currentTheme = loadTheme();
+		if (buttons.length === 0) return;
 
-		function updateIcon(theme: Theme) {
-			// Hide all icons
-			darkIcon?.classList.add("hidden");
-			lightIcon?.classList.add("hidden");
-			systemIcon?.classList.add("hidden");
-
-			// Show the appropriate icon
-			if (theme === "dark") {
-				darkIcon?.classList.remove("hidden");
-				if (tooltipText) tooltipText.textContent = "Dark";
-			} else if (theme === "light") {
-				lightIcon?.classList.remove("hidden");
-				if (tooltipText) tooltipText.textContent = "Light";
-			} else {
-				systemIcon?.classList.remove("hidden");
-				if (tooltipText) tooltipText.textContent = "System";
+		const syncState = (theme: Theme) => {
+			for (const btn of buttons) {
+				const icons = btn.querySelectorAll("[data-theme-icon]");
+				for (const icon of icons) {
+					if (icon instanceof HTMLElement) {
+						icon.dataset.active =
+							icon.dataset.themeIcon === theme ? "true" : "false";
+					}
+				}
+				btn.setAttribute(
+					"aria-label",
+					`Theme: ${theme}. Click to switch.`,
+				);
 			}
+		};
+
+		for (const btn of buttons) {
+			btn.addEventListener("click", () => {
+				const current =
+					(root.dataset.themeChoice as Theme) || "system";
+				const next = CYCLE[current];
+				syncState(setTheme(next));
+			});
 		}
 
-		// Set initial icon
-		updateIcon(currentTheme);
-
-		// Handle click - cycle through themes: dark -> light -> system -> dark
-		button.addEventListener("click", () => {
-			if (currentTheme === "dark") {
-				currentTheme = setTheme("light");
-			} else if (currentTheme === "light") {
-				currentTheme = setTheme("system");
-			} else {
-				currentTheme = setTheme("dark");
-			}
-			updateIcon(currentTheme);
-		});
+		syncState(loadTheme());
+		setupThemeListener(syncState);
 	}
 
-	// Initialize on load
 	initThemeSwitcher();
-
-	// Reinitialize after view transitions
-	document.addEventListener('astro:after-swap', initThemeSwitcher);
 </script>

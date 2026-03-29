@@ -1,53 +1,70 @@
 const THEME_KEY = "theme";
+const THEME_EVENT = "theme-change";
 
 export type Theme = "dark" | "light" | "system";
+export type ResolvedTheme = "dark" | "light";
 
-export function applyTheme(theme: "dark" | "light") {
-	const htmlElement = document.documentElement;
-	if (theme === "dark") {
-		htmlElement.setAttribute("data-theme", "dark");
-	} else {
-		htmlElement.removeAttribute("data-theme");
+function isTheme(value: string | null): value is Theme {
+	return value === "dark" || value === "light" || value === "system";
+}
+
+function getStoredTheme(): Theme {
+	const storedTheme = localStorage.getItem(THEME_KEY);
+	return isTheme(storedTheme) ? storedTheme : "system";
+}
+
+export function resolveTheme(theme: Theme): ResolvedTheme {
+	if (theme === "system") {
+		return window.matchMedia("(prefers-color-scheme: dark)").matches
+			? "dark"
+			: "light";
 	}
+
+	return theme;
+}
+
+export function applyTheme(theme: Theme) {
+	const htmlElement = document.documentElement;
+	const resolvedTheme = resolveTheme(theme);
+	htmlElement.setAttribute("data-theme", resolvedTheme);
+	htmlElement.dataset.themeChoice = theme;
+	htmlElement.style.colorScheme = resolvedTheme;
 }
 
 export function setTheme(theme: Theme) {
 	localStorage.setItem(THEME_KEY, theme);
-	if (theme === "system") {
-		const systemPrefersDark = window.matchMedia(
-			"(prefers-color-scheme: dark)",
-		).matches;
-		applyTheme(systemPrefersDark ? "dark" : "light");
-	} else {
-		applyTheme(theme);
-	}
+	applyTheme(theme);
+	window.dispatchEvent(new CustomEvent<Theme>(THEME_EVENT, { detail: theme }));
 	return theme;
 }
 
 export function loadTheme(): Theme {
-	const savedTheme = localStorage.getItem(THEME_KEY) as Theme | null;
-	if (savedTheme && ["light", "dark", "system"].includes(savedTheme)) {
-		setTheme(savedTheme);
-		return savedTheme;
-	}
-	setTheme("system");
-	return "system";
+	const theme = getStoredTheme();
+	applyTheme(theme);
+	return theme;
 }
 
 export function setupThemeListener(callback: (theme: Theme) => void) {
-	const prefersDarkScheme = window.matchMedia("(prefers-color-scheme: dark)");
+	const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
-	prefersDarkScheme.addEventListener("change", (e) => {
-		const currentTheme = localStorage.getItem(THEME_KEY) as Theme;
+	const handleSystemThemeChange = () => {
+		const currentTheme = getStoredTheme();
 		if (currentTheme === "system") {
-			applyTheme(e.matches ? "dark" : "light");
+			applyTheme("system");
+			callback("system");
 		}
-	});
+	};
 
-	// Listen for custom theme change events
-	window.addEventListener("theme-change", ((e: CustomEvent) => {
-		const newTheme = e.detail as Theme;
-		setTheme(newTheme);
-		callback(newTheme);
-	}) as EventListener);
+	const handleThemeChange = (event: Event) => {
+		const customEvent = event as CustomEvent<Theme>;
+		callback(customEvent.detail);
+	};
+
+	mediaQuery.addEventListener("change", handleSystemThemeChange);
+	window.addEventListener(THEME_EVENT, handleThemeChange);
+
+	return () => {
+		mediaQuery.removeEventListener("change", handleSystemThemeChange);
+		window.removeEventListener(THEME_EVENT, handleThemeChange);
+	};
 }

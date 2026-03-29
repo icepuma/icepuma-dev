@@ -1,11 +1,287 @@
 ---
-import BioContent from "@/components/BioContent.astro";
-import PageLayout from "@/components/PageLayout.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
+import ThemeSwitcher from "@/components/ThemeSwitcher.astro";
+import MinimalLayout from "@/layouts/MinimalLayout.astro";
+import { getCollection, render } from "astro:content";
 
-const pageTitle = "Bio";
-const pageDescription = "About Stefan Ruzitschka";
+const stackEntries = (await getCollection("stack")).sort(
+	(a, b) => Number(a.id) - Number(b.id),
+);
+const calendarEntries = (await getCollection("calendar")).sort(
+	(a, b) => Number(a.id) - Number(b.id),
+);
+const socialEntries = (await getCollection("socials")).sort(
+	(a, b) => Number(a.id) - Number(b.id),
+);
+
+const projectEntries = await getCollection("projects");
+const projects = await Promise.all(
+	projectEntries
+		.sort((a, b) => a.data.order - b.data.order)
+		.map(async (entry) => {
+			const { Content } = await render(entry);
+			return { data: entry.data, Content };
+		}),
+);
+
+const navItems = [
+	{ id: "about", label: "About", num: "01" },
+	{ id: "stack", label: "Stack", num: "02" },
+	{ id: "calendar", label: "Calendar", num: "03" },
+	{ id: "projects", label: "Projects", num: "04" },
+	{ id: "social", label: "Social", num: "05" },
+];
 ---
 
-<PageLayout title={pageTitle} description={pageDescription}>
-	<BioContent />
-</PageLayout>
+<MinimalLayout
+	title="icepuma.dev"
+	description="Software Developer — Berlin, Germany"
+>
+	<header
+		class="fixed left-0 right-0 top-0 z-50 bg-background/90 backdrop-blur-sm"
+	>
+		<div class="flex items-center justify-between px-6 py-3">
+			<nav
+				class="flex items-center gap-4 font-mono text-xs uppercase tracking-widest sm:gap-5"
+				aria-label="Navigation"
+			>
+				{
+					navItems.map((item) => (
+						<a
+							href={`#${item.id}`}
+							data-nav-link
+							data-section={item.id}
+							data-active="false"
+							class="text-muted-foreground transition-colors hover:text-foreground data-[active=true]:text-primary"
+						>
+							<span class="text-muted-foreground/40">
+								{item.num}
+							</span>
+							<span class="hidden sm:inline">
+								{" "}
+								{item.label}
+							</span>
+						</a>
+					))
+				}
+			</nav>
+			<ThemeSwitcher />
+		</div>
+	</header>
+
+	<main class="mx-auto max-w-3xl px-6 pb-20">
+		<!-- 01 About -->
+		<section
+			id="about"
+			class="flex min-h-dvh flex-col justify-center pb-12 pt-20"
+		>
+			<div>
+				<SectionHeading num="01" title="About" />
+				<p class="mt-6 text-xl font-semibold text-foreground">
+					Stefan Ruzitschka
+				</p>
+				<p class="mt-1 font-mono text-sm text-muted-foreground">
+					Senior DevOps Engineer · Berlin, Germany
+				</p>
+				<p class="mt-6 text-muted-foreground">
+					Senior Software & DevOps Engineer with 15+ years of
+					experience shipping end-to-end. Specializing in
+					high-reliability systems, platform engineering, and
+					monolith-to-microservices migrations.
+				</p>
+			</div>
+		</section>
+
+		<!-- 02 Stack -->
+		<section
+			id="stack"
+			class="flex min-h-dvh flex-col justify-center pb-12 pt-20"
+		>
+			<div>
+				<SectionHeading num="02" title="Stack" />
+				<div class="mt-6">
+					{
+						stackEntries.map((entry, i) => (
+							<div class="flex items-baseline gap-3 py-2">
+								<span class="w-5 shrink-0 font-mono text-muted-foreground">
+									{String(i + 1).padStart(2, "0")}
+								</span>
+								<div class="min-w-0 flex-1">
+									<span class="font-medium text-foreground">
+										{entry.data.category}
+									</span>
+									<p class="mt-0.5 text-sm text-muted-foreground">
+										{entry.data.items.join(", ")}
+									</p>
+								</div>
+							</div>
+						))
+					}
+				</div>
+			</div>
+		</section>
+
+		<!-- 03 Calendar -->
+		<section
+			id="calendar"
+			class="flex min-h-dvh flex-col justify-center pb-12 pt-20"
+		>
+			<div>
+				<SectionHeading
+					num="03"
+					title="Calendar"
+					intro="My weekly open-source schedule — what I work on and when."
+				/>
+				<div class="mt-6">
+					{
+						calendarEntries.map((entry) => (
+							<div class="flex items-baseline gap-3 py-2">
+								<span class="w-10 shrink-0 font-mono text-primary">
+									{entry.data.day}
+								</span>
+								{entry.data.url ? (
+									<a
+										href={entry.data.url}
+										target="_blank"
+										rel="noopener noreferrer"
+										class="text-foreground transition-colors hover:text-primary"
+									>
+										{entry.data.focus}
+									</a>
+								) : (
+									<span class="text-muted-foreground">
+										{entry.data.focus}
+									</span>
+								)}
+							</div>
+						))
+					}
+				</div>
+			</div>
+		</section>
+
+		<!-- 04 Projects -->
+		<section
+			id="projects"
+			class="flex min-h-dvh flex-col justify-center pb-12 pt-20"
+		>
+			<div>
+				<SectionHeading
+					num="04"
+					title="Projects"
+					intro="Things I build and maintain."
+				/>
+				<div class="mt-6">
+					{
+						projects.map(({ data, Content }, i) => (
+							<a
+								href={data.url}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="group block py-2"
+							>
+								<div class="flex items-baseline gap-3">
+									<span class="w-5 shrink-0 font-mono text-muted-foreground">
+										{String(i + 1).padStart(2, "0")}
+									</span>
+									<div class="min-w-0 flex-1">
+										<span class="font-medium text-foreground transition-colors group-hover:text-primary">
+											{data.name}
+										</span>
+										<div class="mt-0.5 text-sm text-muted-foreground [&>p]:m-0">
+											<Content />
+										</div>
+									</div>
+								</div>
+							</a>
+						))
+					}
+				</div>
+			</div>
+		</section>
+
+		<!-- 05 Social -->
+		<section
+			id="social"
+			class="flex min-h-dvh flex-col justify-center pb-12 pt-20"
+		>
+			<div>
+				<SectionHeading
+					num="05"
+					title="Social"
+					intro="Where to find me online."
+				/>
+				<div class="mt-6">
+					{
+						socialEntries.map((entry) => (
+							<a
+								href={entry.data.url}
+								target="_blank"
+								rel="noopener noreferrer"
+								class="group flex items-baseline gap-3 py-2"
+							>
+								<span class="w-24 shrink-0 font-mono text-primary">
+									{entry.data.platform}
+								</span>
+								<span class="text-muted-foreground transition-colors group-hover:text-primary">
+									{entry.data.handle}
+								</span>
+							</a>
+						))
+					}
+				</div>
+			</div>
+		</section>
+	</main>
+
+	<footer class="mx-auto max-w-3xl px-6 py-8">
+		<p class="font-mono text-xs text-muted-foreground">
+			icepuma.dev — {new Date().getFullYear()}
+		</p>
+	</footer>
+</MinimalLayout>
+
+<script>
+	function initNavTracking() {
+		const navLinks =
+			document.querySelectorAll<HTMLElement>("[data-nav-link]");
+		const sections = document.querySelectorAll<HTMLElement>("section[id]");
+
+		if (navLinks.length === 0 || sections.length === 0) return;
+
+		function update() {
+			const offset = 100;
+			let activeId = "";
+
+			for (const section of sections) {
+				if (section.getBoundingClientRect().top <= offset) {
+					activeId = section.id;
+				}
+			}
+
+			for (const link of navLinks) {
+				link.dataset.active =
+					link.dataset.section === activeId ? "true" : "false";
+			}
+		}
+
+		let ticking = false;
+		window.addEventListener(
+			"scroll",
+			() => {
+				if (!ticking) {
+					requestAnimationFrame(() => {
+						update();
+						ticking = false;
+					});
+					ticking = true;
+				}
+			},
+			{ passive: true },
+		);
+
+		update();
+	}
+
+	initNavTracking();
+</script>

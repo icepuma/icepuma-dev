@@ -1,0 +1,19 @@
+- id: 1
+  platform: Bluesky
+  handle: "@icepuma.dev"
+  url: https://bsky.app/profile/icepuma.dev
+
+- id: 2
+  platform: GitHub
+  handle: "@icepuma"
+  url: https://github.com/icepuma
+
+- id: 3
+  platform: X
+  handle: "@icepuma"
+  url: https://x.com/icepuma
+
+- id: 4
+  platform: LinkedIn
+  handle: stefan-ruzitschka
+  url: https://linkedin.com/in/stefan-ruzitschka

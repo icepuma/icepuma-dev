@@ -1,0 +1,32 @@
+- id: 1
+  day: Mon
+  focus: intar.dev
+  url: https://github.com/intar-dev
+
+- id: 2
+  day: Tue
+  focus: intar.dev
+  url: https://github.com/intar-dev
+
+- id: 3
+  day: Wed
+  focus: Rawkode Academy
+  url: https://github.com/rawkode-academy/rawkode-academy
+
+- id: 4
+  day: Thu
+  focus: Rawkode Academy
+  url: https://github.com/rawkode-academy/rawkode-academy
+
+- id: 5
+  day: Fri
+  focus: Waddle
+  url: https://github.com/waddle-social/waddle
+
+- id: 6
+  day: Sat
+  focus: "Off"
+
+- id: 7
+  day: Sun
+  focus: "Off"
