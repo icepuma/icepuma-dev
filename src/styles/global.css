@@ -45,7 +45,6 @@
 @variant dark (&:where([data-theme="dark"] *));
 
 html {
-	scroll-behavior: smooth;
 	scroll-padding-top: 0;
 	scrollbar-width: thin;
 	scrollbar-color: var(--border) var(--background);
@@ -73,8 +72,3 @@ html {
 	background: var(--accent);
 }
 
-@media (prefers-reduced-motion: reduce) {
-	html {
-		scroll-behavior: auto;
-	}
-}

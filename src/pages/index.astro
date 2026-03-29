@@ -242,6 +242,31 @@ const navItems = [
 </MinimalLayout>
 
 <script>
+	// Smooth scroll only on nav click, not globally
+	function initSmoothScroll() {
+		const prefersReducedMotion = window.matchMedia(
+			"(prefers-reduced-motion: reduce)",
+		).matches;
+
+		for (const link of document.querySelectorAll<HTMLAnchorElement>(
+			"[data-nav-link]",
+		)) {
+			link.addEventListener("click", (e) => {
+				const targetId = link.getAttribute("href")?.slice(1);
+				const target = targetId
+					? document.getElementById(targetId)
+					: null;
+				if (target) {
+					e.preventDefault();
+					target.scrollIntoView({
+						behavior: prefersReducedMotion ? "instant" : "smooth",
+					});
+					history.replaceState(null, "", `#${targetId}`);
+				}
+			});
+		}
+	}
+
 	function initNavTracking() {
 		const navLinks =
 			document.querySelectorAll<HTMLElement>("[data-nav-link]");
@@ -283,5 +308,6 @@ const navItems = [
 		update();
 	}
 
+	initSmoothScroll();
 	initNavTracking();
 </script>
