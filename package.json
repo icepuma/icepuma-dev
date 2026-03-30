@@ -4,11 +4,12 @@
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "astro dev",
-		"build": "biome lint --write && biome format --write && astro check && astro build"
+		"build": "biome lint --write && biome format --write && astro check && astro build",
+		"preview": "astro build && wrangler dev",
+		"deploy": "bun run build && wrangler deploy"
 	},
 	"dependencies": {
 		"@astrojs/check": "0.9.8",
-
 		"@astrojs/mdx": "5.0.3",
 		"@astrojs/sitemap": "3.7.2",
 		"@fontsource/jetbrains-mono": "^5.2.8",
@@ -18,8 +19,8 @@
 	},
 	"devDependencies": {
 		"@biomejs/biome": "2.4.10",
-
-		"@types/bun": "latest"
+		"@types/bun": "latest",
+		"wrangler": "4.78.0"
 	},
 	"trustedDependencies": [
 		"@biomejs/biome",

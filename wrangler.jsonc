@@ -1,0 +1,14 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	"name": "icepuma-dev",
+	"compatibility_date": "2026-03-31",
+	"assets": {
+		"directory": "./dist"
+	},
+	"routes": [
+		{
+			"pattern": "icepuma.dev",
+			"custom_domain": true
+		}
+	]
+}
