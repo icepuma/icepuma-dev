@@ -14,13 +14,35 @@
     - Ktor
 
 - id: 3
-  category: Tools
+  category: Editor
+  items:
+    - Zed
+
+- id: 4
+  category: Terminal
+  items:
+    - Nanite
+    - McFly
+    - ripgrep
+    - fd
+    - cuenv
+
+- id: 5
+  category: AI
+  items:
+    - Claude Code
+    - Codex
+
+- id: 6
+  category: Cloud & Infra
   items:
     - Cloudflare Workers
     - Kubernetes
-    - PostgreSQL
     - OpenTofu
-    - Bitwarden
-    - Claude Code
-    - Codex
     - AWS
+
+- id: 7
+  category: Data & Security
+  items:
+    - PostgreSQL
+    - Bitwarden
