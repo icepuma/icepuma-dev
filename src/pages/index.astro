@@ -24,12 +24,82 @@ const projects = await Promise.all(
 		}),
 );
 
+const musicLinks = [
+	{
+		name: "Tortuga Room",
+		url: "https://www.youtube.com/@tortugaroom",
+		genre: "Electronic",
+		description:
+			"Seoul-based mix platform with a loose underground-party feel, sharing DJ sessions that move between deep, psychedelic, and more atmospheric electronic sets.",
+	},
+	{
+		name: "Yoyaku Record Store",
+		url: "https://www.youtube.com/@yoyakurecordstore",
+		genre: "Minimal",
+		description:
+			"Paris record store and label hub focused on electronic music, pairing a large vinyl catalog with mixes, artist sessions, and record culture from its 18th arrondissement base.",
+	},
+	{
+		name: "EPHIMERA Tulum",
+		url: "https://www.youtube.com/@EPHIMERATulum",
+		genre: "Organic house",
+		description:
+			"Tulum-born audio-visual project streaming live DJ sets from natural locations and pushing the electronic sound of the Mexican Caribbean outward.",
+	},
+	{
+		name: "RE: ANALOG",
+		url: "https://www.youtube.com/@REANALOG",
+		genre: "Disco",
+		description:
+			"Vinyl-centered channel and studio pairing improvised listening sessions with guest DJ sets, record culture, and a warm crate-digging atmosphere.",
+	},
+	{
+		name: "Stil vor Talent",
+		url: "https://www.youtube.com/@StilvorTalentTv",
+		genre: "House",
+		description:
+			"Berlin label and event platform sharing artist releases, DJ clips, and dancefloor moments from its house-leaning electronic orbit.",
+	},
+	{
+		name: "Yuna Room",
+		url: "https://www.youtube.com/@Twilight441",
+		genre: "Deep house",
+		description:
+			"Playlist-and-mix channel moving from deep house into softer late-night selections, including pop, R&B, and groove-heavy listening sessions.",
+	},
+	{
+		name: "L'atelier de Musique",
+		url: "https://www.youtube.com/@Latelier__de__Musique",
+		genre: "Jazz-funk",
+		description:
+			"Record-driven channel built around themed vinyl episodes that drift through psychedelic soul, disco, jazz-funk, and other dusty global grooves.",
+	},
+	{
+		name: "European Metal Channel",
+		url: "https://www.youtube.com/@EuropeanMetalChannelOfficial",
+		genre: "Metal",
+		description:
+			"Long-running curation channel spotlighting new European metal releases, scene roundups, and country-spanning band selections.",
+	},
+] as const;
+const musicPageSize = 5;
+const musicPages = Array.from(
+	{ length: Math.ceil(musicLinks.length / musicPageSize) },
+	(_, pageIndex) =>
+		musicLinks.slice(
+			pageIndex * musicPageSize,
+			(pageIndex + 1) * musicPageSize,
+		),
+);
+const stackPageSize = 5;
+
 const navItems = [
 	{ id: "about", label: "About", num: "01" },
 	{ id: "stack", label: "Stack", num: "02" },
 	{ id: "calendar", label: "Calendar", num: "03" },
 	{ id: "projects", label: "Projects", num: "04" },
-	{ id: "social", label: "Social", num: "05" },
+	{ id: "music", label: "Music", num: "05" },
+	{ id: "social", label: "Social", num: "06" },
 ];
 ---
 
@@ -111,7 +181,29 @@ const navItems = [
 										{entry.data.category}
 									</span>
 									<p class="mt-0.5 text-sm text-muted-foreground">
-										{entry.data.items.join(", ")}
+										{
+											Array.from(
+												{
+													length: Math.ceil(
+														entry.data.items.length /
+															stackPageSize,
+													),
+												},
+												(_, chunkIndex) =>
+													entry.data.items
+														.slice(
+															chunkIndex *
+																stackPageSize,
+															(chunkIndex + 1) *
+																stackPageSize,
+														)
+														.join(", "),
+											).map((line, lineIndex, lines) => (
+												<span class="block">
+													{`${line}${lineIndex < lines.length - 1 ? "," : ""}`}
+												</span>
+											))
+										}
 									</p>
 								</div>
 							</div>
@@ -200,14 +292,104 @@ const navItems = [
 			</div>
 		</section>
 
-		<!-- 05 Social -->
+		<!-- 05 Music -->
+		<section
+			id="music"
+			class="flex min-h-svh flex-col justify-center pb-12 pt-20"
+		>
+			<div>
+				<SectionHeading
+					num="05"
+					title="Music"
+					intro="Channels and record spaces worth keeping in rotation."
+				/>
+				<div class="mt-6" data-music-pagination>
+					{
+						musicPages.length > 1 && (
+							<nav
+								class="mb-4 flex items-center gap-4 font-mono text-xs uppercase tracking-widest"
+								aria-label="Music pages"
+							>
+								{
+									musicPages.map((_, pageIndex) => (
+										<button
+											type="button"
+											data-music-page-button
+											data-page-index={pageIndex}
+											data-active={pageIndex === 0 ? "true" : "false"}
+											aria-label={`Go to music page ${pageIndex + 1}`}
+											aria-current={pageIndex === 0 ? "page" : "false"}
+											class="text-muted-foreground transition-colors hover:text-foreground data-[active=true]:text-primary"
+										>
+											{String(pageIndex + 1).padStart(2, "0")}
+										</button>
+									))
+								}
+							</nav>
+						)
+					}
+
+					{
+						musicPages.map((page, pageIndex) => (
+							<div
+								data-music-page
+								data-page-index={pageIndex}
+								data-active={pageIndex === 0 ? "true" : "false"}
+								class="data-[active=false]:hidden"
+							>
+								{
+									page.map((link, itemIndex) => {
+										const globalIndex =
+											pageIndex * musicPageSize +
+											itemIndex;
+
+										return (
+											<a
+												href={link.url}
+												target="_blank"
+												rel="noopener noreferrer"
+												class="group block py-2"
+											>
+												<div class="flex items-baseline gap-3">
+													<span class="w-5 shrink-0 font-mono text-muted-foreground">
+														{String(globalIndex + 1).padStart(
+															2,
+															"0",
+														)}
+													</span>
+													<div class="min-w-0 flex-1">
+														<div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
+															<span class="font-medium text-foreground transition-colors group-hover:text-primary">
+																{link.name}
+															</span>
+															<span class="font-mono text-xs uppercase tracking-widest text-primary">
+																{link.genre}
+															</span>
+														</div>
+														<p class="mt-1 text-sm text-muted-foreground">
+															{link.description}
+														</p>
+													</div>
+												</div>
+											</a>
+										);
+									})
+								}
+							</div>
+						))
+					}
+				</div>
+			</div>
+		</section>
+
+		<!-- 06 Social -->
 		<section
 			id="social"
 			class="flex min-h-svh flex-col justify-center pb-12 pt-20"
 		>
 			<div>
 				<SectionHeading
-					num="05"
+					num="06"
 					title="Social"
 					intro="Where to find me online."
 				/>
@@ -308,6 +490,56 @@ const navItems = [
 		update();
 	}
 
+	function initMusicPagination() {
+		const root =
+			document.querySelector<HTMLElement>("[data-music-pagination]");
+		if (!root) return;
+
+		const pages = Array.from(
+			root.querySelectorAll<HTMLElement>("[data-music-page]"),
+		);
+		const pageButtons = Array.from(
+			root.querySelectorAll<HTMLButtonElement>(
+				"[data-music-page-button]",
+			),
+		);
+
+		if (pages.length <= 1 || pageButtons.length !== pages.length) {
+			return;
+		}
+
+		let currentPage = 0;
+
+		function renderPage() {
+			for (const page of pages) {
+				page.dataset.active =
+					Number(page.dataset.pageIndex) === currentPage
+						? "true"
+						: "false";
+			}
+
+			for (const button of pageButtons) {
+				const isActive =
+					Number(button.dataset.pageIndex) === currentPage;
+				button.dataset.active = isActive ? "true" : "false";
+				button.setAttribute(
+					"aria-current",
+					isActive ? "page" : "false",
+				);
+			}
+		}
+
+		for (const button of pageButtons) {
+			button.addEventListener("click", () => {
+				currentPage = Number(button.dataset.pageIndex) || 0;
+				renderPage();
+			});
+		}
+
+		renderPage();
+	}
+
 	initSmoothScroll();
 	initNavTracking();
+	initMusicPagination();
 </script>
