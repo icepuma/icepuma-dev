@@ -10,17 +10,17 @@
 	},
 	"dependencies": {
 		"@astrojs/check": "0.9.8",
-		"@astrojs/mdx": "5.0.3",
+		"@astrojs/mdx": "5.0.4",
 		"@astrojs/sitemap": "3.7.2",
 		"@fontsource/jetbrains-mono": "^5.2.8",
-		"@tailwindcss/vite": "^4.2.2",
-		"astro": "6.1.2",
-		"tailwindcss": "^4.2.2"
+		"@tailwindcss/vite": "^4.2.4",
+		"astro": "6.1.9",
+		"tailwindcss": "^4.2.4"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.10",
+		"@biomejs/biome": "2.4.13",
 		"@types/bun": "latest",
-		"wrangler": "4.79.0"
+		"wrangler": "4.85.0"
 	},
 	"trustedDependencies": [
 		"@biomejs/biome",
