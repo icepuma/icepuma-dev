@@ -9,18 +9,18 @@
 		"deploy": "bun run build && wrangler deploy"
 	},
 	"dependencies": {
-		"@astrojs/check": "0.9.8",
+		"@astrojs/check": "0.9.9",
 		"@astrojs/mdx": "5.0.4",
 		"@astrojs/sitemap": "3.7.2",
 		"@fontsource/jetbrains-mono": "^5.2.8",
 		"@tailwindcss/vite": "^4.2.4",
-		"astro": "6.1.9",
+		"astro": "6.2.2",
 		"tailwindcss": "^4.2.4"
 	},
 	"devDependencies": {
-		"@biomejs/biome": "2.4.13",
+		"@biomejs/biome": "2.4.14",
 		"@types/bun": "latest",
-		"wrangler": "4.85.0"
+		"wrangler": "4.88.0"
 	},
 	"trustedDependencies": [
 		"@biomejs/biome",
