@@ -4,4 +4,4 @@ url: https://github.com/advent-of-ai-security/website
 order: 2
 ---
 
-Interactive advent calendar exploring OWASP LLM security risks.
+An interactive advent calendar to explore OWASP security risks for large language models.

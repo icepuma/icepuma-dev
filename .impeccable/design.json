@@ -1,0 +1,125 @@
+{
+	"schemaVersion": 2,
+	"generatedAt": "2026-09-04T23:19:41.000000+00:00",
+	"title": "Design System: icepuma.dev",
+	"extensions": {
+		"shadows": [],
+		"motion": [
+			{
+				"name": "control-ease",
+				"value": "cubic-bezier(0.22, 1, 0.36, 1)",
+				"purpose": "Shared control and arrow state timing."
+			},
+			{
+				"name": "control-transform",
+				"value": "transform 180ms",
+				"purpose": "Default control feedback."
+			},
+			{
+				"name": "corner-and-arrow",
+				"value": "transform 200ms, opacity 180ms",
+				"purpose": "Corner mark and external-arrow alignment."
+			},
+			{
+				"name": "active-press",
+				"value": "transform 80ms",
+				"purpose": "One-pixel active press feedback."
+			},
+			{
+				"name": "surface-feedback",
+				"value": "background-color 180ms, color 180ms",
+				"purpose": "Smooth hover and keyboard-focus response."
+			},
+			{
+				"name": "theme-crossfade",
+				"value": "180ms",
+				"purpose": "Crossfade explicit palette changes; immediate fallback for reduced motion or unsupported browsers."
+			},
+			{
+				"name": "endpoint-inspection",
+				"value": "55ms pointer damping; 65ms fade damping; 700ms acquisition sweep; 550ms maximum press pulse; 0.78 alpha cap",
+				"purpose": "Segmented inspection rings render only in the reserved external-link endpoint on eligible hover. They settle after acquisition; an inline SVG provides static feedback for focus, touch, reduced preferences, or unavailable WebGL2."
+			}
+		],
+		"breakpoints": [
+			{
+				"name": "compact",
+				"value": "35rem"
+			},
+			{
+				"name": "section-rail",
+				"value": "48rem"
+			},
+			{
+				"name": "desktop-sticky",
+				"value": "64rem"
+			},
+			{
+				"name": "wide-content",
+				"value": "56rem"
+			}
+		],
+		"backdrops": [
+			{
+				"name": "sticky-header",
+				"value": "background 94%; backdrop-filter blur(16px)",
+				"purpose": "Separate background layer keeps navigation readable over moving content; opaque fallback."
+			}
+		]
+	},
+	"components": [
+		{
+			"name": "Selected dark theme control",
+			"kind": "button",
+			"refersTo": "theme-selected",
+			"description": "The selected Dark button, shown in the dark palette.",
+			"html": "<div class=\"sample-group\"><button class=\"sample\" type=\"button\" aria-pressed=\"true\">Dark</button></div>",
+			"css": ".sample-group { display: inline-flex; padding: 2px; background: #142332; } .sample { position: relative; min-width: 44px; min-height: 44px; padding: 0 .625rem; border: 0; border-radius: 0; background: #0b121b; color: #8bdcff; font: 400 .6875rem/1.6 \"JetBrains Mono\", ui-monospace, monospace; cursor: pointer; transition: transform 180ms cubic-bezier(.22,1,.36,1); } .sample::before, .sample::after { position: absolute; content: \"\"; width: 7px; height: 7px; pointer-events: none; } .sample::before { inset: 0 auto auto 0; border-top: 1px solid #8bdcff; border-left: 1px solid #8bdcff; } .sample::after { inset: auto 0 0 auto; border-bottom: 1px solid #8bdcff; border-right: 1px solid #8bdcff; } .sample:focus-visible { outline: 2px solid #8bdcff; outline-offset: 4px; } .sample:active { transform: translateY(1px); transition-duration: 80ms; } @media(prefers-reduced-motion:reduce) { .sample { transition: none; transform: none; } }"
+		}
+	],
+	"narrative": {
+		"northStar": "Minimal Stand Alone Complex homepage",
+		"overview": "Visible navigation, a plain-text identity, unnumbered content, and real project destinations stay central. A soft header backdrop, endpoint inspection, smooth row feedback, and a short theme crossfade add depth. Wide screens use sticky section labels, a week strip, two-column Stack and Social layouts, and two music columns.",
+		"keyCharacteristics": [
+			"Unnumbered content rows",
+			"Always-visible direct navigation",
+			"Plain-text brand",
+			"Light, dark, and system themes",
+			"Explicit Back to top behavior",
+			"Endpoint inspection appears only during eligible pointer interaction"
+		],
+		"researchInterpretation": {
+			"summary": "The endpoint inspection is an original interpretation of localized information density and bounded acquisition displays. It does not reproduce franchise art, characters, symbols, or text.",
+			"sources": [
+				{
+					"title": "Mamoru Oshii interview, Ghost in the Shell Official Global Site",
+					"url": "https://theghostintheshell.jp/en/feature/interview02_1",
+					"role": "Information density and visible cyberbrain-connection cues."
+				},
+				{
+					"title": "Ghost in the Shell: Stand Alone Complex episode 23, TELASA",
+					"url": "https://www.telasa.jp/videos/114068",
+					"role": "Licensed screen-image reference for a display tied to a local task."
+				},
+				{
+					"title": "Production I.G 1995 Ghost in the Shell still gallery",
+					"url": "https://www.production-ig.co.jp/works/ghost-in-the-shell/steels/02.html",
+					"role": "Optional thermoptic-interference reference."
+				}
+			]
+		},
+		"rules": [
+			{
+				"name": "Content and access",
+				"body": "Keep original content and destinations. Preserve keyboard focus, no-script access, and reduced-motion behavior.",
+				"section": "components"
+			}
+		],
+		"dos": [
+			"Use semantic colors and shared controls."
+		],
+		"donts": [
+			"Do not hide written content on small screens."
+		]
+	}
+}

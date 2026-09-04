@@ -1,0 +1,9 @@
+---
+const sections = ["Projects", "About", "Stack", "Calendar", "Music", "Social"];
+---
+
+<nav class="section-nav" aria-label="Sections">
+	{sections.map((section) => (
+		<a class="nav-link control" href={`#${section.toLowerCase()}`}>{section}</a>
+	))}
+</nav>

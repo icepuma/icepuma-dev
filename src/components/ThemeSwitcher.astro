@@ -1,84 +1,78 @@
 ---
-const icons = {
-	light:
-		'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>',
-	dark: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>',
-	system:
-		'<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" x2="16" y1="21" y2="21"/><line x1="12" x2="12" y1="17" y2="21"/></svg>',
-};
+const options = [
+	{ value: "light", label: "Light" },
+	{ value: "dark", label: "Dark" },
+	{ value: "system", label: "System" },
+] as const;
 ---
 
-<button
+<div
+	class="theme-switcher"
 	data-theme-switcher
-	type="button"
-	aria-label="Switch theme"
-	class="inline-flex h-8 w-8 items-center justify-center text-muted-foreground transition-colors hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+	role="group"
+	aria-label="Color theme"
+	hidden
 >
 	{
-		Object.entries(icons).map(([id, svg]) => (
-			<span
-				data-theme-icon={id}
-				data-active="false"
-				class="inline-flex items-center justify-center data-[active=false]:hidden"
+		options.map((option) => (
+			<button
+				class="theme-option control"
+				data-theme-option={option.value}
+				type="button"
+				aria-pressed="false"
 			>
-				<Fragment set:html={svg} />
-			</span>
+				{option.label}
+			</button>
 		))
 	}
-</button>
+</div>
 
 <script>
-	import { loadTheme, setTheme, setupThemeListener } from "@/utils/theme";
 	import type { Theme } from "@/utils/theme";
-
-	const CYCLE: Record<Theme, Theme> = {
-		light: "dark",
-		dark: "system",
-		system: "light",
-	};
+	import {
+		loadTheme,
+		setThemeWithTransition,
+		setupThemeListener,
+	} from "@/utils/theme";
 
 	function initThemeSwitcher() {
-		const root = document.documentElement;
-		if (root.dataset.themeSwitcherController === "true") {
-			return;
-		}
-		root.dataset.themeSwitcherController = "true";
-
+		const switchers = Array.from(
+			document.querySelectorAll<HTMLElement>("[data-theme-switcher]"),
+		);
 		const buttons = Array.from(
 			document.querySelectorAll<HTMLButtonElement>(
-				"button[data-theme-switcher]",
+				"button[data-theme-option]",
 			),
 		);
 
-		if (buttons.length === 0) return;
+		if (switchers.length === 0 || buttons.length === 0) return;
 
 		const syncState = (theme: Theme) => {
-			for (const btn of buttons) {
-				const icons = btn.querySelectorAll("[data-theme-icon]");
-				for (const icon of icons) {
-					if (icon instanceof HTMLElement) {
-						icon.dataset.active =
-							icon.dataset.themeIcon === theme ? "true" : "false";
-					}
-				}
-				btn.setAttribute(
-					"aria-label",
-					`Theme: ${theme}. Click to switch.`,
-				);
+			for (const button of buttons) {
+				const selected = button.dataset.themeOption === theme;
+				button.setAttribute("aria-pressed", String(selected));
 			}
 		};
 
-		for (const btn of buttons) {
-			btn.addEventListener("click", () => {
-				const current =
-					(root.dataset.themeChoice as Theme) || "system";
-				const next = CYCLE[current];
-				syncState(setTheme(next));
+		for (const button of buttons) {
+			button.addEventListener("click", () => {
+				const theme = button.dataset.themeOption;
+				if (
+					theme === "light" ||
+					theme === "dark" ||
+					theme === "system"
+				) {
+					setThemeWithTransition(theme);
+				}
 			});
 		}
 
 		syncState(loadTheme());
 		setupThemeListener(syncState);
+
+		for (const switcher of switchers) {
+			switcher.hidden = false;
+		}
 	}
 
 	initThemeSwitcher();

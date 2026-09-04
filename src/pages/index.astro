@@ -1,12 +1,43 @@
 ---
+import ExternalLink from "@/components/ExternalLink.astro";
 import SectionHeading from "@/components/SectionHeading.astro";
+import Nav from "@/components/Nav.astro";
 import ThemeSwitcher from "@/components/ThemeSwitcher.astro";
 import MinimalLayout from "@/layouts/MinimalLayout.astro";
 import { getCollection, render } from "astro:content";
 
+const formatProjectDestination = (href: string) => {
+	const destination = new URL(href);
+	const pathname = destination.pathname.replace(/\/+$/, "");
+	return `${destination.hostname}${pathname}`;
+};
+
 const stackEntries = (await getCollection("stack")).sort(
 	(a, b) => Number(a.id) - Number(b.id),
 );
+const stackLinks: Record<string, string> = {
+	Rust: "https://rust-lang.org/",
+	TypeScript: "https://www.typescriptlang.org/",
+	Kotlin: "https://kotlinlang.org/",
+	Java: "https://dev.java/",
+	Go: "https://go.dev/",
+	Astro: "https://astro.build/",
+	Ktor: "https://ktor.io/",
+	Zed: "https://zed.dev/",
+	Nanite: "https://github.com/icepuma/nanite",
+	McFly: "https://github.com/cantino/mcfly",
+	ripgrep: "https://github.com/BurntSushi/ripgrep",
+	fd: "https://github.com/sharkdp/fd",
+	cuenv: "https://cuenv.dev/",
+	"Claude Code": "https://claude.com/product/claude-code",
+	Codex: "https://openai.com/codex/",
+	"Cloudflare Workers": "https://developers.cloudflare.com/workers/",
+	Kubernetes: "https://kubernetes.io/",
+	OpenTofu: "https://opentofu.org/",
+	AWS: "https://aws.amazon.com/",
+	PostgreSQL: "https://www.postgresql.org/",
+	Bitwarden: "https://bitwarden.com/",
+};
 const calendarEntries = (await getCollection("calendar")).sort(
 	(a, b) => Number(a.id) - Number(b.id),
 );
@@ -20,7 +51,11 @@ const projects = await Promise.all(
 		.sort((a, b) => a.data.order - b.data.order)
 		.map(async (entry) => {
 			const { Content } = await render(entry);
-			return { data: entry.data, Content };
+			return {
+				data: entry.data,
+				Content,
+				destination: formatProjectDestination(entry.data.url),
+			};
 		}),
 );
 
@@ -82,464 +117,142 @@ const musicLinks = [
 			"Long-running curation channel spotlighting new European metal releases, scene roundups, and country-spanning band selections.",
 	},
 ] as const;
-const musicPageSize = 5;
-const musicPages = Array.from(
-	{ length: Math.ceil(musicLinks.length / musicPageSize) },
-	(_, pageIndex) =>
-		musicLinks.slice(
-			pageIndex * musicPageSize,
-			(pageIndex + 1) * musicPageSize,
-		),
-);
-const stackPageSize = 5;
-
-const navItems = [
-	{ id: "about", label: "About", num: "01" },
-	{ id: "stack", label: "Stack", num: "02" },
-	{ id: "calendar", label: "Calendar", num: "03" },
-	{ id: "projects", label: "Projects", num: "04" },
-	{ id: "music", label: "Music", num: "05" },
-	{ id: "social", label: "Social", num: "06" },
-];
 ---
 
 <MinimalLayout
 	title="icepuma.dev"
-	description="Software Developer — Berlin, Germany"
+	description="Principal Engineer at Dataciders GmbH — Berlin, Germany"
 >
-	<header
-		class="fixed left-0 right-0 top-0 z-50 bg-background/90 backdrop-blur-sm"
-	>
-		<div class="flex items-center justify-between px-6 py-3">
-			<nav
-				class="flex items-center gap-4 font-mono text-xs uppercase tracking-widest sm:gap-5"
-				aria-label="Navigation"
-			>
-				{
-					navItems.map((item) => (
-						<a
-							href={`#${item.id}`}
-							data-nav-link
-							data-section={item.id}
-							data-active="false"
-							class="text-muted-foreground transition-colors hover:text-foreground data-[active=true]:text-primary"
-						>
-							<span class="text-muted-foreground/40">
-								{item.num}
-							</span>
-							<span class="hidden sm:inline">
-								{" "}
-								{item.label}
-							</span>
-						</a>
-					))
-				}
-			</nav>
+	<a href="#main" class="skip-link">Skip to content</a>
+	<header class="site-header">
+		<div class="header-inner page-width">
+			<a class="brand control" href={import.meta.env.BASE_URL} data-back-to-top aria-label="icepuma.dev, back to top">
+				icepuma.dev
+			</a>
+			<Nav />
 			<ThemeSwitcher />
 		</div>
 	</header>
 
-	<main class="mx-auto max-w-3xl px-6 pb-20">
-		<!-- 01 About -->
-		<section
-			id="about"
-			class="flex min-h-svh flex-col justify-center pb-12 pt-20"
-		>
-			<div>
-				<SectionHeading num="01" title="About" />
-				<p class="mt-6 text-xl font-semibold text-foreground">
-					Stefan Ruzitschka
-				</p>
-				<p class="mt-1 font-mono text-sm text-muted-foreground">
-					Senior DevOps Engineer · Berlin, Germany
-				</p>
-				<p class="mt-6 text-muted-foreground">
-					Senior Software & DevOps Engineer with 15+ years of
-					experience shipping end-to-end. Specializing in
-					high-reliability systems, platform engineering, and
-					monolith-to-microservices migrations.
-				</p>
-			</div>
-		</section>
+	<main class="page-width" id="main" tabindex="-1">
+		<div class="identity">
+			<h1>Stefan Ruzitschka</h1>
+			<p>
+				<span class="identity-role">Principal Engineer at <ExternalLink href="https://dataciders.com/" class="employer-link">Dataciders GmbH</ExternalLink></span>
+				<span class="identity-location"><span class="identity-divider" aria-hidden="true">·</span> Berlin, Germany</span>
+			</p>
+		</div>
 
-		<!-- 02 Stack -->
-		<section
-			id="stack"
-			class="flex min-h-svh flex-col justify-center pb-12 pt-20"
-		>
-			<div>
-				<SectionHeading num="02" title="Stack" />
-				<div class="mt-6">
-					{
-						stackEntries.map((entry, i) => (
-							<div class="flex items-baseline gap-3 py-2">
-								<span class="w-5 shrink-0 font-mono text-muted-foreground">
-									{String(i + 1).padStart(2, "0")}
-								</span>
-								<div class="min-w-0 flex-1">
-									<span class="font-medium text-foreground">
-										{entry.data.category}
-									</span>
-									<p class="mt-0.5 text-sm text-muted-foreground">
-										{
-											Array.from(
-												{
-													length: Math.ceil(
-														entry.data.items.length /
-															stackPageSize,
-													),
-												},
-												(_, chunkIndex) =>
-													entry.data.items
-														.slice(
-															chunkIndex *
-																stackPageSize,
-															(chunkIndex + 1) *
-																stackPageSize,
-														)
-														.join(", "),
-											).map((line, lineIndex, lines) => (
-												<span class="block">
-													{`${line}${lineIndex < lines.length - 1 ? "," : ""}`}
-												</span>
-											))
-										}
-									</p>
-								</div>
+		<section class="page-section projects-section" id="projects" aria-labelledby="projects-heading" tabindex="-1">
+			<SectionHeading title="Projects" intro="Things I build and maintain." />
+			<ul class="project-list" role="list">
+				{projects.map(({ data, Content, destination }) => (
+					<li>
+						<ExternalLink href={data.url} class="project-row" inspect>
+							<div class="project-copy">
+								<h3>{data.name}</h3>
+								<div class="project-description"><Content /></div>
+								<p class="project-destination">{destination}</p>
 							</div>
-						))
-					}
-				</div>
-			</div>
+						</ExternalLink>
+					</li>
+				))}
+			</ul>
 		</section>
 
-		<!-- 03 Calendar -->
-		<section
-			id="calendar"
-			class="flex min-h-svh flex-col justify-center pb-12 pt-20"
-		>
-			<div>
-				<SectionHeading
-					num="03"
-					title="Calendar"
-					intro="My weekly open-source schedule — what I work on and when."
-				/>
-				<div class="mt-6">
-					{
-						calendarEntries.map((entry) => (
-							<div class="flex items-baseline gap-3 py-2">
-								<span class="w-10 shrink-0 font-mono text-primary">
-									{entry.data.day}
-								</span>
-								{entry.data.url ? (
-									<a
-										href={entry.data.url}
-										target="_blank"
-										rel="noopener noreferrer"
-										class="text-foreground transition-colors hover:text-primary"
-									>
-										{entry.data.focus}
-									</a>
-								) : (
-									<span class="text-muted-foreground">
-										{entry.data.focus}
-									</span>
-								)}
+		<section class="page-section" id="about" aria-labelledby="about-heading" tabindex="-1">
+			<SectionHeading title="About" />
+			<p class="about-copy">
+				Principal Engineer with 15+ years of
+				experience shipping end-to-end. Specializing in
+				high-reliability systems, platform engineering, and
+				monolith-to-microservices migrations.
+			</p>
+		</section>
+
+		<section class="page-section" id="stack" aria-labelledby="stack-heading" tabindex="-1">
+			<SectionHeading title="Stack" />
+			<dl class="stack-list">
+				{stackEntries.map((entry) => (
+					<div class="stack-row">
+						<dt>{entry.data.category}</dt>
+						<dd>
+							<ul class="stack-tools">
+								{entry.data.items.map((item) => (
+									<li><ExternalLink href={stackLinks[item]} class="stack-link">{item}</ExternalLink></li>
+								))}
+							</ul>
+						</dd>
+					</div>
+				))}
+			</dl>
+		</section>
+
+		<section class="page-section" id="calendar" aria-labelledby="calendar-heading" tabindex="-1">
+			<SectionHeading title="Calendar" intro="My weekly open-source schedule — what I work on and when." />
+			<dl class="calendar-list">
+				{calendarEntries.map((entry) => (
+					<div class="calendar-row">
+						<dt>{entry.data.day}</dt>
+						<dd>
+							{entry.data.url ? (
+								<ExternalLink href={entry.data.url} class="calendar-link">{entry.data.focus}</ExternalLink>
+							) : <span class="calendar-off">{entry.data.focus}</span>}
+						</dd>
+					</div>
+				))}
+			</dl>
+		</section>
+
+		<section class="page-section" id="music" aria-labelledby="music-heading" tabindex="-1">
+			<SectionHeading title="Music" intro="Channels and record spaces worth keeping in rotation." />
+			<ul class="music-list" role="list">
+				{musicLinks.map((link) => (
+					<li>
+						<ExternalLink href={link.url} class="music-row" inspect>
+							<div class="music-copy">
+								<div class="music-title"><h3>{link.name}</h3><span class="music-genre">{link.genre}</span></div>
+								<p>{link.description}</p>
 							</div>
-						))
-					}
-				</div>
-			</div>
+						</ExternalLink>
+					</li>
+				))}
+			</ul>
 		</section>
 
-		<!-- 04 Projects -->
-		<section
-			id="projects"
-			class="flex min-h-svh flex-col justify-center pb-12 pt-20"
-		>
-			<div>
-				<SectionHeading
-					num="04"
-					title="Projects"
-					intro="Things I build and maintain."
-				/>
-				<div class="mt-6">
-					{
-						projects.map(({ data, Content }, i) => (
-							<a
-								href={data.url}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="group block py-2"
-							>
-								<div class="flex items-baseline gap-3">
-									<span class="w-5 shrink-0 font-mono text-muted-foreground">
-										{String(i + 1).padStart(2, "0")}
-									</span>
-									<div class="min-w-0 flex-1">
-										<span class="font-medium text-foreground transition-colors group-hover:text-primary">
-											{data.name}
-										</span>
-										<div class="mt-0.5 text-sm text-muted-foreground [&>p]:m-0">
-											<Content />
-										</div>
-									</div>
-								</div>
-							</a>
-						))
-					}
-				</div>
-			</div>
-		</section>
-
-		<!-- 05 Music -->
-		<section
-			id="music"
-			class="flex min-h-svh flex-col justify-center pb-12 pt-20"
-		>
-			<div>
-				<SectionHeading
-					num="05"
-					title="Music"
-					intro="Channels and record spaces worth keeping in rotation."
-				/>
-				<div class="mt-6" data-music-pagination>
-					{
-						musicPages.length > 1 && (
-							<nav
-								class="mb-4 flex items-center gap-4 font-mono text-xs uppercase tracking-widest"
-								aria-label="Music pages"
-							>
-								{
-									musicPages.map((_, pageIndex) => (
-										<button
-											type="button"
-											data-music-page-button
-											data-page-index={pageIndex}
-											data-active={pageIndex === 0 ? "true" : "false"}
-											aria-label={`Go to music page ${pageIndex + 1}`}
-											aria-current={pageIndex === 0 ? "page" : "false"}
-											class="text-muted-foreground transition-colors hover:text-foreground data-[active=true]:text-primary"
-										>
-											{String(pageIndex + 1).padStart(2, "0")}
-										</button>
-									))
-								}
-							</nav>
-						)
-					}
-
-					{
-						musicPages.map((page, pageIndex) => (
-							<div
-								data-music-page
-								data-page-index={pageIndex}
-								data-active={pageIndex === 0 ? "true" : "false"}
-								class="data-[active=false]:hidden"
-							>
-								{
-									page.map((link, itemIndex) => {
-										const globalIndex =
-											pageIndex * musicPageSize +
-											itemIndex;
-
-										return (
-											<a
-												href={link.url}
-												target="_blank"
-												rel="noopener noreferrer"
-												class="group block py-2"
-											>
-												<div class="flex items-baseline gap-3">
-													<span class="w-5 shrink-0 font-mono text-muted-foreground">
-														{String(globalIndex + 1).padStart(
-															2,
-															"0",
-														)}
-													</span>
-													<div class="min-w-0 flex-1">
-														<div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:justify-between sm:gap-4">
-															<span class="font-medium text-foreground transition-colors group-hover:text-primary">
-																{link.name}
-															</span>
-															<span class="font-mono text-xs uppercase tracking-widest text-primary">
-																{link.genre}
-															</span>
-														</div>
-														<p class="mt-1 text-sm text-muted-foreground">
-															{link.description}
-														</p>
-													</div>
-												</div>
-											</a>
-										);
-									})
-								}
+		<section class="page-section" id="social" aria-labelledby="social-heading" tabindex="-1">
+			<SectionHeading title="Social" intro="Where to find me online." />
+			<ul class="social-list" role="list">
+				{socialEntries.map((entry) => (
+					<li>
+						<ExternalLink href={entry.data.url} class="social-row" inspect>
+							<div class="social-copy">
+								<span class="social-platform">{entry.data.platform}</span>
+								<span class="social-handle">{entry.data.handle}</span>
 							</div>
-						))
-					}
-				</div>
-			</div>
-		</section>
-
-		<!-- 06 Social -->
-		<section
-			id="social"
-			class="flex min-h-svh flex-col justify-center pb-12 pt-20"
-		>
-			<div>
-				<SectionHeading
-					num="06"
-					title="Social"
-					intro="Where to find me online."
-				/>
-				<div class="mt-6">
-					{
-						socialEntries.map((entry) => (
-							<a
-								href={entry.data.url}
-								target="_blank"
-								rel="noopener noreferrer"
-								class="group flex items-baseline gap-3 py-2"
-							>
-								<span class="w-24 shrink-0 font-mono text-primary">
-									{entry.data.platform}
-								</span>
-								<span class="text-muted-foreground transition-colors group-hover:text-primary">
-									{entry.data.handle}
-								</span>
-							</a>
-						))
-					}
-				</div>
-			</div>
+						</ExternalLink>
+					</li>
+				))}
+			</ul>
 		</section>
 	</main>
 
-	<footer class="mx-auto max-w-3xl px-6 py-8">
-		<p class="font-mono text-xs text-muted-foreground">
-			icepuma.dev — {new Date().getFullYear()}
-		</p>
+	<footer class="site-footer page-width">
+		<p>icepuma.dev — {new Date().getFullYear()}</p>
+		<a class="control back-to-top" href={import.meta.env.BASE_URL} data-back-to-top>Back to top <svg class="external-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" /></svg></a>
 	</footer>
 </MinimalLayout>
 
 <script>
-	// Smooth scroll only on nav click, not globally
-	function initSmoothScroll() {
-		const prefersReducedMotion = window.matchMedia(
-			"(prefers-reduced-motion: reduce)",
-		).matches;
-
-		for (const link of document.querySelectorAll<HTMLAnchorElement>(
-			"[data-nav-link]",
-		)) {
-			link.addEventListener("click", (e) => {
-				const targetId = link.getAttribute("href")?.slice(1);
-				const target = targetId
-					? document.getElementById(targetId)
-					: null;
-				if (target) {
-					e.preventDefault();
-					target.scrollIntoView({
-						behavior: prefersReducedMotion ? "instant" : "smooth",
-					});
-					history.replaceState(null, "", `#${targetId}`);
-				}
-			});
-		}
+	import { initBackToTop, initSectionNavigation } from "@/utils/navigation";
+	import { initRefractiveLight } from "@/utils/refractive-light";
+	initBackToTop();
+	initSectionNavigation();
+	initRefractiveLight();
+	const header = document.querySelector<HTMLElement>(".site-header");
+	if (header) {
+		new ResizeObserver(() => {
+			document.documentElement.style.setProperty("--header-height", `${header.offsetHeight}px`);
+		}).observe(header);
 	}
-
-	function initNavTracking() {
-		const navLinks =
-			document.querySelectorAll<HTMLElement>("[data-nav-link]");
-		const sections = document.querySelectorAll<HTMLElement>("section[id]");
-
-		if (navLinks.length === 0 || sections.length === 0) return;
-
-		function update() {
-			const offset = 100;
-			let activeId = "";
-
-			for (const section of sections) {
-				if (section.getBoundingClientRect().top <= offset) {
-					activeId = section.id;
-				}
-			}
-
-			for (const link of navLinks) {
-				link.dataset.active =
-					link.dataset.section === activeId ? "true" : "false";
-			}
-		}
-
-		let ticking = false;
-		window.addEventListener(
-			"scroll",
-			() => {
-				if (!ticking) {
-					requestAnimationFrame(() => {
-						update();
-						ticking = false;
-					});
-					ticking = true;
-				}
-			},
-			{ passive: true },
-		);
-
-		update();
-	}
-
-	function initMusicPagination() {
-		const root =
-			document.querySelector<HTMLElement>("[data-music-pagination]");
-		if (!root) return;
-
-		const pages = Array.from(
-			root.querySelectorAll<HTMLElement>("[data-music-page]"),
-		);
-		const pageButtons = Array.from(
-			root.querySelectorAll<HTMLButtonElement>(
-				"[data-music-page-button]",
-			),
-		);
-
-		if (pages.length <= 1 || pageButtons.length !== pages.length) {
-			return;
-		}
-
-		let currentPage = 0;
-
-		function renderPage() {
-			for (const page of pages) {
-				page.dataset.active =
-					Number(page.dataset.pageIndex) === currentPage
-						? "true"
-						: "false";
-			}
-
-			for (const button of pageButtons) {
-				const isActive =
-					Number(button.dataset.pageIndex) === currentPage;
-				button.dataset.active = isActive ? "true" : "false";
-				button.setAttribute(
-					"aria-current",
-					isActive ? "page" : "false",
-				);
-			}
-		}
-
-		for (const button of pageButtons) {
-			button.addEventListener("click", () => {
-				currentPage = Number(button.dataset.pageIndex) || 0;
-				renderPage();
-			});
-		}
-
-		renderPage();
-	}
-
-	initSmoothScroll();
-	initNavTracking();
-	initMusicPagination();
 </script>

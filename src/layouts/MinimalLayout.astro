@@ -1,4 +1,6 @@
 ---
+import { Font } from "astro:assets";
+
 import "@/styles/global.css";
 
 export interface Props {
@@ -7,6 +9,8 @@ export interface Props {
 }
 
 const { title, description } = Astro.props;
+const siteName = "icepuma.dev";
+const pageTitle = title === siteName ? siteName : `${title} - ${siteName}`;
 ---
 
 <!doctype html>
@@ -16,20 +20,20 @@ const { title, description } = Astro.props;
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
 		<meta name="color-scheme" content="light dark" />
 		{description && <meta name="description" content={description} />}
-		<meta property="og:title" content={`${title} - icepuma.dev`} />
+		<meta property="og:title" content={pageTitle} />
 		<meta
 			property="og:description"
-			content={description || "Software Developer · Berlin, Germany"}
+			content={description || "Principal Engineer at Dataciders GmbH · Berlin, Germany"}
 		/>
 		<meta property="og:type" content="website" />
 		<meta property="og:url" content={Astro.url} />
 		<meta name="twitter:card" content="summary" />
-		<meta name="twitter:title" content={`${title} - icepuma.dev`} />
+		<meta name="twitter:title" content={pageTitle} />
 		<meta
 			name="twitter:description"
-			content={description || "Software Developer · Berlin, Germany"}
+			content={description || "Principal Engineer at Dataciders GmbH · Berlin, Germany"}
 		/>
-		<title>{title} - icepuma.dev</title>
+		<title>{pageTitle}</title>
 		<link rel="icon" type="image/x-icon" href="/favicon.ico" />
 		<link
 			rel="icon"
@@ -51,37 +55,41 @@ const { title, description } = Astro.props;
 		<link rel="manifest" href="/site.webmanifest" />
 		<link rel="sitemap" href="/sitemap-index.xml" />
 		<link rel="canonical" href={Astro.url} />
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link
-			href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-			rel="stylesheet"
-		/>
+		<Font cssVariable="--font-plex" />
 		<script is:inline>
-			const themeKey = "theme";
-			const savedTheme = localStorage.getItem(themeKey);
-			const theme =
-				savedTheme === "light" ||
-				savedTheme === "dark" ||
-				savedTheme === "system"
-					? savedTheme
-					: "system";
-			const systemPrefersDark = window.matchMedia(
-				"(prefers-color-scheme: dark)",
-			).matches;
-			const resolvedTheme =
-				theme === "system"
-					? systemPrefersDark
-						? "dark"
-						: "light"
-					: theme;
+			(() => {
+				let theme = "system";
 
-			document.documentElement.setAttribute("data-theme", resolvedTheme);
-			document.documentElement.dataset.themeChoice = theme;
-			document.documentElement.style.colorScheme = resolvedTheme;
+				try {
+					const savedTheme = window.localStorage.getItem("theme");
+					if (
+						savedTheme === "light" ||
+						savedTheme === "dark" ||
+						savedTheme === "system"
+					) {
+						theme = savedTheme;
+					}
+				} catch {}
+
+				const systemPrefersDark = window.matchMedia(
+					"(prefers-color-scheme: dark)",
+				).matches;
+				const resolvedTheme =
+					theme === "system"
+						? systemPrefersDark
+							? "dark"
+							: "light"
+						: theme;
+
+				document.documentElement.setAttribute("data-theme", resolvedTheme);
+				document.documentElement.dataset.themeChoice = theme;
+				document.documentElement.style.colorScheme = resolvedTheme;
+			})();
 		</script>
 	</head>
 	<body
+		id="top"
+		tabindex="-1"
 		class="min-h-screen bg-background font-sans text-foreground antialiased"
 	>
 		<slot />

@@ -4,4 +4,4 @@ url: https://github.com/icepuma/temps
 order: 4
 ---
 
-Human-readable time expressions, parsed and understood by Rust.
+A Rust library that parses dates and times written in English or German, with support for chrono and jiff.
