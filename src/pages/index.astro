@@ -152,8 +152,8 @@ const musicLinks = [
 							<div class="project-copy">
 								<h3>{data.name}</h3>
 								<div class="project-description"><Content /></div>
-								<p class="project-destination">{destination}</p>
 							</div>
+							<p class="project-destination">{destination}</p>
 						</ExternalLink>
 					</li>
 				))}
@@ -244,9 +244,14 @@ const musicLinks = [
 </MinimalLayout>
 
 <script>
-	import { initBackToTop, initSectionNavigation } from "@/utils/navigation";
+	import {
+		initBackToTop,
+		initHeaderState,
+		initSectionNavigation,
+	} from "@/utils/navigation";
 	import { initRefractiveLight } from "@/utils/refractive-light";
 	initBackToTop();
+	initHeaderState();
 	initSectionNavigation();
 	initRefractiveLight();
 	const header = document.querySelector<HTMLElement>(".site-header");

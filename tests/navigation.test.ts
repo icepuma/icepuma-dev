@@ -6,7 +6,10 @@ type NavigationModule = typeof import("../src/utils/navigation");
 type NavigationFactory = (
 	window: object,
 	document: object,
-) => Pick<NavigationModule, "initBackToTop" | "initSectionNavigation">;
+) => Pick<
+	NavigationModule,
+	"initBackToTop" | "initSectionNavigation" | "initHeaderState"
+>;
 type ClickOptions = Partial<{
 	altKey: boolean;
 	button: number;
@@ -23,7 +26,7 @@ const createNavigation = new Function(
 	"window",
 	"document",
 	new Bun.Transpiler({ loader: "ts" }).transformSync(
-		`${navigationSource}\nreturn { initBackToTop, initSectionNavigation };`,
+		`${navigationSource}\nreturn { initBackToTop, initSectionNavigation, initHeaderState };`,
 	),
 ) as NavigationFactory;
 
@@ -52,6 +55,9 @@ function createFixture(reducedMotion = false) {
 		sectionIds.map((id, index) => [id, 160 + index * 220]),
 	);
 	const navLinks = sectionIds.map((id) => createNavLink(id));
+	const sections = Object.fromEntries(
+		sectionIds.map((id) => [id, createSection(id, sectionTops)]),
+	);
 	let headerBottom = 80;
 	let scrollY = 0;
 	let viewportHeight = 800;
@@ -81,11 +87,17 @@ function createFixture(reducedMotion = false) {
 		innerHeight: { get: () => viewportHeight },
 		scrollY: { get: () => scrollY },
 	});
+	const documentElementAttributes = new Map<string, string>();
 	const document = {
 		documentElement: {
 			get scrollHeight() {
 				return scrollHeight;
 			},
+			getAttribute: (name: string) =>
+				documentElementAttributes.get(name) ?? null,
+			removeAttribute: (name: string) => documentElementAttributes.delete(name),
+			setAttribute: (name: string, value: string) =>
+				documentElementAttributes.set(name, value),
 		},
 		querySelectorAll: (selector: string) =>
 			selector === "[data-back-to-top]"
@@ -102,12 +114,7 @@ function createFixture(reducedMotion = false) {
 								({ bottom: headerBottom }) as DOMRect,
 						}
 					: null,
-		getElementById: (id: string) =>
-			id in sectionTops
-				? {
-						getBoundingClientRect: () => ({ top: sectionTops[id] }) as DOMRect,
-					}
-				: null,
+		getElementById: (id: string) => sections[id] ?? null,
 	};
 	function flushFrame(time = 16) {
 		const callbacks = [...frames.values()];
@@ -133,8 +140,19 @@ function createFixture(reducedMotion = false) {
 			viewportHeight = viewport;
 		},
 		scrollCalls,
+		sections,
 		sectionTops,
 		window,
+	};
+}
+
+function createSection(id: string, tops: Record<string, number>) {
+	const attributes = new Map<string, string>();
+	return {
+		getBoundingClientRect: () => ({ top: tops[id] }) as DOMRect,
+		getAttribute: (name: string) => attributes.get(name) ?? null,
+		removeAttribute: (name: string) => attributes.delete(name),
+		setAttribute: (name: string, value: string) => attributes.set(name, value),
 	};
 }
 
@@ -177,6 +195,10 @@ function init(fixture: ReturnType<typeof createFixture>) {
 
 function initSectionNavigation(fixture: ReturnType<typeof createFixture>) {
 	createNavigation(fixture.window, fixture.document).initSectionNavigation();
+}
+
+function initHeaderState(fixture: ReturnType<typeof createFixture>) {
+	createNavigation(fixture.window, fixture.document).initHeaderState();
 }
 
 test("scrolls on repeat clicks when the URL is already #top", () => {
@@ -238,6 +260,30 @@ test("keeps modified and non-primary clicks native", () => {
 	expect(fixture.brand.focusCalls).toEqual([]);
 });
 
+test("marks the header as scrolled only after the page moves", () => {
+	const fixture = createFixture();
+	initHeaderState(fixture);
+	fixture.flushFrame();
+
+	expect(
+		fixture.document.documentElement.getAttribute("data-scrolled"),
+	).toBeNull();
+
+	fixture.scrollPosition(40);
+	fixture.window.dispatchEvent(new Event("scroll"));
+	fixture.flushFrame(32);
+	expect(fixture.document.documentElement.getAttribute("data-scrolled")).toBe(
+		"",
+	);
+
+	fixture.scrollPosition(0);
+	fixture.window.dispatchEvent(new Event("scroll"));
+	fixture.flushFrame(48);
+	expect(
+		fixture.document.documentElement.getAttribute("data-scrolled"),
+	).toBeNull();
+});
+
 test("selects the last section above the sticky header marker", () => {
 	const fixture = createFixture();
 	initSectionNavigation(fixture);
@@ -256,6 +302,8 @@ test("selects the last section above the sticky header marker", () => {
 	expect(
 		fixture.navLinks.map(({ element }) => element.getAttribute("aria-current")),
 	).toEqual([null, "location", null, null, null, null]);
+	expect(fixture.sections.about.getAttribute("data-current")).toBe("");
+	expect(fixture.sections.projects.getAttribute("data-current")).toBeNull();
 });
 
 test("updates after resize without rewriting the URL", () => {
@@ -301,4 +349,6 @@ test("selects Social at the real document end", () => {
 	expect(
 		fixture.navLinks.map(({ element }) => element.getAttribute("aria-current")),
 	).toEqual([null, null, null, null, null, "location"]);
+	expect(fixture.sections.social.getAttribute("data-current")).toBe("");
+	expect(fixture.sections.projects.getAttribute("data-current")).toBeNull();
 });

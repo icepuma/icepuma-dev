@@ -1,125 +1,281 @@
 {
-	"schemaVersion": 2,
-	"generatedAt": "2026-09-04T23:19:41.000000+00:00",
-	"title": "Design System: icepuma.dev",
-	"extensions": {
-		"shadows": [],
-		"motion": [
-			{
-				"name": "control-ease",
-				"value": "cubic-bezier(0.22, 1, 0.36, 1)",
-				"purpose": "Shared control and arrow state timing."
-			},
-			{
-				"name": "control-transform",
-				"value": "transform 180ms",
-				"purpose": "Default control feedback."
-			},
-			{
-				"name": "corner-and-arrow",
-				"value": "transform 200ms, opacity 180ms",
-				"purpose": "Corner mark and external-arrow alignment."
-			},
-			{
-				"name": "active-press",
-				"value": "transform 80ms",
-				"purpose": "One-pixel active press feedback."
-			},
-			{
-				"name": "surface-feedback",
-				"value": "background-color 180ms, color 180ms",
-				"purpose": "Smooth hover and keyboard-focus response."
-			},
-			{
-				"name": "theme-crossfade",
-				"value": "180ms",
-				"purpose": "Crossfade explicit palette changes; immediate fallback for reduced motion or unsupported browsers."
-			},
-			{
-				"name": "endpoint-inspection",
-				"value": "55ms pointer damping; 65ms fade damping; 700ms acquisition sweep; 550ms maximum press pulse; 0.78 alpha cap",
-				"purpose": "Segmented inspection rings render only in the reserved external-link endpoint on eligible hover. They settle after acquisition; an inline SVG provides static feedback for focus, touch, reduced preferences, or unavailable WebGL2."
-			}
-		],
-		"breakpoints": [
-			{
-				"name": "compact",
-				"value": "35rem"
-			},
-			{
-				"name": "section-rail",
-				"value": "48rem"
-			},
-			{
-				"name": "desktop-sticky",
-				"value": "64rem"
-			},
-			{
-				"name": "wide-content",
-				"value": "56rem"
-			}
-		],
-		"backdrops": [
-			{
-				"name": "sticky-header",
-				"value": "background 94%; backdrop-filter blur(16px)",
-				"purpose": "Separate background layer keeps navigation readable over moving content; opaque fallback."
-			}
-		]
-	},
-	"components": [
-		{
-			"name": "Selected dark theme control",
-			"kind": "button",
-			"refersTo": "theme-selected",
-			"description": "The selected Dark button, shown in the dark palette.",
-			"html": "<div class=\"sample-group\"><button class=\"sample\" type=\"button\" aria-pressed=\"true\">Dark</button></div>",
-			"css": ".sample-group { display: inline-flex; padding: 2px; background: #142332; } .sample { position: relative; min-width: 44px; min-height: 44px; padding: 0 .625rem; border: 0; border-radius: 0; background: #0b121b; color: #8bdcff; font: 400 .6875rem/1.6 \"JetBrains Mono\", ui-monospace, monospace; cursor: pointer; transition: transform 180ms cubic-bezier(.22,1,.36,1); } .sample::before, .sample::after { position: absolute; content: \"\"; width: 7px; height: 7px; pointer-events: none; } .sample::before { inset: 0 auto auto 0; border-top: 1px solid #8bdcff; border-left: 1px solid #8bdcff; } .sample::after { inset: auto 0 0 auto; border-bottom: 1px solid #8bdcff; border-right: 1px solid #8bdcff; } .sample:focus-visible { outline: 2px solid #8bdcff; outline-offset: 4px; } .sample:active { transform: translateY(1px); transition-duration: 80ms; } @media(prefers-reduced-motion:reduce) { .sample { transition: none; transform: none; } }"
-		}
-	],
-	"narrative": {
-		"northStar": "Minimal Stand Alone Complex homepage",
-		"overview": "Visible navigation, a plain-text identity, unnumbered content, and real project destinations stay central. A soft header backdrop, endpoint inspection, smooth row feedback, and a short theme crossfade add depth. Wide screens use sticky section labels, a week strip, two-column Stack and Social layouts, and two music columns.",
-		"keyCharacteristics": [
-			"Unnumbered content rows",
-			"Always-visible direct navigation",
-			"Plain-text brand",
-			"Light, dark, and system themes",
-			"Explicit Back to top behavior",
-			"Endpoint inspection appears only during eligible pointer interaction"
-		],
-		"researchInterpretation": {
-			"summary": "The endpoint inspection is an original interpretation of localized information density and bounded acquisition displays. It does not reproduce franchise art, characters, symbols, or text.",
-			"sources": [
-				{
-					"title": "Mamoru Oshii interview, Ghost in the Shell Official Global Site",
-					"url": "https://theghostintheshell.jp/en/feature/interview02_1",
-					"role": "Information density and visible cyberbrain-connection cues."
-				},
-				{
-					"title": "Ghost in the Shell: Stand Alone Complex episode 23, TELASA",
-					"url": "https://www.telasa.jp/videos/114068",
-					"role": "Licensed screen-image reference for a display tied to a local task."
-				},
-				{
-					"title": "Production I.G 1995 Ghost in the Shell still gallery",
-					"url": "https://www.production-ig.co.jp/works/ghost-in-the-shell/steels/02.html",
-					"role": "Optional thermoptic-interference reference."
-				}
-			]
-		},
-		"rules": [
-			{
-				"name": "Content and access",
-				"body": "Keep original content and destinations. Preserve keyboard focus, no-script access, and reduced-motion behavior.",
-				"section": "components"
-			}
-		],
-		"dos": [
-			"Use semantic colors and shared controls."
-		],
-		"donts": [
-			"Do not hide written content on small screens."
-		]
-	}
+  "schemaVersion": 2,
+  "generatedAt": "2026-09-10T14:56:25.213Z",
+  "title": "Design System: icepuma.dev",
+  "extensions": {
+    "shadows": [],
+    "motion": [
+      {
+        "name": "control-ease",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Shared control and arrow state timing."
+      },
+      {
+        "name": "control-transform",
+        "value": "transform 180ms",
+        "purpose": "Default control feedback."
+      },
+      {
+        "name": "corner-and-arrow",
+        "value": "transform 200ms, opacity 180ms",
+        "purpose": "Corner mark and external-arrow alignment."
+      },
+      {
+        "name": "active-press",
+        "value": "transform 80ms",
+        "purpose": "One-pixel active press feedback."
+      },
+      {
+        "name": "surface-feedback",
+        "value": "background-color 180ms, color 180ms",
+        "purpose": "Smooth hover and keyboard-focus response."
+      },
+      {
+        "name": "theme-crossfade",
+        "value": "180ms",
+        "purpose": "Crossfade explicit palette changes; immediate fallback for reduced motion or unsupported browsers."
+      },
+      {
+        "name": "endpoint-inspection",
+        "value": "55ms pointer damping; 65ms fade damping; 700ms acquisition sweep; 550ms maximum press pulse; 0.78 alpha cap",
+        "purpose": "Segmented inspection rings render only in the reserved external-link endpoint on eligible hover. They settle after acquisition; an inline SVG provides static feedback for focus, touch, reduced preferences, or unavailable WebGL2."
+      },
+      {
+        "name": "acquire-ease",
+        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
+        "purpose": "Out-expo for the reticle clamps and the label hairline."
+      },
+      {
+        "name": "register-reticle",
+        "value": "180ms in (top pair, bottom +40ms), 120ms out",
+        "purpose": "The bracket frame acquires the register being read and releases faster than it arrives."
+      },
+      {
+        "name": "label-lock-on",
+        "value": "180ms in, 120ms out",
+        "purpose": "The active rail label turns cyan and a 1px hairline draws from the left."
+      },
+      {
+        "name": "header-hairline",
+        "value": "opacity 180ms",
+        "purpose": "Confirms the sticky header is floating once the page has scrolled."
+      },
+      {
+        "name": "theme-crossfade",
+        "value": "180ms",
+        "purpose": "Explicit theme changes crossfade; startup and reduced motion switch instantly."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "compact",
+        "value": "35rem"
+      },
+      {
+        "name": "section-rail",
+        "value": "48rem"
+      },
+      {
+        "name": "desktop-sticky",
+        "value": "64rem"
+      },
+      {
+        "name": "wide-content",
+        "value": "56rem"
+      }
+    ],
+    "backdrops": [
+      {
+        "name": "sticky-header",
+        "value": "background 94%; backdrop-filter blur(16px)",
+        "purpose": "Separate background layer keeps navigation readable over moving content; opaque fallback."
+      }
+    ],
+    "colorMeta": {
+      "light-background": {
+        "role": "neutral",
+        "displayName": "Institutional White",
+        "canonical": "#edf1f0",
+        "tonalRamp": [
+          "#edf1f0",
+          "#e1e6e4",
+          "#c7cfcd"
+        ]
+      },
+      "light-surface": {
+        "role": "neutral",
+        "displayName": "Daylight Surface",
+        "canonical": "#e1e6e4",
+        "tonalRamp": [
+          "#e1e6e4",
+          "#c7cfcd"
+        ]
+      },
+      "light-foreground": {
+        "role": "neutral",
+        "displayName": "Graphite",
+        "canonical": "#11181a",
+        "tonalRamp": [
+          "#11181a",
+          "#4f5d5b",
+          "#98a3a1"
+        ]
+      },
+      "light-muted-foreground": {
+        "role": "neutral",
+        "displayName": "Steel",
+        "canonical": "#4f5d5b",
+        "tonalRamp": [
+          "#4f5d5b",
+          "#98a3a1"
+        ]
+      },
+      "light-primary": {
+        "role": "primary",
+        "displayName": "Instrument Cyan",
+        "canonical": "#0a6376",
+        "tonalRamp": [
+          "#0a6376",
+          "#5ad2e6"
+        ]
+      },
+      "light-accent": {
+        "role": "secondary",
+        "displayName": "Register Amber",
+        "canonical": "#8a5a10",
+        "tonalRamp": [
+          "#8a5a10",
+          "#e8a94f"
+        ]
+      },
+      "dark-background": {
+        "role": "neutral",
+        "displayName": "Studio Night",
+        "canonical": "#070d0f",
+        "tonalRamp": [
+          "#070d0f",
+          "#0f191c",
+          "#1b272a"
+        ]
+      },
+      "dark-primary": {
+        "role": "primary",
+        "displayName": "Instrument Cyan (night)",
+        "canonical": "#5ad2e6",
+        "tonalRamp": [
+          "#5ad2e6",
+          "#0a6376"
+        ]
+      },
+      "dark-accent": {
+        "role": "secondary",
+        "displayName": "Sodium Amber (night)",
+        "canonical": "#e8a94f",
+        "tonalRamp": [
+          "#e8a94f",
+          "#8a5a10"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Condensed Display",
+        "purpose": "The identity name and project titles; IBM Plex Sans Condensed 600."
+      },
+      "body": {
+        "displayName": "Humanist Body",
+        "purpose": "Prose in IBM Plex Sans."
+      },
+      "label": {
+        "displayName": "Instrument Label",
+        "purpose": "Navigation, section labels, categories, days, genres, footer in JetBrains Mono."
+      }
+    }
+  },
+  "components": [
+    {
+      "name": "Theme control",
+      "kind": "button",
+      "refersTo": "theme-selected",
+      "description": "One tri-state button: each press advances Light to Dark to System; the current glyph is stacked over the other two and crossfaded, shown here in the dark palette.",
+      "html": "<button class=\"sample\" type=\"button\" aria-label=\"Color theme: Dark. Switch to System theme.\"><svg class=\"icon\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.5a5 5 0 0 0 7.5 7.5 7.5 7.5 0 1 1-7.5-7.5Z\"></path></svg></button>",
+      "css": ".sample { position: relative; display: grid; place-items: center; width: 44px; min-width: 44px; min-height: 44px; padding: 0; border: 0; border-radius: 0; background: transparent; color: #9aa4a7; cursor: pointer; transition: color 180ms cubic-bezier(.22,1,.36,1), background-color 180ms cubic-bezier(.22,1,.36,1), transform 180ms cubic-bezier(.22,1,.36,1); } .sample .icon { grid-area: 1 / 1; display: block; } .sample:hover, .sample:focus-visible, .sample:active { color: #5ad2e6; } .sample:hover { background: #1a1f22; } .sample::before, .sample::after { position: absolute; content: \"\"; width: 7px; height: 7px; pointer-events: none; opacity: 0; } .sample::before { inset: 0 auto auto 0; border-top: 1px solid #5ad2e6; border-left: 1px solid #5ad2e6; } .sample::after { inset: auto 0 0 auto; border-bottom: 1px solid #5ad2e6; border-right: 1px solid #5ad2e6; } .sample:hover::before, .sample:hover::after, .sample:focus-visible::before, .sample:focus-visible::after, .sample:active::before, .sample:active::after { opacity: 1; } .sample:focus-visible { outline: 2px solid #5ad2e6; outline-offset: 4px; } .sample:active { transform: translateY(1px); transition-duration: 80ms; }"
+    },
+    {
+      "name": "Register reticle",
+      "kind": "custom",
+      "refersTo": "register-frame",
+      "description": "Four cyan L-brackets at the section frame, lit only for the section being read.",
+      "html": "<section class=\"ds-register\" data-current><p>Register content</p></section>",
+      "css": ".ds-register { position: relative; padding: 40px 0; } .ds-register::after { position: absolute; inset: 0; content: \"\"; pointer-events: none; opacity: 0; transition: opacity 180ms cubic-bezier(.22,1,.36,1); background-image: linear-gradient(#5ad2e6,#5ad2e6),linear-gradient(#5ad2e6,#5ad2e6),linear-gradient(#5ad2e6,#5ad2e6),linear-gradient(#5ad2e6,#5ad2e6),linear-gradient(#5ad2e6,#5ad2e6),linear-gradient(#5ad2e6,#5ad2e6),linear-gradient(#5ad2e6,#5ad2e6),linear-gradient(#5ad2e6,#5ad2e6); background-repeat: no-repeat; background-position: left top,left top,right top,right top,left bottom,left bottom,right bottom,right bottom; background-size: 10px 1px,1px 10px,10px 1px,1px 10px,10px 1px,1px 10px,10px 1px,1px 10px; } .ds-register[data-current]::after { opacity: 1; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Stand Alone Complex instrument panel",
+    "overview": "A minimal instrument panel for one person's work in the Stand Alone Complex register: cyan means interaction, amber means recorded data, and the section being read acquires a bracket reticle. Light is institutional daylight, dark is the green-cast night city. Nothing animates without the reader. The world lives in palette, geometry, and state - never in invented lore or borrowed art.",
+    "keyCharacteristics": [
+      "Two-signal palette: cyan for interaction, amber for recorded data, no alarm red",
+      "Ruled registers with a bracket reticle that follows the reader",
+      "No ambient motion: every movement answers scroll, hover, focus, press, or theme choice",
+      "Condensed display, humanist body, monospace data",
+      "Unnumbered content, always-visible navigation, real destinations"
+    ],
+    "researchInterpretation": {
+      "summary": "The endpoint inspection is an original interpretation of localized information density and bounded acquisition displays. It does not reproduce franchise art, characters, symbols, or text.",
+      "sources": [
+        {
+          "title": "Mamoru Oshii interview, Ghost in the Shell Official Global Site",
+          "url": "https://theghostintheshell.jp/en/feature/interview02_1",
+          "role": "Information density and visible cyberbrain-connection cues."
+        },
+        {
+          "title": "Ghost in the Shell: Stand Alone Complex episode 23, TELASA",
+          "url": "https://www.telasa.jp/videos/114068",
+          "role": "Licensed screen-image reference for a display tied to a local task."
+        },
+        {
+          "title": "Production I.G 1995 Ghost in the Shell still gallery",
+          "url": "https://www.production-ig.co.jp/works/ghost-in-the-shell/steels/02.html",
+          "role": "Optional thermoptic-interference reference."
+        },
+        {
+          "title": "Ghost in the Shell (1995 film), Wikipedia",
+          "url": "https://en.wikipedia.org/wiki/Ghost_in_the_Shell_(1995_film)",
+          "role": "Oshii's Hong Kong setting and the 'information deluge' theme behind the density and the old/new contrast."
+        }
+      ]
+    },
+    "rules": [
+      {
+        "name": "The Two-Signal Rule",
+        "body": "Cyan means you can act or you are here; amber means this is recorded data. Neither takes the other's job.",
+        "section": "colors"
+      },
+      {
+        "name": "The No-Alarm Rule",
+        "body": "No red is defined because the page has no alert state; add the token when a surface gains one.",
+        "section": "colors"
+      },
+      {
+        "name": "The Reticle Rule",
+        "body": "Only the register being read is bracketed. The hero takes the acquisition scan; everything else is still.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Mono-Is-Data Rule",
+        "body": "Monospace marks anything measured, addressed, or classified; prose is never set in it.",
+        "section": "typography"
+      }
+    ],
+    "dos": [
+      "Do keep every control at a 44px minimum target and every action on cyan.",
+      "Do keep recorded data on amber: destinations, categories, days, genres.",
+      "Do measure contrast in both themes before changing a token."
+    ],
+    "donts": [
+      "Don't reproduce franchise art, marks, on-screen text, or character references.",
+      "Don't invent case numbers, timestamps, or other fictional data.",
+      "Don't add cards, radii, shadows, or a second framing device."
+    ]
+  }
 }

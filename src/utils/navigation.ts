@@ -49,6 +49,7 @@ export function initSectionNavigation() {
 
 	let frame = 0;
 	let current: HTMLAnchorElement | null = null;
+	let currentSection: HTMLElement | null = null;
 
 	function update() {
 		frame = 0;
@@ -68,9 +69,13 @@ export function initSectionNavigation() {
 		}
 
 		if (next === current) return;
+		const entry = sections.find((item) => item.link === next) ?? null;
 		current?.removeAttribute("aria-current");
+		currentSection?.removeAttribute("data-current");
 		next.setAttribute("aria-current", "location");
+		entry?.section.setAttribute("data-current", "");
 		current = next;
+		currentSection = entry?.section ?? null;
 	}
 
 	function schedule() {
@@ -79,5 +84,29 @@ export function initSectionNavigation() {
 
 	window.addEventListener("scroll", schedule, { passive: true });
 	window.addEventListener("resize", schedule, { passive: true });
+	schedule();
+}
+export function initHeaderState() {
+	let frame = 0;
+	let scrolled = false;
+
+	function update() {
+		frame = 0;
+		const next = window.scrollY > 8;
+		if (next === scrolled) return;
+		scrolled = next;
+		const root = document.documentElement;
+		if (next) {
+			root.setAttribute("data-scrolled", "");
+		} else {
+			root.removeAttribute("data-scrolled");
+		}
+	}
+
+	function schedule() {
+		if (!frame) frame = window.requestAnimationFrame(update);
+	}
+
+	window.addEventListener("scroll", schedule, { passive: true });
 	schedule();
 }

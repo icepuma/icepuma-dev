@@ -1,30 +1,21 @@
 ---
-const options = [
-	{ value: "light", label: "Light" },
-	{ value: "dark", label: "Dark" },
-	{ value: "system", label: "System" },
-] as const;
 ---
 
-<div
-	class="theme-switcher"
-	data-theme-switcher
-	role="group"
-	aria-label="Color theme"
-	hidden
->
-	{
-		options.map((option) => (
-			<button
-				class="theme-option control"
-				data-theme-option={option.value}
-				type="button"
-				aria-pressed="false"
-			>
-				{option.label}
-			</button>
-		))
-	}
+<div class="theme-control">
+	<button class="theme-cycle control" data-theme-cycle type="button" hidden>
+		<svg class="theme-icon" data-theme-icon="light" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<circle cx="10" cy="10" r="3.4"></circle>
+			<path d="M10 1.6v2.1M10 16.3v2.1M1.6 10h2.1M16.3 10h2.1M4.1 4.1l1.5 1.5M14.4 14.4l1.5 1.5M15.9 4.1l-1.5 1.5M5.6 14.4l-1.5 1.5"></path>
+		</svg>
+		<svg class="theme-icon" data-theme-icon="dark" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<path d="M10 2.5a5 5 0 0 0 7.5 7.5 7.5 7.5 0 1 1-7.5-7.5Z"></path>
+		</svg>
+		<svg class="theme-icon" data-theme-icon="system" width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+			<rect x="2.75" y="3.75" width="14.5" height="10"></rect>
+			<path d="M10 13.75v2.5M6.75 16.25h6.5"></path>
+		</svg>
+	</button>
+	<span class="sr-only" role="status" data-theme-status></span>
 </div>
 
 <script>
@@ -35,44 +26,43 @@ const options = [
 		setupThemeListener,
 	} from "@/utils/theme";
 
+	const ORDER: readonly Theme[] = ["light", "dark", "system"];
+	const NAME: Record<Theme, string> = {
+		light: "Light",
+		dark: "Dark",
+		system: "System",
+	};
+
 	function initThemeSwitcher() {
-		const switchers = Array.from(
-			document.querySelectorAll<HTMLElement>("[data-theme-switcher]"),
-		);
-		const buttons = Array.from(
-			document.querySelectorAll<HTMLButtonElement>(
-				"button[data-theme-option]",
-			),
-		);
+		const button = document.querySelector<HTMLButtonElement>("[data-theme-cycle]");
+		const status = document.querySelector<HTMLElement>("[data-theme-status]");
+		if (!button) return;
 
-		if (switchers.length === 0 || buttons.length === 0) return;
+		let current: Theme = "system";
 
-		const syncState = (theme: Theme) => {
-			for (const button of buttons) {
-				const selected = button.dataset.themeOption === theme;
-				button.setAttribute("aria-pressed", String(selected));
-			}
+		// The button carries the state and the action in its name, so it reads
+		// correctly without a visible label. The live region only speaks after a
+		// press, never on load.
+		const sync = (theme: Theme, announce = false) => {
+			current = theme;
+			const next = ORDER[(ORDER.indexOf(theme) + 1) % ORDER.length];
+			button.setAttribute(
+				"aria-label",
+				`Color theme: ${NAME[theme]}. Switch to ${NAME[next]} theme.`,
+			);
+			button.title = `Switch to ${NAME[next]} theme`;
+			if (announce && status) status.textContent = `${NAME[theme]} theme`;
 		};
 
-		for (const button of buttons) {
-			button.addEventListener("click", () => {
-				const theme = button.dataset.themeOption;
-				if (
-					theme === "light" ||
-					theme === "dark" ||
-					theme === "system"
-				) {
-					setThemeWithTransition(theme);
-				}
-			});
-		}
+		button.addEventListener("click", () => {
+			const next = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
+			setThemeWithTransition(next);
+			sync(next, true);
+		});
 
-		syncState(loadTheme());
-		setupThemeListener(syncState);
-
-		for (const switcher of switchers) {
-			switcher.hidden = false;
-		}
+		sync(loadTheme());
+		setupThemeListener((theme) => sync(theme));
+		button.hidden = false;
 	}
 
 	initThemeSwitcher();

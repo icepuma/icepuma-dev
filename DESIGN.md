@@ -1,41 +1,48 @@
 ---
 name: "icepuma.dev"
-description: "A minimal, project-first personal homepage."
+description: "A minimal, project-first personal homepage in the Stand Alone Complex register."
 colors:
-  light-background: "#f2f5f8"
-  light-surface: "#e5edf5"
-  light-foreground: "#182b40"
-  light-muted-foreground: "#52667b"
-  light-primary: "#005f80"
-  dark-background: "#0b121b"
-  dark-surface: "#142332"
-  dark-foreground: "#e3ecf5"
-  dark-muted-foreground: "#9baec2"
-  dark-primary: "#8bdcff"
+  light-background: "#edf1f0"
+  light-surface: "#e1e6e4"
+  light-foreground: "#11181a"
+  light-muted-foreground: "#4f5d5b"
+  light-primary: "#0a6376"
+  light-accent: "#8a5a10"
+  light-rule: "#c7cfcd"
+  light-rule-strong: "#98a3a1"
+  dark-background: "#070d0f"
+  dark-surface: "#0f191c"
+  dark-foreground: "#dbe7e8"
+  dark-muted-foreground: "#8fa3a6"
+  dark-primary: "#5ad2e6"
+  dark-accent: "#e8a94f"
+  dark-rule: "#1b272a"
+  dark-rule-strong: "#324146"
 typography:
   display:
-    fontFamily: "IBM Plex Sans, sans-serif"
-    fontSize: "clamp(2rem, 5.2vw, 4.5rem)"
-    fontWeight: 500
-    lineHeight: 1.05
-    letterSpacing: "-0.035em"
+    fontFamily: "IBM Plex Sans Condensed, IBM Plex Sans, sans-serif"
+    fontSize: "clamp(2.25rem, 5.6vw, 4.75rem)"
+    fontWeight: 600
+    lineHeight: 1.02
+    letterSpacing: "-0.01em"
   headline:
-    fontFamily: "IBM Plex Sans, sans-serif"
+    fontFamily: "IBM Plex Sans Condensed, IBM Plex Sans, sans-serif"
     fontSize: "clamp(1.25rem, 2.2vw, 1.75rem)"
-    fontWeight: 500
+    fontWeight: 600
     lineHeight: 1.25
-    letterSpacing: "-0.025em"
+    letterSpacing: "-0.01em"
+  music-title:
+    fontFamily: "IBM Plex Sans Condensed, IBM Plex Sans, sans-serif"
+    fontSize: "1.125rem"
+    fontWeight: 600
+    lineHeight: 1.4
+    letterSpacing: "-0.01em"
   bio:
     fontFamily: "IBM Plex Sans, sans-serif"
     fontSize: "clamp(1.125rem, 1.7vw, 1.375rem)"
     fontWeight: 400
-    lineHeight: 1.65
+    lineHeight: 1.6
     letterSpacing: "-0.01em"
-  music-title:
-    fontFamily: "IBM Plex Sans, sans-serif"
-    fontSize: "1.125rem"
-    fontWeight: 500
-    lineHeight: 1.45
   body:
     fontFamily: "IBM Plex Sans, sans-serif"
     fontSize: "1rem"
@@ -67,28 +74,27 @@ typography:
     fontFamily: "JetBrains Mono, ui-monospace, monospace"
     fontSize: "0.75rem"
     fontWeight: 400
-  compact-brand:
-    fontFamily: "JetBrains Mono, ui-monospace, monospace"
-    fontSize: "0.75rem"
-    fontWeight: 500
   label:
     fontFamily: "JetBrains Mono, ui-monospace, monospace"
     fontSize: "0.6875rem"
     fontWeight: 400
     letterSpacing: "0.02em"
-  compact-theme-label:
-    fontFamily: "JetBrains Mono, ui-monospace, monospace"
-    fontSize: "0.625rem"
-    fontWeight: 400
 spacing:
   control-min: "44px"
   page-gutter: "3rem"
   page-gutter-compact: "2.5rem"
-  section-gap: "1.75rem"
+  section-gap: "1.5rem"
   section-block-min: "2.5rem"
   section-block-max: "4.5rem"
   desktop-rail: "11rem"
   desktop-column-gap: "3rem"
+  register-bracket: "10px"
+  control-mark: "7px"
+  step-micro: "0.125rem"
+  step-xs: "0.25rem"
+  step-sm: "0.5rem"
+  step-md: "0.75rem"
+  step-lg: "1.5rem"
 components:
   control:
     textColor: "var(--muted-foreground)"
@@ -104,63 +110,148 @@ components:
     backgroundColor: "var(--background)"
     textColor: "var(--primary)"
     size: "{spacing.control-min}"
+  register-frame:
+    textColor: "var(--primary)"
+    size: "{spacing.register-bracket}"
   project-row:
     textColor: "var(--foreground)"
     padding: "1.25rem 0.75rem"
+  destination:
+    textColor: "var(--accent)"
 ---
 
 # Design System: icepuma.dev
 
 ## Overview
 
-A minimal homepage inspired by Stand Alone Complex. Always-visible section links identify the current section without a sliding indicator. Unnumbered content, large uppercase identity type, and bright cyan control marks carry the visual identity. The brand is plain text; there are no custom logos or decorative illustrations.
+A minimal homepage in the **Stand Alone Complex** register: an instrument panel for one person's work, not a terminal and not a tribute. The page reads as a disciplined public-security tool — every register bracketed, every value measured, nothing decorative — and the world lives in the palette, the geometry, and the state, never in invented lore or borrowed art.
+
+The colour system carries two signals with fixed meanings: **cold cyan is interaction**, **warm amber is recorded data**. Red is deliberately absent: in the franchise red is an alarm, and this page has no alarm state, so the token was left out rather than spent as decoration. The light theme is the sterile institutional daylight of a government office; the dark theme is the green-cast night city, lit by amber interiors and cyan screens.
+
+Every section is a **register**, and the register the reader is in acquires a bracket reticle while the others stay unframed. Nothing on the page animates on its own: every movement is a response to the reader.
+
+**Key characteristics:** two-signal palette, no alarm red; ruled registers with a moving reticle; condensed display against a humanist body and a monospace data layer; flat, sharp, and free of shadows, cards, and invented content.
 
 ## Colors
 
-Use the semantic variables in `src/styles/global.css`. The frontmatter records both palettes. `--ring` matches `--primary`; `--primary-foreground` matches the page background. Use the surface color to group theme controls and to show hover, focus, and press states. The selected theme uses the page background inside the group.
+Two grounds (institutional daylight, night city) and two signals, all in `src/styles/global.css`. `--ring` matches `--primary` and `--primary-foreground` matches the page background.
+
+### Primary
+
+- **Instrument Cyan** (#0a6376 light / #5ad2e6 dark): links, focus rings, the active section label, the register reticle, and the WebGL inspection rings. Interaction and live state only.
+
+### Secondary
+
+- **Register Amber** (#8a5a10 light / #e8a94f dark): recorded data and classification — project destinations, stack categories, calendar days, music genres. Never used for an action, so the page keeps exactly one action colour.
+
+### Neutral
+
+- **Institutional White** (#edf1f0) and **Studio Night** (#070d0f): the two grounds; the light ground is a cool grey-white and the dark ground is a green-cast near-black, never a blue-black slate.
+- **Surface** (#e1e6e4 / #0f191c): hover tint, theme bank, and the active navigation chip.
+- **Graphite** (#11181a / #dbe7e8): primary text.
+- **Steel** (#4f5d5b / #8fa3a6): descriptions, introductions, handles, footer.
+- **Rule** (#c7cfcd / #1b272a) and **Rule Strong** (#98a3a1 / #324146): hairlines and control edges.
+
+### Named Rules
+
+**The Two-Signal Rule.** Cyan means "you can act or you are here"; amber means "this is recorded data". Neither ever takes the other's job.
+
+**The No-Alarm Rule.** No red is defined, because the page has no alert state. A future surface that gains one adds the token then.
 
 ## Typography
 
-IBM Plex Sans supplies headings and body text through the Astro Fonts API. The built site serves the font locally. JetBrains Mono supplies navigation, section labels, genres, theme controls, and footer text through the existing Fontsource package.
+**Display Font:** IBM Plex Sans Condensed (with IBM Plex Sans fallback)
+**Body Font:** IBM Plex Sans
+**Label/Mono Font:** JetBrains Mono
 
-The uppercase identity name scales from 32px to 72px. Project names scale from 20px to 28px. Row descriptions use 15px text; projects have a 58ch maximum width and music has a 65ch maximum width. The bio uses 18–22px text with a 58ch maximum width. Section headings use 13px uppercase JetBrains Mono at weight 500 with 0.08em tracking.
+**Character:** Condensed caps give names the compression of a title card; a humanist sans carries prose; a monospace carries data. The three roles never swap.
 
-Supporting text uses the 16px body step for identity metadata, 14px for social handles, 13px for section introductions and the brand, and 12px for navigation and calendar days. At 560px and below, the brand uses 12px, social handles use 13px, and theme labels use 10px. These smaller labels retain the shared 44px control targets. Music titles use 18px.
+### Hierarchy
+
+- **Display** (600, clamp(2.25rem, 5.6vw, 4.75rem), 1.02): the identity name only, uppercase, tracking -0.01em — condensed faces need less negative tracking than the Plex Sans default.
+- **Headline** (600, clamp(1.25rem, 2.2vw, 1.75rem), 1.25): project names.
+- **Music title** (600, 1.125rem, 1.4): playlist titles.
+- **Bio** (400, clamp(1.125rem, 1.7vw, 1.375rem), 1.6): the About paragraph at 58ch.
+- **Body** (400, 1rem, 1.6): prose; descriptions use 0.9375rem at 58ch (projects) and 65ch (music).
+- **Label** (400, 0.6875–0.75rem, 0.08em, uppercase): navigation, section labels, categories, days, genres, footer — all JetBrains Mono, all sharing one tracking value.
+
+### Named Rules
+
+**The Mono-Is-Data Rule.** Monospace marks anything that is measured, addressed, or classified. Section labels are instrument labels; prose is never set in mono.
+
+**The Two-Tracking Rule.** The whole page uses two letter-spacing values: -0.01em for display and titles, 0.08em for uppercase mono labels. Nothing invents a third.
+
+**The Type Scale Rule.** Six small steps (11, 12, 13, 14, 15, 16px) carry every label and paragraph, and three fluid clamps carry the display, project titles, and the bio. No other sizes exist; the 18px playlist title is the last fixed step of the ramp. Four line-heights cover the page: 1.02 display, 1.25 titles, 1.4 small titles, 1.6 everything textual.
 
 ## Layout
 
-The page is at most 1120px wide, with 24px side gutters. At 560px and below, use 20px gutters and two rows of three navigation links. Above 560px, the six links share a row. Every section link is visible without opening a menu.
+The page is at most 1120px wide with 24px side gutters, 20px at 560px and below. Every section link is visible at all times. Below 768px section labels sit above content; at 768px and above the page uses an 11rem label rail with a 3rem column gap and sticky labels. The header is sticky at every width, one row at 1024px and above, with a ResizeObserver publishing its measured height as `--header-height`.
 
-Below 768px, section labels sit above content. At 768px, use an 11rem label rail, a 3rem column gap, sticky section labels, a two-column stack list, and a two-column social list. Stack categories remain semantic definition-list terms with wrapped tool lists. The header remains sticky at every width. It uses one row at 1024px and above; smaller layouts place navigation below the brand and theme controls. A ResizeObserver keeps the scroll padding aligned with the actual header height; CSS supplies a no-script fallback. Section anchor offsets keep headings below it.
+Projects run as a **register line**: below 768px the copy stacks and the real destination sits under the description; at 768px and above the row is three columns — copy, the destination in its own 12rem column, and the inspected endpoint. Music uses two columns at 896px and above, Calendar becomes a seven-cell strip at the same width, and Stack and Social use two columns at 768px.
 
-Use content-sized sections, a 1.75rem internal gap, and vertical padding from 2.5rem to 4.5rem. The identity block uses 2–3rem above and 1–1.5rem below to bring Projects closer. At 896px and above, Calendar is a seven-column week strip and Music is a two-column list. Below that width, both use a single reading column. Keep all entries in their data order.
+### Named Rules
+
+**The Register Rule.** A section is a register: a rail label, content, and — while it is being read — a bracket reticle. No other container is introduced.
+
+**The Spacing Scale Rule.** Every gap, padding, and margin comes from one scale: 0.125, 0.25, 0.375, 0.5, 0.75, 1, 1.25, 1.5, 2, 2.5, and 3rem, plus the section block clamp. Related text pairs sit 0.5rem apart (title to description), label-to-content pairs 0.75rem, and list rows all share one rhythm: 1.25rem of block padding at rest and 1.5rem on desktop for the two content rows.
 
 ## Elevation & Depth
 
-Use spacing and typography to separate sections and entries. The sticky header uses a separate background layer with a 94% fill and 16px backdrop blur so navigation stays clear as content passes behind it. Use an opaque fallback without blur support, with reduced transparency, or in forced-colors mode. Rows remain flat at rest; their surface tint fades in on hover and keyboard focus. The design has no separator lines or shadows.
+There are no shadows. Depth comes from ground, rule, and state: the two grounds, the hairline rules, the sticky header's separate layer (94% fill, 16px backdrop blur, opaque fallback and a no-blur path for reduced transparency and forced colors), and the reticle. Rows are flat at rest and take a surface tint only on hover or keyboard focus.
+
+### Motion
+
+Motion is a state language, not decoration, and it is deliberately quiet. Two easings carry everything: `--motion-ease` (out-quint, `cubic-bezier(0.22, 1, 0.36, 1)`) for feedback and state, and `--motion-acquire` (out-expo, `cubic-bezier(0.16, 1, 0.3, 1)`) for acquisition. Acquisition runs 180ms, feedback and release 120–180ms, presses 80ms. Only transform, opacity, and state colours animate, and every animation is removed under reduced motion.
+
+**The Acquire-Release Rule.** Anything that arrives (reticle, label hairline, theme palette) uses out-expo and the longer duration; anything that leaves uses out-quint at roughly three-fifths of it.
+
+**The No Ambient Motion Rule.** Nothing animates without the reader. There is no load animation, no scroll-reveal, and no loop; every movement answers a scroll, hover, focus, press, or theme choice, and no element animates twice for the same reason.
+
+### Named Rules
+
+**The Flat Register Rule.** If something needs separating, it gets a rule, a ground change, or space — never elevation.
 
 ## Shapes
 
-Controls have sharp corners. Their two 7px corner marks use 1px blue borders and align with the control edge on hover, focus, press, or selection.
+Everything is square. Controls keep two 7px corner marks that align on hover, focus, press, or selection. Registers use four 10px L-brackets drawn as eight gradient bars on one pseudo-element, so the frame costs no markup and never touches the text. The only circles are the round arrow endpoints and the WebGL inspection rings.
 
-## Research interpretation
+### Named Rules
 
-The endpoint inspection is an original interaction treatment. It does not reproduce art, characters, symbols, or text from the franchise. It takes only three interaction cues: localized information density, a bounded display that responds to a nearby point, and a brief acquisition pass.
-
-[Mamoru Oshii's official interview](https://theghostintheshell.jp/en/feature/interview02_1) describes the 1995 film as an information-dense future and notes that cables made cyberbrain connections visible. A [licensed *Stand Alone Complex* episode image from TELASA](https://www.telasa.jp/videos/114068) is a reference for displays tied to a concrete task and screen location. The [Production I.G 1995 still gallery](https://www.production-ig.co.jp/works/ghost-in-the-shell/steels/02.html) is an optional reference for thermoptic interference. The site translates these qualities into segmented inspection rings around a real link endpoint; it does not copy visual assets from those sources.
+**The Reticle Rule.** Only the register being read is bracketed. The top pair of brackets lands, the bottom pair follows 50ms later, and release is faster than acquire.
 
 ## Components
 
-- All 21 Stack tools link to verified official sites, documentation, or upstream repositories. Use compact text links without visible arrows, with a 44px minimum target, shared corner feedback, visible focus, and accessible new-tab text. Keep tool names, category order, and the existing collection schema.
-- Shared controls have at least 44px targets and a 2px focus ring with a 4px offset. Projects, Music, and Social reserve a separate endpoint around their external-link arrow. On fine-pointer hover, one shared WebGL2 canvas draws segmented inspection rings in that endpoint. A 0.7-second acquisition sweep resolves into the rings, pointer position changes their tilt around the fixed centre, and a press sends one 0.55-second pulse. The arrow and rings share the same centre in every state. The alpha cap is 0.78 in both themes. The canvas stays behind the arrow, adds no movement to DOM text or hit areas, and never overlaps link copy.
-- Arrows without an inspection display move 3px right and up. Inspection arrows stay centred. A press moves the entire control down 1px, including its arrow and rings. Use `cubic-bezier(0.22, 1, 0.36, 1)`, 180–200ms transitions, and an 80ms press response. Background and text color use the same 180ms feedback timing.
-- Navigation uses six direct section links without numbers, a sliding indicator, or a collapsed menu. The current section has `aria-current="location"` and a stable surface highlight. Hover adds a fine underline; keyboard focus remains visible. Light, Dark, and System buttons form one compact surface group, with a 2px inset and at least 44px targets. They use `aria-pressed`. System is the default; saved choices survive reloads and blocked storage does not stop switching.
-- Project rows show the real external destination as hostname and path below each description. This string comes from the project URL, rather than an invented label.
-- Music is one static list of all eight channels, with no page controls or decorative row numbers. Wide layouts use two columns, with each genre below its title. The week strip keeps the day above its linked project and shows both weekend Off entries. Its links omit arrows and keep a minimum 72px height, hover feedback, and visible keyboard focus.
-- With JavaScript off, section links remain visible, theme controls stay hidden, all music remains visible, and CSS follows the system color preference. The header stays sticky. Back to top links open the homepage; with JavaScript, they explicitly scroll to zero, remove the hash, and focus the brand without another scroll. Modified clicks retain native behavior.
-- Explicit theme changes use a 180ms native view crossfade when supported and when the resolved palette changes. Startup, reduced motion, and unsupported browsers apply the theme directly.
-- The inspection renderer initializes on the first eligible hover, completes its acquisition pass in 0.7 seconds, and stops drawing after the pointer leaves and the endpoint fades. It uses one context, DPR at most 1.5, and a backing buffer no larger than 1536 × 512. The same 0.78 alpha cap applies in light and dark themes because the display stays inside the reserved arrow endpoint.
-- Each inspected link contains static SVG segmented rings for keyboard focus, touch press, reduced motion, and unavailable WebGL2. Touch/coarse pointers, reduced transparency, forced colors, unsupported WebGL2, and lost contexts use this CSS feedback. Scroll, blur, hidden pages, and theme changes clear the canvas; a restored context can restart on a later hover.
-- Reduced-motion CSS removes transforms, transitions, view animations, and smooth scrolling. Forced-colors mode outlines selected controls. External links have visible arrows except in the horizontal calendar; all retain accessible new-tab text.
+- **Navigation** — six direct section links, no numbers and no collapsed menu. The current link carries `aria-current="location"` and a surface chip. The matching section label turns cyan and its register acquires the reticle. Hover underlines; focus stays visible.
+- **Theme control** — one tri-state button: each press advances Light → Dark → System and back. The glyph for the current mode (sun, crescent, display) is shown while the other two sit stacked behind it, crossfading over 180ms, so the button never changes size and the correct glyph is already painted before first paint. It is a 44×44 control, flat at rest and cyan with the shared corner marks on hover, focus, or press. Its accessible name carries both state and action — "Color theme: System. Switch to Light theme." — and a polite live region speaks only after a press, never on load. System is the default; saved choices survive reloads and blocked storage. Explicit changes crossfade for 180ms through a native view transition when the resolved palette changes; startup and reduced motion are immediate.
+- **Register reticle** — four 10px cyan L-brackets, drawn as gradient bars on two pseudo-elements at the section frame. At rest each pair sits 2px outside its edge at opacity 0; while `[data-current]` is set, the top pair settles in over 180ms out-expo and the bottom pair follows 40ms later, and release takes 120ms out-quint. Nothing is drawn below 768px.
+- **Label lock-on** — the active register's rail label turns cyan and a 1px hairline draws from the left beneath it, 180ms in and 120ms out.
+- **Theme change** — a 180ms crossfade of the two palettes, and nothing more. Startup, reduced motion, and unsupported browsers switch instantly.
+- **Header hairline** — once the page has scrolled past 8px a 1px rule fades in at the header's bottom edge over 180ms, confirming the header is floating over content.
+- **Control feedback** — shared controls have 44px minimum targets, a 2px focus ring at 4px offset, corner marks that align on hover, focus, press, or selection, a 3px arrow shift (inspection arrows stay centred), and a 1px press translation over 80ms. Control transitions are owned by `.control` alone at 180ms.
+- **Icon set** — every icon is an authored SVG path on a 20-unit grid at 1.5px stroke with round caps and joins, drawn in `currentColor`: the external arrow (16px), the theme sun, crescent, and display (20px), and the back-to-top arrow. No glyphs, emoji, or icon fonts are ever used, and an icon never carries meaning the accessible name does not.
+- **Inspection endpoint** — Projects, Music, and Social reserve a surface around the external arrow. On fine-pointer hover one shared WebGL2 canvas draws segmented rings with a 0.7-second acquisition sweep, pointer tilt, and a 0.55-second press pulse; the alpha cap is 0.78 in both themes, DPR is capped at 1.5, the backing buffer at 1536 × 512. The canvas sits behind the arrow, never overlaps copy, and is replaced by static SVG rings for keyboard focus, touch, reduced motion or transparency, forced colors, and unavailable or lost WebGL2. Scroll, blur, hidden pages, and theme changes clear it.
+- **Project register line** — the destination is the project's real hostname and path, printed in amber in its own column; no invented labels or numbers.
+- **Stack, Calendar, Social** — 21 verified tool links with visible arrows and 44px targets; a seven-cell week strip whose links omit arrows and keep a 72px minimum height; a four-row contact sheet. All entries keep their data order.
+- **Without JavaScript** — every section link, project, tool, day, channel, and contact stays visible; theme controls stay hidden; the register reticle simply does not run; CSS follows the system colour preference.
+- **Reduced motion** — transforms, transitions, view animations, smooth scrolling, and every canvas path are removed. **Forced colors** outlines selected controls and keeps the sticky header opaque.
 
-Keyboard and accessibility-tree checks passed. A live VoiceOver session and OS reduced-motion emulation were not run; see the local validation record in `.impeccable/review/validation.md`.
+## Do's and Don'ts
+
+### Do:
+
+- **Do** keep every control at a 44px minimum target and every action on cyan.
+- **Do** keep recorded data on amber: destinations, categories, days, genres.
+- **Do** let the reticle follow the reader and nothing else carry it.
+- **Do** keep copy, URLs, collection order, section anchors, and the single static page unchanged.
+- **Do** measure contrast in both themes before shipping any token change.
+- **Do** honour reduced motion, forced colors, reduced transparency, more-contrast preference, and no-JavaScript reading.
+- **Do** keep motion to transform, opacity, and state colour, and give every arrival a faster exit.
+- **Do** keep the page free of ambient animation: if the reader did nothing, nothing should move.
+
+### Don't:
+
+- **Don't** add cards, radii, shadows, gradients-as-decoration, or a second framing device.
+- **Don't** use cyan for data or amber for actions.
+- **Don't** add alarm red until the page has a real alert state.
+- **Don't** reproduce franchise art, marks, on-screen text, or character references, and don't invent case numbers, timestamps, or other fictional data.
+- **Don't** drift the grounds toward blue-black slate (dark) or warm cream (light), and don't set prose in mono.

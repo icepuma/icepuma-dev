@@ -16,6 +16,15 @@ export default defineConfig({
 			subsets: ["latin"],
 			display: "swap",
 		},
+		{
+			provider: fontProviders.google(),
+			name: "IBM Plex Sans Condensed",
+			cssVariable: "--font-plex-condensed",
+			weights: [500, 600],
+			styles: ["normal"],
+			subsets: ["latin"],
+			display: "swap",
+		},
 	],
 	integrations: [
 		mdx({
