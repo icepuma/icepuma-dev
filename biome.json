@@ -1,5 +1,5 @@
 {
-	"$schema": "https://biomejs.dev/schemas/2.5.12/schema.json",
+	"$schema": "https://biomejs.dev/schemas/2.5.13/schema.json",
 	"vcs": {
 		"enabled": false,
 		"clientKind": "git",
@@ -8,21 +8,27 @@
 	"files": {
 		"ignoreUnknown": false,
 		"includes": [
-			"**/src/**",
-			"**/scripts/**",
-			"**/tests/**",
-			"**/public/**",
-			"**/astro.config.ts",
-			"**/package.json",
-			"**/biome.json",
-			"**/tsconfig.json"
+			"./src/**",
+			"./scripts/**",
+			"./tests/**",
+			"./public/**",
+			"./astro.config.ts",
+			"./package.json",
+			"./biome.json",
+			"./tsconfig.json"
 		]
 	},
 	"formatter": {
 		"enabled": true,
 		"indentStyle": "tab"
 	},
-	"assist": { "actions": { "source": { "organizeImports": "on" } } },
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
 	"linter": {
 		"enabled": true,
 		"includes": ["**", "!**/*.astro"],
@@ -42,7 +48,9 @@
 			}
 		}
 	},
-	"html": { "experimentalFullSupportEnabled": true },
+	"html": {
+		"experimentalFullSupportEnabled": true
+	},
 	"javascript": {
 		"formatter": {
 			"quoteStyle": "double"
@@ -62,8 +70,12 @@
 		},
 		{
 			"includes": ["src/styles/global.css"],
-			"formatter": { "enabled": false },
-			"linter": { "enabled": false }
+			"formatter": {
+				"enabled": false
+			},
+			"linter": {
+				"enabled": false
+			}
 		}
 	]
 }
