@@ -2,38 +2,38 @@
 interface Props {
 	href: string;
 	class?: string;
-	inspect?: boolean;
+	panel?: boolean;
 }
 
-const { href, class: className, inspect = false } = Astro.props;
+const { href, class: className, panel = false } = Astro.props;
 ---
 
 <a
 	href={href}
 	target="_blank"
 	rel="noopener noreferrer"
-	class:list={["control external-link", className]}
-	data-inspect-link={inspect ? "" : undefined}
+	class:list={["control external-link", { "hud-panel": panel }, className]}
 >
 	<slot />
-	<span class="link-endpoint" data-inspection-surface>
-		{inspect && (
+	{panel && <span class="hud-frame" aria-hidden="true" />}
+	<span class="link-endpoint">
+		{panel && (
 			<svg
-				class="inspection-fallback"
-				viewBox="0 0 80 80"
+				class="endpoint-rings"
+				viewBox="0 0 48 48"
 				fill="none"
 				stroke="currentColor"
-				stroke-width="1"
 				aria-hidden="true"
 			>
-				<circle cx="40" cy="40" r="29" stroke-dasharray="9 9" />
-				<circle cx="40" cy="40" r="21" stroke-dasharray="6 7" />
+				<circle class="endpoint-ring-outer" cx="24" cy="24" r="21" pathLength="56" stroke-dasharray="1 1" />
+				<circle class="endpoint-ring-inner" cx="24" cy="24" r="15" pathLength="70" stroke-dasharray="8 2" />
+				<path d="M24 0v4M24 44v4M0 24h4M44 24h4" />
 			</svg>
 		)}
 		<svg
 			class="external-arrow"
-			width="20"
-			height="20"
+			width="16"
+			height="16"
 			viewBox="0 0 24 24"
 			fill="none"
 			stroke="currentColor"

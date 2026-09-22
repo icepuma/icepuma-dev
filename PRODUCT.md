@@ -16,7 +16,7 @@ Keep the existing copy, URLs, content collections, list order, section anchors, 
 
 ## Brand Commitments
 
-The approved world is Stand Alone Complex: a minimal instrument panel where cold cyan means interaction, warm amber means recorded data, and the light and dark themes read as institutional daylight and the green-cast night city. Keep plain section names, always-visible navigation, and precise control feedback, with the register reticle marking the section being read. Use IBM Plex Sans Condensed for names, IBM Plex Sans for text, and JetBrains Mono for data. Do not invent custom logos or reproduce franchise art, marks, or on-screen text, and do not invent case numbers, timestamps, or other fictional data. Build and review the working page directly.
+The approved world is Stand Alone Complex: a calm cyberbrain HUD where cold cyan means interaction and presence, warm amber means recorded data, and the light and dark themes read as a daylight briefing and a teal-black night. The hero is a week dial built from the real schedule and the Berlin clock; project panels carry one cut corner and lock-on brackets; section headings pair the plain English name with a small, decorative Japanese label. Keep plain section names, always-visible navigation without numbers or sliding indicators, no separator lines, and precise control feedback. Use Chakra Petch in capitals for the name and section titles, IBM Plex Sans for text, and JetBrains Mono for data. Do not invent custom logos or reproduce franchise art, marks, or on-screen text, and do not invent case numbers, timestamps, statuses, or other fictional data. Build and review the working page directly.
 
 ## Accessibility & Inclusion
 

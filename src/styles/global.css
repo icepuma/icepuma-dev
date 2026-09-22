@@ -1,58 +1,21 @@
 @import "tailwindcss";
-@import "@fontsource/jetbrains-mono/400.css";
-@import "@fontsource/jetbrains-mono/500.css";
+@import "./tokens.css";
 
 :root {
-	color-scheme: light;
-	--background: #edf1f0;
-	--surface: #e1e6e4;
-	--foreground: #11181a;
-	--muted-foreground: #4f5d5b;
-	--primary: #0a6376;
-	--primary-foreground: #edf1f0;
-	--accent: #8a5a10;
-	--rule: #c7cfcd;
-	--rule-strong: #98a3a1;
-	--ring: #0a6376;
-	--header-height: 7.75rem;
-	--motion-ease: cubic-bezier(0.22, 1, 0.36, 1);
-	--motion-acquire: cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-[data-theme="dark"] {
-	color-scheme: dark;
-	--background: #070d0f;
-	--surface: #0f191c;
-	--foreground: #dbe7e8;
-	--muted-foreground: #8fa3a6;
-	--primary: #5ad2e6;
-	--primary-foreground: #070d0f;
-	--accent: #e8a94f;
-	--rule: #1b272a;
-	--rule-strong: #324146;
-	--ring: #5ad2e6;
-}
-
-@media (prefers-color-scheme: dark) {
-	:root:not([data-theme]) {
-		color-scheme: dark;
-		--background: #070d0f;
-		--surface: #0f191c;
-		--foreground: #dbe7e8;
-		--muted-foreground: #8fa3a6;
-		--primary: #5ad2e6;
-		--primary-foreground: #070d0f;
-		--accent: #e8a94f;
-		--rule: #1b272a;
-		--rule-strong: #324146;
-		--ring: #5ad2e6;
-}
+	--header-height: 6rem;
+	--gutter: clamp(1rem, 4vw, 3rem);
+	--cut: 12px;
+	--ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+	--ease-acquire: cubic-bezier(0.16, 1, 0.3, 1);
+	--font-ja:
+		"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic",
+		Meiryo, "Noto Sans JP", "Noto Sans CJK JP", sans-serif;
 }
 
 @theme inline {
 	--font-sans: var(--font-plex), sans-serif;
-	--font-display: var(--font-plex-condensed), var(--font-plex), sans-serif;
-	--font-mono: "JetBrains Mono", ui-monospace, monospace;
+	--font-display: var(--font-chakra), var(--font-plex), sans-serif;
+	--font-mono: var(--font-jetbrains), ui-monospace, monospace;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-muted-foreground: var(--muted-foreground);
@@ -64,12 +27,15 @@
 
 @variant dark (&:where([data-theme="dark"] *));
 
+/* --- base ---------------------------------------------------------------- */
+
 html {
 	scroll-padding-top: calc(var(--header-height) + 1rem);
 	scroll-behavior: smooth;
 	scrollbar-width: thin;
-	scrollbar-color: var(--muted-foreground) var(--background);
+	scrollbar-color: var(--rule-strong) var(--background);
 	caret-color: var(--primary);
+	-webkit-text-size-adjust: 100%;
 }
 
 body {
@@ -89,7 +55,7 @@ body {
 
 :where(a, button, summary):focus-visible {
 	outline: 2px solid var(--ring);
-	outline-offset: 4px;
+	outline-offset: 3px;
 }
 
 :where(a, button, summary) {
@@ -112,8 +78,11 @@ body {
 }
 
 .page-width {
-	width: min(calc(100% - 3rem), 70rem);
+	width: 100%;
+	max-width: calc(75rem + 2 * var(--gutter));
 	margin-inline: auto;
+	padding-inline: max(var(--gutter), env(safe-area-inset-left))
+		max(var(--gutter), env(safe-area-inset-right));
 }
 
 .skip-link {
@@ -124,20 +93,25 @@ body {
 	background: var(--foreground);
 	color: var(--background);
 	transform: translateY(-200%);
-	transition: transform 180ms var(--motion-ease);
+	transition: transform 180ms var(--ease-out);
 }
 
 .skip-link:focus {
 	transform: translateY(0);
 }
 
+/* --- header -------------------------------------------------------------- */
+
 .site-header {
 	position: sticky;
 	top: 0;
 	z-index: 20;
 	isolation: isolate;
+	padding-top: env(safe-area-inset-top);
 }
 
+/* The fill lives on a pseudo-element so the blur never filters the links
+   and Safari tints its toolbar from the page, not from the header. */
 .site-header::before {
 	position: absolute;
 	inset: 0;
@@ -149,13 +123,13 @@ body {
 
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
 	.site-header::before {
-		background: color-mix(in srgb, var(--background) 94%, transparent);
+		background: color-mix(in srgb, var(--background) 88%, transparent);
 		-webkit-backdrop-filter: blur(16px);
 		backdrop-filter: blur(16px);
 	}
 }
 
-/* A hairline confirms the header is floating over content once the page moves. */
+/* A hairline confirms the header is floating once the page moves. */
 .site-header::after {
 	position: absolute;
 	inset: auto 0 0;
@@ -164,7 +138,7 @@ body {
 	background: var(--rule);
 	content: "";
 	opacity: 0;
-	transition: opacity 180ms var(--motion-ease);
+	transition: opacity 180ms var(--ease-out);
 }
 
 html[data-scrolled] .site-header::after {
@@ -173,45 +147,57 @@ html[data-scrolled] .site-header::after {
 
 .header-inner {
 	display: grid;
-	grid-template-columns: 1fr auto;
+	grid-template-columns: minmax(0, 1fr) auto;
+	grid-template-areas:
+		"brand theme"
+		"nav nav";
 	align-items: center;
-	gap: 0.5rem 1rem;
-	padding-block: 0.75rem;
+	column-gap: 1rem;
+	padding-block: 0.25rem;
 }
 
 .brand {
+	grid-area: brand;
 	display: inline-flex;
 	align-items: center;
 	justify-self: start;
+	padding-inline: 0.25rem;
+	margin-inline-start: -0.25rem;
+	color: var(--foreground);
 	font-family: var(--font-mono);
 	font-size: 0.8125rem;
 	font-weight: 500;
 }
 
+.theme-control {
+	grid-area: theme;
+	display: flex;
+	align-items: center;
+	justify-content: flex-end;
+	min-inline-size: 44px;
+}
+
+/* All six links stay on one row on phones: sized to their words, never
+   truncated, and wrapped only on the narrowest screens or at high zoom. */
 .section-nav {
-	grid-column: 1 / -1;
-	grid-row: 2;
-	display: grid;
-	grid-template-columns: repeat(6, minmax(0, 1fr));
-	gap: 0.125rem;
+	grid-area: nav;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	margin-inline: -0.5rem;
 }
 
 .nav-link {
-	display: flex;
+	display: inline-flex;
 	align-items: center;
 	justify-content: center;
 	min-width: 44px;
 	min-height: 44px;
-	padding-inline: 0.5rem;
 	color: var(--muted-foreground);
 	font-family: var(--font-mono);
-	font-size: 0.75rem;
+	font-size: 0.6875rem;
 	text-decoration-thickness: 1px;
-	text-underline-offset: 0.5rem;
-}
-
-.nav-link:focus-visible {
-	color: var(--primary);
+	text-underline-offset: 0.5em;
 }
 
 .nav-link[aria-current="location"] {
@@ -219,21 +205,19 @@ html[data-scrolled] .site-header::after {
 	background: var(--surface);
 }
 
-.nav-link[aria-current="location"]::before,
-.nav-link[aria-current="location"]::after {
-	opacity: 1;
-	transform: none;
-}
-
 @media (hover: hover) {
 	.nav-link:hover {
+		color: var(--primary);
+		text-decoration-line: underline;
+	}
+
+	.brand:hover {
 		color: var(--primary);
 	}
 }
 
-.theme-control {
-	display: flex;
-	align-items: center;
+.nav-link:focus-visible {
+	color: var(--primary);
 }
 
 .theme-cycle {
@@ -252,7 +236,7 @@ html[data-scrolled] .site-header::after {
 	grid-area: 1 / 1;
 	display: block;
 	opacity: 0;
-	transition: opacity 180ms var(--motion-ease);
+	transition: opacity 180ms var(--ease-out);
 }
 
 html[data-theme-choice="light"] .theme-icon[data-theme-icon="light"],
@@ -272,192 +256,7 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	color: var(--primary);
 }
 
-.identity {
-	padding-block: clamp(2rem, 4vw, 3rem) clamp(1rem, 2vw, 1.5rem);
-}
-
-.identity h1 {
-	font-family: var(--font-display);
-	font-size: clamp(2.25rem, 5.6vw, 4.75rem);
-	font-weight: 600;
-	line-height: 1.02;
-	letter-spacing: -0.01em;
-	text-transform: uppercase;
-}
-
-.identity p {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0.25rem 0.5rem;
-	margin-top: 1rem;
-	font-size: 1rem;
-	color: var(--muted-foreground);
-}
-
-.identity-role {
-	display: inline-flex;
-	flex-wrap: wrap;
-	align-items: center;
-	gap: 0 0.375rem;
-}
-
-.identity .employer-link {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.375rem;
-	color: var(--primary);
-}
-
-.employer-link .external-arrow {
-	width: 16px;
-	height: 16px;
-}
-
-.identity-location {
-	white-space: nowrap;
-}
-
-.identity-divider {
-	margin-right: 0.5rem;
-	color: var(--primary);
-}
-
-.page-section {
-	position: relative;
-	display: grid;
-	gap: 1.5rem;
-	padding-block: clamp(2.5rem, 5.5vw, 4.5rem);
-	scroll-margin-top: 1.5rem;
-}
-
-.projects-section {
-	padding-top: 2rem;
-}
-
-.section-heading h2 {
-	font-family: var(--font-mono);
-	font-size: 0.8125rem;
-	font-weight: 500;
-	line-height: 1.4;
-	letter-spacing: 0.08em;
-	text-transform: uppercase;
-	color: var(--foreground);
-	transition: color 180ms var(--motion-ease);
-}
-
-.page-section:focus-visible {
-	outline: none;
-}
-
-.page-section:focus-visible .section-heading h2 {
-	outline: 2px solid var(--ring);
-	outline-offset: 6px;
-}
-
-/* --- register reticle --------------------------------------------------- */
-
-/* The register the reader is in acquires a frame in two clamps: the top pair
-   lands first, the bottom pair follows 50ms later. Release is faster than
-   acquire, so moving between registers never feels sticky. The four
-   L-brackets are gradient bars on two pseudo-elements, so the frame costs no
-   markup and never touches the text. */
-@media (min-width: 48rem) {
-	.page-section::before,
-	.page-section::after {
-		--frame: var(--primary);
-		position: absolute;
-		inset: 0;
-		z-index: 2;
-		pointer-events: none;
-		content: "";
-		background-image:
-			linear-gradient(var(--frame), var(--frame)),
-			linear-gradient(var(--frame), var(--frame)),
-			linear-gradient(var(--frame), var(--frame)),
-			linear-gradient(var(--frame), var(--frame));
-		background-repeat: no-repeat;
-		opacity: 0;
-		transition:
-			opacity 120ms var(--motion-ease),
-			transform 120ms var(--motion-ease);
-	}
-
-	.page-section::before {
-		background-position:
-			left top,
-			left top,
-			right top,
-			right top;
-		background-size:
-			10px 1px,
-			1px 10px,
-			10px 1px,
-			1px 10px;
-		transform: translateY(-2px);
-	}
-
-	.page-section::after {
-		background-position:
-			left bottom,
-			left bottom,
-			right bottom,
-			right bottom;
-		background-size:
-			10px 1px,
-			1px 10px,
-			10px 1px,
-			1px 10px;
-		transform: translateY(2px);
-	}
-
-	.page-section[data-current]::before,
-	.page-section[data-current]::after {
-		opacity: 1;
-		transform: none;
-		transition:
-			opacity 180ms var(--motion-acquire),
-			transform 180ms var(--motion-acquire);
-	}
-
-	.page-section[data-current]::after {
-		transition-delay: 40ms;
-	}
-}
-
-/* The active label locks on with a hairline drawn from the left. */
-.section-heading h2 span {
-	position: relative;
-}
-
-.section-heading h2 span::after {
-	position: absolute;
-	inset: auto 0 -0.25rem 0;
-	height: 1px;
-	background: var(--primary);
-	content: "";
-	transform: scaleX(0);
-	transform-origin: left center;
-	transition: transform 120ms var(--motion-ease);
-}
-
-.page-section[data-current] .section-heading h2 {
-	color: var(--primary);
-}
-
-.page-section[data-current] .section-heading h2 span::after {
-	transform: scaleX(1);
-	transition-duration: 180ms;
-	transition-timing-function: var(--motion-acquire);
-}
-
-.section-heading p {
-	margin-top: 0.75rem;
-	max-width: 26ch;
-	color: var(--muted-foreground);
-	font-size: 0.8125rem;
-	line-height: 1.6;
-}
+/* --- controls ------------------------------------------------------------ */
 
 .control {
 	position: relative;
@@ -466,96 +265,75 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	cursor: pointer;
 	text-decoration: none;
 	transition:
-		transform 180ms var(--motion-ease),
-		background-color 180ms var(--motion-ease),
-		color 180ms var(--motion-ease);
-}
-
-.control :is(h3, .social-platform) {
-	transition: color 180ms var(--motion-ease);
-}
-
-.control:focus-visible {
-	background-color: var(--surface);
-}
-
-.control:focus-visible :is(h3, .social-platform) {
-	color: var(--primary);
-}
-
-.control::before,
-.control::after {
-	position: absolute;
-	z-index: 1;
-	width: 7px;
-	height: 7px;
-	border-color: var(--primary);
-	pointer-events: none;
-	content: "";
-	opacity: 0;
-	transition: transform 200ms var(--motion-ease), opacity 180ms var(--motion-ease);
-}
-
-.control::before {
-	inset: 0 auto auto 0;
-	border-top: 1px solid var(--primary);
-	border-left: 1px solid var(--primary);
-	transform: translate(3px, 3px);
-}
-
-.control::after {
-	inset: auto 0 0 auto;
-	border-bottom: 1px solid var(--primary);
-	border-right: 1px solid var(--primary);
-	transform: translate(-3px, -3px);
-}
-
-.control:focus-visible::before,
-.control:focus-visible::after,
-.control:active::before,
-.control:active::after {
-	opacity: 1;
-	transform: translate(0, 0);
+		transform 180ms var(--ease-out),
+		background-color 180ms var(--ease-out),
+		color 180ms var(--ease-out);
 }
 
 .control:active {
 	transform: translateY(1px);
 	transition-duration: 80ms;
-	background: var(--surface);
 }
 
 .external-link {
 	color: inherit;
 }
 
-.refractive-surface {
-	position: relative;
-	isolation: isolate;
-}
-
-.refractive-light {
+/* Small controls carry two corner marks that align on hover, focus, press,
+   or selection. The current section's link keeps them: the reticle moves in
+   place from link to link, it never slides. */
+:is(.brand, .nav-link, .theme-cycle, .back-to-top)::before,
+:is(.brand, .nav-link, .theme-cycle, .back-to-top)::after {
 	position: absolute;
-	inset: 0;
-	z-index: -1;
-	width: 100%;
-	height: 100%;
+	z-index: 1;
+	width: 7px;
+	height: 7px;
 	pointer-events: none;
+	content: "";
+	opacity: 0;
+	transition:
+		transform 120ms var(--ease-out),
+		opacity 120ms var(--ease-out);
 }
 
-html:active-view-transition .refractive-light {
-	display: none;
+:is(.brand, .nav-link, .theme-cycle, .back-to-top)::before {
+	inset: 0 auto auto 0;
+	border-top: 1px solid var(--primary);
+	border-left: 1px solid var(--primary);
+	transform: translate(3px, 3px);
 }
 
-.external-arrow {
-	flex-shrink: 0;
-	color: var(--primary);
-	transition: transform 200ms var(--motion-ease);
+:is(.brand, .nav-link, .theme-cycle, .back-to-top)::after {
+	inset: auto 0 0 auto;
+	border-right: 1px solid var(--primary);
+	border-bottom: 1px solid var(--primary);
+	transform: translate(-3px, -3px);
+}
+
+:is(.brand, .nav-link, .theme-cycle, .back-to-top):is(:focus-visible, :active)::before,
+:is(.brand, .nav-link, .theme-cycle, .back-to-top):is(:focus-visible, :active)::after,
+.nav-link[aria-current="location"]::before,
+.nav-link[aria-current="location"]::after {
+	opacity: 1;
+	transform: none;
+	transition:
+		transform 180ms var(--ease-acquire),
+		opacity 180ms var(--ease-acquire);
+}
+
+@media (hover: hover) {
+	:is(.brand, .nav-link, .theme-cycle, .back-to-top):hover::before,
+	:is(.brand, .nav-link, .theme-cycle, .back-to-top):hover::after {
+		opacity: 1;
+		transform: none;
+		transition:
+			transform 180ms var(--ease-acquire),
+			opacity 180ms var(--ease-acquire);
+	}
 }
 
 .link-endpoint {
 	position: relative;
-	isolation: isolate;
-	overflow: clip;
 	display: inline-grid;
 	place-items: center;
 	flex-shrink: 0;
@@ -564,194 +342,846 @@ html:active-view-transition .refractive-light {
 	color: var(--primary);
 }
 
-[data-inspect-link] .link-endpoint {
-	width: 3.5rem;
-	height: 3.5rem;
+.external-arrow {
+	flex-shrink: 0;
+	color: var(--primary);
+	transition: transform 200ms var(--ease-out);
 }
 
-.inspection-fallback {
-	position: absolute;
-	inset: 0;
-	z-index: -1;
-	width: 100%;
-	height: 100%;
-	opacity: 0;
-	transform-origin: center;
-	transform: scale(1.15) rotate(-12deg);
-	transition: opacity 180ms var(--motion-ease), transform 320ms var(--motion-ease);
-}
-
-.control:focus-visible .inspection-fallback,
-.control:active .inspection-fallback {
-	opacity: 0.6;
-	transform: none;
-}
-
-.control .link-endpoint.refractive-surface .inspection-fallback {
-	visibility: hidden;
-}
-
-.control:not([data-inspect-link]):focus-visible .external-arrow {
-	transform: translate(3px, -3px);
+.control:focus-visible .external-arrow {
+	transform: translate(2px, -2px);
 }
 
 @media (hover: hover) {
-	.control:hover {
-		background: var(--surface);
+	.control:hover .external-arrow {
+		transform: translate(2px, -2px);
 	}
+}
 
-	.control:hover::before,
-	.control:hover::after {
+/* --- panels -------------------------------------------------------------- */
+
+/* A panel draws its frame on a child span, so the link itself is never
+   clipped and keeps its own focus ring. */
+.hud-panel {
+	isolation: isolate;
+}
+
+.hud-frame {
+	position: absolute;
+	inset: 0;
+	z-index: -1;
+	pointer-events: none;
+}
+
+.hud-frame::before,
+.hud-frame::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+	transition: background-color 180ms var(--ease-out);
+}
+
+.hud-frame::before {
+	background: var(--frame, var(--rule-strong));
+}
+
+.hud-frame::after {
+	inset: 1px;
+	background: var(--fill, var(--surface));
+}
+
+/* One cut corner, on project panels only. The inner layer's cut is 0.59px
+   shorter (2 - √2), so the diagonal stays exactly one pixel wide. */
+.project-row .hud-frame::before {
+	clip-path: polygon(
+		0 0,
+		calc(100% - var(--cut)) 0,
+		100% var(--cut),
+		100% 100%,
+		0 100%
+	);
+}
+
+.project-row .hud-frame::after {
+	clip-path: polygon(
+		0 0,
+		calc(100% - var(--cut) + 0.59px) 0,
+		100% calc(var(--cut) - 0.59px),
+		100% 100%,
+		0 100%
+	);
+}
+
+.hud-panel:focus-visible {
+	outline: 2px solid transparent;
+	outline-offset: 0;
+}
+
+.hud-panel:focus-visible .hud-frame {
+	--frame: var(--ring);
+}
+
+.hud-panel:focus-visible .hud-frame::after {
+	inset: 2px;
+}
+
+.project-row:focus-visible .hud-frame::after {
+	clip-path: polygon(
+		0 0,
+		calc(100% - var(--cut) + 1.17px) 0,
+		100% calc(var(--cut) - 1.17px),
+		100% 100%,
+		0 100%
+	);
+}
+
+@media (hover: hover) {
+	.hud-panel:hover .hud-frame {
+		--fill: var(--surface-hover);
+	}
+}
+
+/* Lock-on brackets: the top pair lands first and the bottom pair follows;
+   release is faster than acquire. Project panels leave the cut corner
+   bare, so they carry three brackets instead of four. */
+.hud-panel::before,
+.hud-panel::after {
+	--bracket: var(--primary);
+	position: absolute;
+	inset: -5px;
+	z-index: 1;
+	pointer-events: none;
+	content: "";
+	background-image:
+		linear-gradient(var(--bracket), var(--bracket)),
+		linear-gradient(var(--bracket), var(--bracket)),
+		linear-gradient(var(--bracket), var(--bracket)),
+		linear-gradient(var(--bracket), var(--bracket));
+	background-repeat: no-repeat;
+	background-size:
+		12px 1px,
+		1px 12px,
+		12px 1px,
+		1px 12px;
+	opacity: 0;
+	transition:
+		opacity 120ms var(--ease-out),
+		transform 120ms var(--ease-out);
+}
+
+.hud-panel::before {
+	background-position:
+		left top,
+		left top,
+		right top,
+		right top;
+	transform: translateY(-3px);
+}
+
+.hud-panel::after {
+	background-position:
+		left bottom,
+		left bottom,
+		right bottom,
+		right bottom;
+	transform: translateY(3px);
+}
+
+.project-row::before {
+	background-size:
+		12px 1px,
+		1px 12px,
+		0 0,
+		0 0;
+}
+
+.hud-panel:is(:focus-visible, :active, [data-sighted])::before,
+.hud-panel:is(:focus-visible, :active, [data-sighted])::after {
+	opacity: 1;
+	transform: none;
+	transition:
+		opacity 180ms var(--ease-acquire),
+		transform 180ms var(--ease-acquire);
+}
+
+.hud-panel:is(:focus-visible, :active, [data-sighted])::after {
+	transition-delay: 40ms;
+}
+
+@media (hover: hover) {
+	.hud-panel:hover::before,
+	.hud-panel:hover::after {
 		opacity: 1;
-		transform: translate(0, 0);
-	}
-
-	.control:not([data-inspect-link]):hover .external-arrow {
-		transform: translate(3px, -3px);
-	}
-
-	.control:hover :is(h3, .social-platform) {
-		color: var(--primary);
-	}
-
-	.control:hover .inspection-fallback {
-		opacity: 0.6;
 		transform: none;
+		transition:
+			opacity 180ms var(--ease-acquire),
+			transform 180ms var(--ease-acquire);
 	}
 
-	.control:hover .project-destination {
-		color: var(--primary);
+	.hud-panel:hover::after {
+		transition-delay: 40ms;
 	}
 }
 
-.project-row,
-.music-row {
+.hud-panel .link-endpoint {
+	width: 2.75rem;
+	height: 2.75rem;
+}
+
+/* The endpoint rings echo the dial: an hour rim and a seven-part week. */
+.endpoint-rings {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	opacity: 0;
+	transform: rotate(-90deg) scale(0.6);
+	transition:
+		opacity 120ms var(--ease-out),
+		transform 240ms var(--ease-out);
+}
+
+.endpoint-ring-outer {
+	opacity: 0.7;
+}
+
+.project-row:focus-visible .endpoint-rings {
+	opacity: 1;
+	transform: none;
+	transition:
+		opacity 180ms var(--ease-acquire),
+		transform 480ms var(--ease-acquire);
+}
+
+@media (hover: hover) {
+	.project-row:hover .endpoint-rings {
+		opacity: 1;
+		transform: none;
+		transition:
+			opacity 180ms var(--ease-acquire),
+			transform 480ms var(--ease-acquire);
+	}
+}
+
+.project-row:active .endpoint-rings {
+	opacity: 1;
+	transform: scale(1.14);
+	transition:
+		opacity 80ms var(--ease-out),
+		transform 160ms var(--ease-out);
+}
+
+.music-row .endpoint-rings,
+.social-row .endpoint-rings {
+	display: none;
+}
+
+/* --- hero ---------------------------------------------------------------- */
+
+.hero {
+	position: relative;
+	isolation: isolate;
 	display: grid;
-	align-items: center;
-	gap: 1.5rem;
-	padding: 1.25rem 0.75rem;
-	margin-inline: -0.75rem;
-}
-
-.music-row {
-	grid-template-columns: minmax(0, 1fr) 3.5rem;
-}
-
-/* The project row is a register line: copy, the real destination in its own
-   column, and the inspected endpoint. */
-.project-row {
-	grid-template-columns: minmax(0, 1fr) 3.5rem;
+	grid-template-columns: minmax(0, 1fr) auto;
 	grid-template-areas:
-		"copy arrow"
-		"destination arrow";
+		"identity identity"
+		"readout dial";
+	align-items: center;
+	gap: 1.5rem 1rem;
+	padding-block: clamp(1.75rem, 5vw, 3.5rem) clamp(0.5rem, 2vw, 1.5rem);
 }
 
-.project-copy {
-	grid-area: copy;
+.hero::before {
+	position: absolute;
+	inset: -2rem calc(-1 * var(--gutter));
+	z-index: -1;
+	content: "";
+	pointer-events: none;
+	background: radial-gradient(
+		closest-side circle at 76% 55%,
+		var(--hero-wash),
+		transparent
+	);
+}
+
+.hero-grid {
+	display: none;
+}
+
+.identity {
+	grid-area: identity;
+}
+
+.identity h1 {
+	font-family: var(--font-display);
+	font-size: clamp(2.25rem, 1.2rem + 5.2vw, 4.75rem);
+	font-weight: 600;
+	line-height: 0.95;
+	letter-spacing: -0.005em;
+	text-transform: uppercase;
+}
+
+.identity p {
+	display: grid;
+	justify-items: start;
+	gap: 0.25rem;
+	margin-top: 1.25rem;
+	font-size: 1.0625rem;
+	color: var(--muted-foreground);
+}
+
+.identity-role {
+	display: inline-flex;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0 0.375rem;
+}
+
+/* Inline links keep a resting underline, so they never rely on hue alone;
+   the cyan line draws over it from the left. */
+.identity .employer-link {
+	display: inline;
 	min-width: 0;
+	min-height: 0;
+	color: var(--primary);
+	white-space: nowrap;
+	padding-bottom: 2px;
+	background:
+		linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat,
+		linear-gradient(var(--rule-strong), var(--rule-strong)) left bottom / 100%
+		1px no-repeat;
+	transition:
+		background-size 220ms var(--ease-out),
+		color 180ms var(--ease-out);
+}
+
+.identity .employer-link:focus-visible {
+	background-size:
+		100% 1px,
+		100% 1px;
+}
+
+@media (hover: hover) {
+	.identity .employer-link:hover {
+		background-size:
+			100% 1px,
+			100% 1px;
+	}
+}
+
+.employer-link .link-endpoint {
+	display: inline-grid;
+	width: 16px;
+	height: 16px;
+	margin-inline-start: 0.25rem;
+	vertical-align: -2px;
+}
+
+.identity-location {
+	white-space: nowrap;
+}
+
+.hero-readout-slot {
+	grid-area: readout;
+	align-self: center;
+	min-width: 0;
+	min-block-size: 5rem;
+}
+
+.hero-readout {
+	display: grid;
+	gap: 0.75rem;
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	line-height: 1.5;
+}
+
+.hero-readout dt {
+	color: var(--muted-foreground);
+	text-transform: uppercase;
+	letter-spacing: 0.04em;
+}
+
+.hero-readout dd {
+	color: var(--foreground);
+}
+
+.hero-readout [data-hud-zone] {
+	color: var(--muted-foreground);
+}
+
+.hud-today-link {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.375rem;
+	color: var(--primary);
+	text-decoration: underline;
+	text-decoration-color: var(--rule-strong);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.35em;
+	transition: text-decoration-color 180ms var(--ease-out);
+}
+
+.hud-today-link .external-arrow {
+	width: 14px;
+	height: 14px;
+}
+
+@media (hover: hover) {
+	.hud-today-link:hover {
+		text-decoration-color: currentColor;
+	}
+}
+
+.hud-off {
+	color: var(--muted-foreground);
+}
+
+/* A decode host keeps its real text for assistive technology and layout;
+   the scramble is painted by an aria-hidden mask on top of it. */
+.decode {
+	position: relative;
+	font-variant-ligatures: none;
+}
+
+.decode[data-decoding] {
+	-webkit-text-fill-color: transparent;
+}
+
+.decode-mask {
+	position: absolute;
+	inset: 0;
+	overflow: hidden;
+	-webkit-text-fill-color: currentColor;
+	font-variant-ligatures: none;
+	white-space: pre;
+	pointer-events: none;
+	user-select: none;
+}
+
+/* --- week dial ----------------------------------------------------------- */
+
+/* One turn is one week. The rim ticks every hour, the arcs are the days of
+   the schedule, the cyan tick is now in Berlin, and only the inner ring,
+   which turns with scroll, carries no data. */
+.dial {
+	--dial-size: clamp(6.5rem, 30vw, 8rem);
+	grid-area: dial;
+	position: relative;
+	width: var(--dial-size);
+	aspect-ratio: 1;
+	perspective: 900px;
+}
+
+.dial-tilt {
+	position: absolute;
+	inset: 0;
+	transform-style: preserve-3d;
+	transform: rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg));
+}
+
+.dial-layer {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	overflow: visible;
+	fill: none;
+}
+
+.dial-week {
+	transform: translateZ(18px) scale(0.98);
+}
+
+.dial-core {
+	transform: translateZ(36px) scale(0.96);
+}
+
+.dial-rim,
+.dial-hours,
+.dial-quarters,
+.dial-midnights,
+.dial-cross,
+.dial-now path {
+	vector-effect: non-scaling-stroke;
+}
+
+.dial-rim {
+	stroke: var(--rule-strong);
+	stroke-width: 1px;
+}
+
+.dial-hours {
+	display: none;
+	stroke: var(--rule-strong);
+	stroke-width: 1px;
+}
+
+.dial-quarters {
+	display: none;
+	stroke: var(--muted-foreground);
+	stroke-width: 1px;
+	opacity: 0.55;
+}
+
+.dial-midnights {
+	stroke: var(--muted-foreground);
+	stroke-width: 1.25px;
+}
+
+.dial-day {
+	stroke: var(--accent);
+	stroke-width: 9;
+}
+
+.dial-off {
+	stroke: var(--muted-foreground);
+	stroke-width: 4;
+	stroke-dasharray: 6 12;
+	opacity: 0.8;
+}
+
+.dial-day[data-today] {
+	stroke: var(--primary);
+	stroke-width: 12;
+	stroke-dasharray: none;
+	opacity: 1;
+}
+
+.dial-halo {
+	stroke: var(--primary);
+	stroke-width: 24;
+	opacity: 0;
+}
+
+.dial-halo[data-today] {
+	opacity: var(--glow-opacity);
+}
+
+.dial-now {
+	opacity: 0;
+	transform-box: view-box;
+	transform-origin: 50% 50%;
+	rotate: var(--now, 0deg);
+	transition: opacity 180ms var(--ease-out);
+}
+
+.dial-now path {
+	stroke: var(--primary);
+	stroke-width: 2px;
+}
+
+.dial[data-now] .dial-now {
+	opacity: 1;
+}
+
+.dial-spin {
+	transform-box: view-box;
+	transform-origin: 50% 50%;
+}
+
+.dial-spin circle {
+	stroke: var(--muted-foreground);
+	stroke-width: 5;
+	stroke-dasharray: 131 22 44 46;
+	opacity: 0.5;
+}
+
+.dial-cross {
+	stroke: var(--muted-foreground);
+	stroke-width: 1px;
+}
+
+.dial-labels {
+	display: none;
+	position: absolute;
+	inset: 0;
+	transform: translateZ(18px) scale(0.98);
+	font-family: var(--font-mono);
+	font-size: 0.6875rem;
+	line-height: 1;
+	color: var(--muted-foreground);
+}
+
+.dial-labels span {
+	position: absolute;
+	transform: translate(-50%, -50%);
+}
+
+.dial-labels [data-today] {
+	color: var(--primary);
+}
+
+.dial-centre {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	transform: translateZ(36px) scale(0.96);
+	font-family: var(--font-display);
+	font-size: calc(var(--dial-size) * 0.14);
+	font-weight: 600;
+	line-height: 1;
+	color: var(--foreground);
+}
+
+/* --- section heading ----------------------------------------------------- */
+
+.page-section {
+	position: relative;
+	display: grid;
+	gap: 1.75rem;
+	padding-block: clamp(3.5rem, 8vw, 6rem) 0;
+	scroll-margin-top: 1.5rem;
+}
+
+.projects-section {
+	padding-top: clamp(2.5rem, 5vw, 3.5rem);
+}
+
+.page-section:focus-visible {
+	outline: none;
+}
+
+.page-section:focus-visible .section-bar h2 {
+	outline: 2px solid var(--ring);
+	outline-offset: 6px;
+}
+
+.section-bar {
+	display: flex;
+	align-items: center;
+	gap: 1rem;
+}
+
+.section-bar h2 {
+	font-family: var(--font-display);
+	font-size: clamp(1.75rem, 1.35rem + 1.4vw, 2.25rem);
+	font-weight: 600;
+	line-height: 1;
+	text-transform: uppercase;
+}
+
+/* A short scale, attached to the title and never a rule across the page.
+   It turns cyan while its register is being read. */
+.section-scale {
+	flex: 0 1 9rem;
+	min-width: 0;
+	height: 7px;
+	color: var(--rule-strong);
+	background:
+		linear-gradient(currentColor, currentColor) left bottom / 100% 1px
+		no-repeat,
+		repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 12px)
+		left bottom / 100% 4px no-repeat,
+		linear-gradient(currentColor, currentColor) right bottom / 1px 100%
+		no-repeat;
+	transform-origin: left center;
+	transition: color 180ms var(--ease-out);
+}
+
+.page-section[data-current] .section-scale {
+	color: var(--primary);
+	transition-timing-function: var(--ease-acquire);
+}
+
+.section-sub {
+	flex-shrink: 0;
+	font-family: var(--font-ja);
+	font-size: 0.8125rem;
+	font-weight: 500;
+	line-height: 1;
+	color: var(--muted-foreground);
+}
+
+.section-intro {
+	margin-top: 0.75rem;
+	max-width: 44ch;
+	color: var(--muted-foreground);
+	font-size: 0.9375rem;
+}
+
+/* --- projects ------------------------------------------------------------ */
+
+.project-list {
+	display: grid;
+	gap: 1rem;
+}
+
+.project-list > li {
+	min-width: 0;
+}
+
+.project-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	grid-template-rows: auto 1fr auto;
+	grid-template-areas:
+		"title title"
+		"description description"
+		"destination endpoint";
+	gap: 0.5rem 1rem;
+	height: 100%;
+	padding: 1.25rem 1.25rem 0.875rem;
+}
+
+.project-row h3 {
+	grid-area: title;
+	padding-right: 0.5rem;
+	font-size: 1.25rem;
+	font-weight: 600;
+	line-height: 1.25;
+	letter-spacing: -0.01em;
+	transition: color 180ms var(--ease-out);
+}
+
+.project-description {
+	grid-area: description;
+	max-width: 58ch;
+	color: var(--muted-foreground);
+	font-size: 0.9375rem;
+	line-height: 1.6;
 }
 
 .project-destination {
 	grid-area: destination;
+	align-self: center;
+	padding-top: 0.5rem;
+	font-family: var(--font-mono);
+	font-size: 0.75rem;
+	line-height: 1.5;
+	color: var(--accent);
 }
 
 .project-row .link-endpoint {
-	grid-area: arrow;
-	align-self: center;
+	grid-area: endpoint;
+	align-self: end;
+	margin-right: -0.375rem;
 }
 
-.project-row .external-arrow {
-	margin: 0;
+@media (hover: hover) {
+	.project-row:hover h3 {
+		color: var(--primary);
+	}
 }
 
-.project-copy h3 {
-	font-family: var(--font-display);
-	font-size: clamp(1.25rem, 2.2vw, 1.75rem);
-	font-weight: 600;
-	line-height: 1.25;
-	letter-spacing: -0.01em;
+.project-row:focus-visible h3 {
+	color: var(--primary);
 }
 
-.project-description {
-	margin-top: 0.5rem;
-	max-width: 58ch;
-	font-size: 0.9375rem;
-	color: var(--muted-foreground);
-	line-height: 1.6;
-}
-
-.project-destination {
-	margin-top: 0.5rem;
-	font-family: var(--font-mono);
-	font-size: 0.6875rem;
-	line-height: 1.6;
-	color: var(--accent);
-	overflow-wrap: anywhere;
-	transition: color 180ms var(--motion-ease);
-}
+/* --- about --------------------------------------------------------------- */
 
 .about-copy {
-	max-width: 58ch;
-	font-size: clamp(1.125rem, 1.7vw, 1.375rem);
-	line-height: 1.6;
+	max-width: 36ch;
+	font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
+	line-height: 1.45;
 	letter-spacing: -0.01em;
 }
+
+/* --- stack --------------------------------------------------------------- */
 
 .stack-list {
 	display: grid;
-	gap: 0 2.5rem;
+	gap: 0.5rem;
 }
 
 .stack-row {
-	padding-block: 1rem;
+	display: grid;
+	gap: 0.5rem;
+	padding: 1rem 1.25rem 0.75rem;
+	background: var(--surface);
 }
 
 .stack-row dt {
-	display: flex;
-	align-items: baseline;
-	gap: 0.75rem;
-	font-weight: 500;
 	font-family: var(--font-mono);
 	font-size: 0.75rem;
+	font-weight: 500;
+	letter-spacing: 0.04em;
 	text-transform: uppercase;
-	letter-spacing: 0.08em;
 	color: var(--accent);
-}
-
-.stack-row dd {
-	margin-top: 0.75rem;
-	color: var(--muted-foreground);
-	font-size: 0.9375rem;
 }
 
 .stack-tools {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 0.125rem 0.25rem;
-	margin-inline: -0.375rem;
+	gap: 0 0.5rem;
 }
 
 .stack-link {
 	display: inline-flex;
 	align-items: center;
-	padding: 0.5rem 0.375rem;
-	color: var(--primary);
+	isolation: isolate;
+	padding-inline: 0.75rem;
+	color: var(--foreground);
+	font-size: 0.9375rem;
+}
+
+/* The chip is drawn 6px inside the link, so it looks 32px tall while the
+   target stays 44px. */
+.stack-link::before {
+	position: absolute;
+	inset: 6px 0;
+	z-index: -1;
+	content: "";
+	border: 1px solid var(--rule-strong);
+	transition:
+		border-color 150ms var(--ease-out),
+		background-color 150ms var(--ease-out);
 }
 
 .stack-link .link-endpoint {
 	display: none;
 }
 
-.calendar-row {
+.stack-link:focus-visible {
+	color: var(--primary);
+}
+
+.stack-link:focus-visible::before {
+	border-color: var(--primary);
+}
+
+@media (hover: hover) {
+	.stack-link:hover {
+		color: var(--primary);
+	}
+
+	.stack-link:hover::before {
+		border-color: var(--primary);
+		background: color-mix(in srgb, var(--primary) 8%, transparent);
+	}
+}
+
+/* --- calendar ------------------------------------------------------------ */
+
+.calendar-list {
 	display: grid;
-	grid-template-columns: 4.5rem minmax(0, 1fr);
+	gap: 0.5rem;
+}
+
+.calendar-row {
+	position: relative;
+	display: grid;
+	grid-template-columns: 5rem minmax(0, 1fr);
 	align-items: center;
+	border: 1px solid var(--rule-strong);
+	background: var(--surface);
+	transition: border-color 150ms var(--ease-out);
 }
 
 .calendar-row dt {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.375rem;
+	padding-inline: 0.875rem 0;
 	font-family: var(--font-mono);
 	font-size: 0.75rem;
 	color: var(--accent);
+}
+
+.calendar-row dd {
+	min-width: 0;
 }
 
 .calendar-link {
@@ -759,50 +1189,108 @@ html:active-view-transition .refractive-light {
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
-	padding: 0.75rem;
-	margin-right: -0.75rem;
-}
-
-.calendar-link .external-arrow {
-	width: 16px;
-	height: 16px;
+	padding: 0.75rem 0.875rem;
+	color: var(--foreground);
 }
 
 .calendar-off {
 	display: block;
-	padding: 0.75rem;
+	padding: 0.75rem 0.875rem;
 	color: var(--muted-foreground);
 }
 
-
-
-.music-row .external-arrow {
-	margin: 0;
+/* Days off are hatched beside the word, never behind it. */
+.calendar-row:has(.calendar-off)::after {
+	position: absolute;
+	inset: 0.5rem 0.5rem 0.5rem auto;
+	width: 40%;
+	content: "";
+	pointer-events: none;
+	background: repeating-linear-gradient(
+		135deg,
+		color-mix(in srgb, var(--rule) 55%, transparent) 0 1px,
+		transparent 1px 7px
+	);
 }
 
-.music-row .link-endpoint {
-	align-self: start;
+.calendar-row[data-today] {
+	border-color: var(--primary);
+}
+
+/* The one solid cyan fill on the page. */
+.calendar-row[data-today] dt::after {
+	content: "Today";
+	content: "Today" / "";
+	padding: 0.125rem 0.375rem;
+	background: var(--primary);
+	color: var(--primary-foreground);
+	font-size: 0.6875rem;
+	font-weight: 500;
+	line-height: 1.4;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+}
+
+.calendar-row:has(.calendar-link:focus-visible) {
+	border-color: var(--primary);
+}
+
+.calendar-link:focus-visible {
+	color: var(--primary);
+}
+
+@media (hover: hover) {
+	.calendar-row:has(.calendar-link:hover) {
+		border-color: var(--primary);
+	}
+
+	.calendar-link:hover {
+		color: var(--primary);
+	}
+}
+
+/* --- music and social ---------------------------------------------------- */
+
+.music-list,
+.social-list {
+	display: grid;
+	gap: 1rem;
+}
+
+.music-list > li,
+.social-list > li {
+	min-width: 0;
+}
+
+.music-row,
+.social-row {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) auto;
+	align-items: start;
+	gap: 1rem;
+	height: 100%;
+	padding: 1.25rem 0.875rem 1.25rem 1.25rem;
 }
 
 .music-title {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: baseline;
-	justify-content: space-between;
-	gap: 0.25rem 1rem;
+	gap: 0.25rem 0.75rem;
 }
 
-.music-title h3 {
-	font-family: var(--font-display);
-	font-size: 1.125rem;
+.music-title h3,
+.social-platform {
+	font-size: 1.0625rem;
 	font-weight: 600;
 	line-height: 1.4;
 	letter-spacing: -0.01em;
+	transition: color 180ms var(--ease-out);
 }
 
 .music-genre {
 	font-family: var(--font-mono);
-	font-size: 0.6875rem;
+	font-size: 0.75rem;
 	color: var(--accent);
 }
 
@@ -814,28 +1302,33 @@ html:active-view-transition .refractive-light {
 }
 
 .social-row {
-	display: grid;
-	grid-template-columns: minmax(0, 1fr) 3.5rem;
 	align-items: center;
-	gap: 1rem;
-	padding: 1.25rem 0.75rem;
-	margin-inline: -0.75rem;
 }
 
 .social-copy {
 	display: grid;
 	gap: 0.25rem;
-}
-
-.social-platform {
-	font-weight: 500;
+	min-width: 0;
 }
 
 .social-handle {
-	color: var(--muted-foreground);
-	font-size: 0.875rem;
+	font-family: var(--font-mono);
+	font-size: 0.8125rem;
+	color: var(--accent);
 	overflow-wrap: anywhere;
 }
+
+@media (hover: hover) {
+	:is(.music-row, .social-row):hover :is(h3, .social-platform) {
+		color: var(--primary);
+	}
+}
+
+:is(.music-row, .social-row):focus-visible :is(h3, .social-platform) {
+	color: var(--primary);
+}
+
+/* --- footer -------------------------------------------------------------- */
 
 .site-footer {
 	display: flex;
@@ -843,113 +1336,189 @@ html:active-view-transition .refractive-light {
 	align-items: center;
 	justify-content: space-between;
 	gap: 0.5rem 1rem;
-	padding-block: 1.5rem;
+	padding-block: clamp(3.5rem, 8vw, 6rem) max(1.5rem, env(safe-area-inset-bottom));
 	color: var(--muted-foreground);
 	font-family: var(--font-mono);
-	font-size: 0.6875rem;
+	font-size: 0.75rem;
 }
 
 .back-to-top {
 	display: inline-flex;
 	align-items: center;
-	gap: 0.75rem;
+	gap: 0.625rem;
 	padding-inline: 0.5rem;
+	margin-inline-end: -0.5rem;
 }
 
-@media (min-width: 48rem) {
-	.page-section {
-		grid-template-columns: 11rem minmax(0, 1fr);
-		column-gap: 3rem;
+.control.back-to-top:focus-visible .external-arrow {
+	transform: translateY(-3px);
+}
+
+@media (hover: hover) {
+	.back-to-top:hover {
+		color: var(--foreground);
 	}
 
-	.stack-list {
-		grid-template-columns: repeat(2, minmax(0, 1fr));
+	.control.back-to-top:hover .external-arrow {
+		transform: translateY(-3px);
+	}
+}
+
+/* --- breakpoints --------------------------------------------------------- */
+
+@media (min-width: 22.5rem) {
+	.section-nav {
+		margin-inline: -0.25rem;
 	}
 
-	.project-row {
-		grid-template-columns: minmax(0, 1fr) 12rem 5.5rem;
-		grid-template-areas: "copy destination arrow";
-		column-gap: 2rem;
-		padding-block: 1.5rem;
+	.nav-link {
+		font-size: 0.75rem;
 	}
+}
 
-	.project-destination {
-		align-self: start;
-		margin-top: 0;
-	}
-
-	.music-row {
-		padding-block: 1.5rem;
-	}
-
-	.project-row .link-endpoint {
-		width: 5.5rem;
-		height: 5.5rem;
-	}
-
-	.section-heading {
-		position: sticky;
-		top: calc(var(--header-height) + 2rem);
-		align-self: start;
-	}
-
+@media (min-width: 30rem) {
 	.social-list {
-		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0 2rem;
 	}
 }
 
-@media (min-width: 64rem) {
-	:root {
-		--header-height: 4.5rem;
-	}
-
+@media (min-width: 40rem) {
 	.header-inner {
-		grid-template-columns: 1fr auto auto;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		grid-template-areas: "brand nav theme";
 		column-gap: 1.5rem;
+		padding-block: 0.375rem;
 	}
 
 	.section-nav {
-		grid-column: auto;
-		grid-row: auto;
+		justify-content: flex-end;
+		gap: 0.25rem;
+		margin-inline: 0;
+	}
+
+	.nav-link {
+		padding-inline: 0.625rem;
+	}
+
+	.project-list {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
-@media (min-width: 56rem) {
+@media (min-width: 48rem) {
+	.hero {
+		grid-template-columns: minmax(0, 1fr) auto;
+		grid-template-areas:
+			"identity dial"
+			"readout dial";
+		align-items: end;
+		column-gap: clamp(2rem, 6vw, 5rem);
+		row-gap: 2.25rem;
+	}
+
+	.hero-readout-slot {
+		align-self: start;
+		min-block-size: 2.75rem;
+	}
+
+	.hero-readout {
+		grid-template-columns: repeat(2, auto);
+		justify-content: start;
+		column-gap: 2.5rem;
+	}
+
+	.hero-grid {
+		position: absolute;
+		inset: -2rem calc(-1 * var(--gutter));
+		z-index: -1;
+		display: block;
+		width: calc(100% + 2 * var(--gutter));
+		height: calc(100% + 4rem);
+		pointer-events: none;
+		-webkit-mask-image: radial-gradient(
+			closest-side circle at 76% 55%,
+			#000 30%,
+			transparent
+		);
+		mask-image: radial-gradient(
+			closest-side circle at 76% 55%,
+			#000 30%,
+			transparent
+		);
+	}
+
+	.hero-grid path {
+		stroke: var(--grid-mark);
+		stroke-width: 1;
+	}
+
+	.dial {
+		--dial-size: min(clamp(14rem, 28vw, 20rem), 52svh);
+		margin: 1.5rem;
+		align-self: center;
+	}
+
+	.dial-hours,
+	.dial-quarters,
+	.dial-labels {
+		display: block;
+	}
+
+	.dial-day {
+		stroke-width: 3;
+	}
+
+	.dial-off {
+		stroke-width: 1.5;
+		stroke-dasharray: 2 5;
+	}
+
+	.dial-day[data-today] {
+		stroke-width: 4.5;
+	}
+
+	.dial-halo {
+		stroke-width: 10;
+	}
+
+	.dial-spin circle {
+		stroke-width: 1.5;
+	}
+
+	.stack-row {
+		grid-template-columns: 12rem minmax(0, 1fr);
+		align-items: baseline;
+		column-gap: 1.5rem;
+		padding-block: 0.75rem;
+	}
+
 	.calendar-list {
-		display: grid;
 		grid-template-columns: repeat(7, minmax(0, 1fr));
-		gap: 0.75rem;
 	}
 
 	.calendar-row {
 		display: flex;
 		flex-direction: column;
 		align-items: stretch;
-		gap: 0.25rem;
+		min-height: 6.5rem;
 	}
 
 	.calendar-row dt {
-		padding: 0.5rem;
+		padding: 0.75rem 0.75rem 0;
 	}
 
 	.calendar-row dd {
 		flex: 1;
-		min-width: 0;
 	}
 
 	.calendar-link,
 	.calendar-off {
-		min-height: 4.5rem;
 		height: 100%;
-		margin: 0;
-		padding: 0.75rem 0.5rem;
-		font-size: 0.875rem;
+		padding: 0.5rem 0.75rem 0.75rem;
+		font-size: 0.9375rem;
 	}
 
 	.calendar-link {
-		flex-direction: column;
 		align-items: flex-start;
 	}
 
@@ -957,98 +1526,117 @@ html:active-view-transition .refractive-light {
 		display: none;
 	}
 
+	.calendar-row:has(.calendar-off)::after {
+		inset: auto 0.5rem 0.5rem;
+		width: auto;
+		height: 1.75rem;
+	}
+
 	.music-list {
-		display: grid;
 		grid-template-columns: repeat(2, minmax(0, 1fr));
-		gap: 0 2rem;
-	}
-
-	.music-list > li {
-		min-width: 0;
-	}
-
-	.music-row {
-		height: 100%;
-	}
-
-	.music-title {
-		flex-direction: column;
-		align-items: flex-start;
-		gap: 0.25rem;
 	}
 }
 
-@media (max-width: 35rem) {
-	.page-width {
-		width: calc(100% - 2.5rem);
-	}
-
-	.header-inner {
-		gap: 0.5rem 0.25rem;
-	}
-
-	.brand {
-		font-size: 0.75rem;
-		gap: 0.375rem;
-	}
-
-	:root {
-		--header-height: 10.75rem;
-	}
-
-	.section-nav {
+@media (min-width: 64rem) {
+	.project-list {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
+}
 
-	.identity-location {
-		flex-basis: 100%;
-	}
+/* --- scroll-linked motion ------------------------------------------------ */
 
-	.identity-divider {
-		display: none;
-	}
+/* The scale draws in as its section arrives and the inner ring turns as the
+   hero leaves. Each timeline is declared after the shorthand, which resets
+   it. */
+@supports (animation-timeline: view()) {
+	@media (prefers-reduced-motion: no-preference) {
+		.section-scale {
+			animation: section-scale-draw linear both;
+			animation-timeline: view();
+			animation-range: cover 5% cover 30%;
+		}
 
-	.project-row,
-	.music-row {
-		grid-template-columns: minmax(0, 1fr) 2.75rem;
-		gap: 0.75rem;
-	}
+		.dial {
+			view-timeline: --dial block;
+		}
 
-	[data-inspect-link] .link-endpoint {
-		width: 2.75rem;
-		height: 2.75rem;
-	}
-
-	.external-arrow {
-		width: 16px;
-		height: 16px;
-	}
-
-	.music-title {
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-
-	.social-row {
-		grid-template-columns: minmax(0, 1fr) 2.75rem;
-	}
-
-	.social-handle {
-		font-size: 0.8125rem;
+		.dial-spin {
+			animation: dial-spin linear both;
+			animation-timeline: --dial;
+			animation-range: exit 0% exit 100%;
+		}
 	}
 }
 
-/* An explicit theme change is a short crossfade and nothing more. */
+@keyframes section-scale-draw {
+	from {
+		transform: scaleX(0);
+	}
+}
+
+@keyframes dial-spin {
+	to {
+		rotate: 45deg;
+	}
+}
+
+/* --- first load ---------------------------------------------------------- */
+
+/* Once per visit the dial draws itself in. Only the graphic moves, so it
+   never delays reading. */
+@media (prefers-reduced-motion: no-preference) {
+	html[data-boot] .dial-day:not(.dial-off) {
+		stroke-dasharray: 1;
+		stroke-dashoffset: 1;
+		animation: dial-draw 800ms var(--ease-acquire) forwards;
+		animation-delay: calc(150ms + var(--i, 0) * 60ms);
+	}
+
+	html[data-boot]
+		:is(.dial-base, .dial-core, .dial-off, .dial-labels, .dial-centre) {
+		animation: dial-fade 700ms var(--ease-out) both;
+	}
+}
+
+@keyframes dial-draw {
+	to {
+		stroke-dashoffset: 0;
+	}
+}
+
+@keyframes dial-fade {
+	from {
+		opacity: 0;
+	}
+}
+
+/* --- theme change -------------------------------------------------------- */
+
+/* By default an explicit theme change is a short crossfade. From the theme
+   button it opens as an iris instead, animated from script. */
 ::view-transition-group(root),
 ::view-transition-old(root),
 ::view-transition-new(root) {
 	animation-duration: 180ms;
-	animation-timing-function: var(--motion-ease);
+	animation-timing-function: var(--ease-out);
+}
+
+html[data-theme-iris]::view-transition-old(root),
+html[data-theme-iris]::view-transition-new(root) {
+	animation: none;
+	mix-blend-mode: normal;
 }
 
 html:active-view-transition :is(.control, h3, .social-platform) {
 	transition: none;
 }
+
+html:active-view-transition .hud-frame::before,
+html:active-view-transition .hud-frame::after {
+	transition: none;
+}
+
+/* --- preferences --------------------------------------------------------- */
 
 @media (prefers-reduced-transparency: reduce) {
 	.site-header::before {
@@ -1075,11 +1663,9 @@ html:active-view-transition :is(.control, h3, .social-platform) {
 	.control,
 	.control::before,
 	.control::after,
-	.control :is(h3, .social-platform),
-	.inspection-fallback,
-	.project-destination,
-	.external-arrow {
-		transition: none;
+	.external-arrow,
+	.endpoint-rings,
+	.dial-tilt {
 		transform: none !important;
 	}
 
@@ -1087,29 +1673,6 @@ html:active-view-transition :is(.control, h3, .social-platform) {
 	::view-transition-old(root),
 	::view-transition-new(root) {
 		animation: none;
-	}
-}
-
-/* Stronger text and rules when the reader asks for more contrast. */
-@media (prefers-contrast: more) {
-	:root {
-		--muted-foreground: #3a484c;
-		--rule: #aab5b3;
-		--rule-strong: #6d7b79;
-	}
-
-	[data-theme="dark"] {
-		--muted-foreground: #b6c4c6;
-		--rule: #3c4b4f;
-		--rule-strong: #5f7074;
-	}
-}
-
-@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
-	:root:not([data-theme]) {
-		--muted-foreground: #b6c4c6;
-		--rule: #3c4b4f;
-		--rule-strong: #5f7074;
 	}
 }
 
@@ -1124,10 +1687,36 @@ html:active-view-transition :is(.control, h3, .social-platform) {
 		outline: 1px solid Highlight;
 		outline-offset: -2px;
 	}
-}
 
-@media (prefers-reduced-motion: reduce), (prefers-reduced-transparency: reduce), (forced-colors: active), (hover: none), (pointer: coarse) {
-	.refractive-light {
+	.hud-frame,
+	.hud-panel::before,
+	.hud-panel::after,
+	.hero-grid,
+	.hero::before,
+	.calendar-row::after {
 		display: none;
+	}
+
+	.hud-panel {
+		border: 1px solid CanvasText;
+	}
+
+	.hud-panel:focus-visible {
+		outline: 2px solid Highlight;
+		outline-offset: 2px;
+	}
+
+	.stack-link::before,
+	.calendar-row {
+		border-color: CanvasText;
+	}
+
+	.dial-layer * {
+		stroke: CanvasText;
+	}
+
+	.dial [data-today],
+	.dial-now path {
+		stroke: Highlight;
 	}
 }

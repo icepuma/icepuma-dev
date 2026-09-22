@@ -1,8 +1,9 @@
 ---
 import ExternalLink from "@/components/ExternalLink.astro";
-import SectionHeading from "@/components/SectionHeading.astro";
 import Nav from "@/components/Nav.astro";
+import SectionHeading from "@/components/SectionHeading.astro";
 import ThemeSwitcher from "@/components/ThemeSwitcher.astro";
+import WeekDial from "@/components/WeekDial.astro";
 import MinimalLayout from "@/layouts/MinimalLayout.astro";
 import { getCollection, render } from "astro:content";
 
@@ -41,6 +42,10 @@ const stackLinks: Record<string, string> = {
 const calendarEntries = (await getCollection("calendar")).sort(
 	(a, b) => Number(a.id) - Number(b.id),
 );
+const dialDays = calendarEntries.map((entry) => ({
+	day: entry.data.day,
+	off: !entry.data.url,
+}));
 const socialEntries = (await getCollection("socials")).sort(
 	(a, b) => Number(a.id) - Number(b.id),
 );
@@ -135,25 +140,50 @@ const musicLinks = [
 	</header>
 
 	<main class="page-width" id="main" tabindex="-1">
-		<div class="identity">
-			<h1>Stefan Ruzitschka</h1>
-			<p>
-				<span class="identity-role">Principal Engineer at <ExternalLink href="https://dataciders.com/" class="employer-link">Dataciders GmbH</ExternalLink></span>
-				<span class="identity-location"><span class="identity-divider" aria-hidden="true">·</span> Berlin, Germany</span>
-			</p>
+		<div class="hero">
+			<svg class="hero-grid" aria-hidden="true">
+				<defs>
+					<pattern id="hero-grid-mark" width="48" height="48" patternUnits="userSpaceOnUse">
+						<path d="M24 20v8M20 24h8" />
+					</pattern>
+				</defs>
+				<rect width="100%" height="100%" fill="url(#hero-grid-mark)" />
+			</svg>
+			<div class="identity">
+				<h1>Stefan Ruzitschka</h1>
+				<p>
+					<span class="identity-role">Principal Engineer at <ExternalLink href="https://dataciders.com/" class="employer-link">Dataciders GmbH</ExternalLink></span>
+					<span class="identity-location">Berlin, Germany</span>
+				</p>
+			</div>
+			<div class="hero-readout-slot">
+				<dl class="hero-readout" data-hud-readout hidden>
+					<div>
+						<dt>Berlin</dt>
+						<dd><time class="decode" data-hud-clock></time> <span data-hud-zone></span></dd>
+					</div>
+					<div>
+						<dt>Today</dt>
+						<dd data-hud-today></dd>
+					</div>
+				</dl>
+			</div>
+			<WeekDial days={dialDays} />
 		</div>
 
 		<section class="page-section projects-section" id="projects" aria-labelledby="projects-heading" tabindex="-1">
-			<SectionHeading title="Projects" intro="Things I build and maintain." />
+			<SectionHeading title="Projects" sub="開発" intro="Things I build and maintain." />
 			<ul class="project-list" role="list">
 				{projects.map(({ data, Content, destination }) => (
 					<li>
-						<ExternalLink href={data.url} class="project-row" inspect>
-							<div class="project-copy">
-								<h3>{data.name}</h3>
-								<div class="project-description"><Content /></div>
-							</div>
-							<p class="project-destination">{destination}</p>
+						<ExternalLink href={data.url} class="project-row" panel>
+							<h3>{data.name}</h3>
+							<div class="project-description"><Content /></div>
+							<p class="project-destination">
+								{destination.split("/").map((part, index) => (
+									<Fragment>{index > 0 && "/"}{index > 0 && <wbr />}{part}</Fragment>
+								))}
+							</p>
 						</ExternalLink>
 					</li>
 				))}
@@ -161,7 +191,7 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="about" aria-labelledby="about-heading" tabindex="-1">
-			<SectionHeading title="About" />
+			<SectionHeading title="About" sub="経歴" />
 			<p class="about-copy">
 				Principal Engineer with 15+ years of
 				experience shipping end-to-end. Specializing in
@@ -171,7 +201,7 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="stack" aria-labelledby="stack-heading" tabindex="-1">
-			<SectionHeading title="Stack" />
+			<SectionHeading title="Stack" sub="使用技術" />
 			<dl class="stack-list">
 				{stackEntries.map((entry) => (
 					<div class="stack-row">
@@ -189,10 +219,10 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="calendar" aria-labelledby="calendar-heading" tabindex="-1">
-			<SectionHeading title="Calendar" intro="My weekly open-source schedule — what I work on and when." />
+			<SectionHeading title="Calendar" sub="週間予定" intro="My weekly open-source schedule — what I work on and when." />
 			<dl class="calendar-list">
 				{calendarEntries.map((entry) => (
-					<div class="calendar-row">
+					<div class="calendar-row" data-day={entry.data.day} data-focus={entry.data.focus}>
 						<dt>{entry.data.day}</dt>
 						<dd>
 							{entry.data.url ? (
@@ -205,11 +235,11 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="music" aria-labelledby="music-heading" tabindex="-1">
-			<SectionHeading title="Music" intro="Channels and record spaces worth keeping in rotation." />
+			<SectionHeading title="Music" sub="音楽" intro="Channels and record spaces worth keeping in rotation." />
 			<ul class="music-list" role="list">
 				{musicLinks.map((link) => (
 					<li>
-						<ExternalLink href={link.url} class="music-row" inspect>
+						<ExternalLink href={link.url} class="music-row" panel>
 							<div class="music-copy">
 								<div class="music-title"><h3>{link.name}</h3><span class="music-genre">{link.genre}</span></div>
 								<p>{link.description}</p>
@@ -221,11 +251,11 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="social" aria-labelledby="social-heading" tabindex="-1">
-			<SectionHeading title="Social" intro="Where to find me online." />
+			<SectionHeading title="Social" sub="連絡先" intro="Where to find me online." />
 			<ul class="social-list" role="list">
 				{socialEntries.map((entry) => (
 					<li>
-						<ExternalLink href={entry.data.url} class="social-row" inspect>
+						<ExternalLink href={entry.data.url} class="social-row" panel>
 							<div class="social-copy">
 								<span class="social-platform">{entry.data.platform}</span>
 								<span class="social-handle">{entry.data.handle}</span>
@@ -244,16 +274,21 @@ const musicLinks = [
 </MinimalLayout>
 
 <script>
+	import { initDialTilt, initHudClock } from "@/utils/hud";
 	import {
+		initAttentionLock,
 		initBackToTop,
 		initHeaderState,
 		initSectionNavigation,
 	} from "@/utils/navigation";
-	import { initRefractiveLight } from "@/utils/refractive-light";
+	initHudClock();
 	initBackToTop();
 	initHeaderState();
 	initSectionNavigation();
-	initRefractiveLight();
+	initAttentionLock();
+	initDialTilt();
+	// iOS only applies :active press styles once a touch listener exists.
+	document.addEventListener("touchstart", () => {}, { passive: true });
 	const header = document.querySelector<HTMLElement>(".site-header");
 	if (header) {
 		new ResizeObserver(() => {

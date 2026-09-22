@@ -3,10 +3,12 @@ const THEME_EVENT = "theme-change";
 
 export type Theme = "dark" | "light" | "system";
 export type ResolvedTheme = "dark" | "light";
+export type Origin = { x: number; y: number };
 
 let currentTheme: Theme = "system";
 let storageAvailable = true;
 let themeChange = 0;
+let irisChange = 0;
 
 function isTheme(value: string | undefined | null): value is Theme {
 	return value === "dark" || value === "light" || value === "system";
@@ -72,7 +74,38 @@ function getCurrentResolvedTheme(): ResolvedTheme {
 		: resolveTheme(currentTheme);
 }
 
-export function setThemeWithTransition(theme: Theme) {
+// The distance from the origin to the farthest viewport corner, so the iris
+// always finishes with the whole page revealed.
+export function irisRadius(
+	x: number,
+	y: number,
+	width: number,
+	height: number,
+) {
+	return Math.hypot(Math.max(x, width - x), Math.max(y, height - y));
+}
+
+function openIris(origin: Origin) {
+	const root = document.documentElement;
+	if (typeof root.animate !== "function") return;
+	const { x, y } = origin;
+	const radius = irisRadius(x, y, window.innerWidth, window.innerHeight);
+	root.animate(
+		{
+			clipPath: [
+				`circle(0px at ${x}px ${y}px)`,
+				`circle(${radius}px at ${x}px ${y}px)`,
+			],
+		},
+		{
+			duration: 400,
+			easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+			pseudoElement: "::view-transition-new(root)",
+		},
+	);
+}
+
+export function setThemeWithTransition(theme: Theme, origin?: Origin) {
 	const change = ++themeChange;
 	let applied = false;
 	const apply = () => {
@@ -90,10 +123,24 @@ export function setThemeWithTransition(theme: Theme) {
 		return theme;
 	}
 
+	const root = document.documentElement;
+	// setTheme advances themeChange, so the iris keeps a counter of its own.
+	const iris = origin ? ++irisChange : 0;
+	const closeIris = () => {
+		if (iris && iris === irisChange) delete root.dataset.themeIris;
+	};
 	try {
+		// While the iris runs, CSS drops the default crossfade.
+		if (iris) root.dataset.themeIris = "";
 		const transition = document.startViewTransition(apply);
-		void transition.ready.catch(apply).catch(() => {});
+		void transition.ready
+			.then(() => {
+				if (origin && iris === irisChange) openIris(origin);
+			}, apply)
+			.catch(() => {});
+		void transition.finished?.then(closeIris, closeIris);
 	} catch {
+		closeIris();
 		apply();
 	}
 

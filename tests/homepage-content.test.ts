@@ -181,3 +181,73 @@ test("the built homepage keeps its public content available without JavaScript",
 	const brand = page.match(/<a\b(?=[^>]*\bbrand\b)[^>]*>([\s\S]*?)<\/a>/);
 	expect(brand?.[1]).not.toContain("<svg");
 });
+
+test("the HUD layer ships no live data and stays out of the accessibility tree", () => {
+	const pagePath = join(repoRoot, "dist/index.html");
+	if (!existsSync(pagePath)) {
+		throw new Error("Run bun run build before this content regression test.");
+	}
+	const page = readFileSync(pagePath, "utf8");
+
+	expect(page).toContain("viewport-fit=cover");
+	expect(page).not.toMatch(/<canvas\b/);
+	expect(page).not.toContain("refractive");
+	expect(page).not.toContain("data-inspect-link");
+	expect(page).not.toContain("decode-mask");
+
+	// The clock and today's focus are filled in by the browser, in Berlin
+	// time, so nothing live is baked into the build.
+	expect(page).toMatch(
+		/<dl\b(?=[^>]*\bdata-hud-readout\b)(?=[^>]*\bhidden\b)[^>]*>/,
+	);
+	expect(page).toMatch(/<time\b[^>]*\bdata-hud-clock\b[^>]*><\/time>/);
+	expect(page).toMatch(/<dd\b[^>]*\bdata-hud-today\b[^>]*><\/dd>/);
+
+	const schedule = "src/content/calendar/schedule.yaml";
+	const days = yamlValues(schedule, "day");
+	const focus = yamlValues(schedule, "focus");
+	const rows = Array.from(
+		page.matchAll(/<div\b(?=[^>]*\bcalendar-row\b)[^>]*>/g),
+		([tag]) => [
+			tag.match(/\bdata-day="([^"]*)"/)?.[1],
+			tag.match(/\bdata-focus="([^"]*)"/)?.[1],
+		],
+	);
+	expect(rows).toEqual(days.map((day, index) => [day, focus[index]]));
+
+	const dial = page.match(
+		/<div\b(?=[^>]*\bdata-hud-dial\b)[^>]*>([\s\S]*?)<span class="dial-centre"/,
+	);
+	expect(dial?.[0]).toContain('aria-hidden="true"');
+	const arcs = Array.from(
+		dial?.[1]?.matchAll(
+			/<path\b(?=[^>]*\bdial-day\b)[^>]*\bdata-day="([^"]+)"/g,
+		) ?? [],
+		(match) => match[1],
+	);
+	expect(arcs).toEqual(days);
+	const labels = Array.from(
+		dial?.[1]?.matchAll(
+			/<span\b[^>]*\bdata-day="[^"]+"[^>]*>([^<]*)<\/span>/g,
+		) ?? [],
+		(match) => match[1],
+	);
+	expect(labels).toEqual(days.map((day) => day.toUpperCase()));
+	expect(dial?.[1]).not.toMatch(/>[^<]*\d[^<]*</);
+
+	const subLabels = Array.from(
+		page.matchAll(/<span\b(?=[^>]*\bsection-sub\b)[^>]*>([^<]*)<\/span>/g),
+	);
+	expect(subLabels.map((match) => match[1])).toEqual([
+		"開発",
+		"経歴",
+		"使用技術",
+		"週間予定",
+		"音楽",
+		"連絡先",
+	]);
+	for (const [tag] of subLabels) {
+		expect(tag).toContain('lang="ja"');
+		expect(tag).toContain('aria-hidden="true"');
+	}
+});

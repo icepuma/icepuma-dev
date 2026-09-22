@@ -7,7 +7,10 @@ type FixtureOptions = Partial<{
 	prefersDark: boolean;
 	prefersReducedMotion: boolean;
 	readBlocked: boolean;
-	startViewTransition: (update: () => void) => { ready: Promise<void> };
+	startViewTransition: (update: () => void) => {
+		ready: Promise<void>;
+		finished?: Promise<void>;
+	};
 	storedTheme: string | null;
 	writeBlocked: boolean;
 }>;
@@ -28,7 +31,7 @@ const createThemeModule = new Function(
 	"document",
 	"CustomEvent",
 	new Bun.Transpiler({ loader: "ts" }).transformSync(
-		`${themeSource}\nreturn { applyTheme, loadTheme, resolveTheme, setTheme, setThemeWithTransition, setupThemeListener };`,
+		`${themeSource}\nreturn { applyTheme, irisRadius, loadTheme, resolveTheme, setTheme, setThemeWithTransition, setupThemeListener };`,
 	),
 ) as ThemeFactory;
 const prepaintSource = source("../src/layouts/MinimalLayout.astro").match(
@@ -250,4 +253,96 @@ test("prepaint uses the saved choice and tolerates blocked storage", () => {
 		applyPrepaint(fixture.window, fixture.document);
 		expectTheme(fixture, choice, resolved);
 	}
+});
+
+function withIris(fixture: ReturnType<typeof createFixture>) {
+	const animations: Array<{ keyframes: unknown; options: unknown }> = [];
+	Object.assign(fixture.document.documentElement, {
+		animate(keyframes: unknown, options: unknown) {
+			animations.push({ keyframes, options });
+		},
+	});
+	Object.assign(fixture.window, { innerWidth: 1000, innerHeight: 800 });
+	return animations;
+}
+
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
+test("opens the new palette as an iris from the theme button", async () => {
+	const updates: Array<() => void> = [];
+	const fixture = createFixture({
+		startViewTransition(update) {
+			updates.push(update);
+			return { ready: Promise.resolve(), finished: Promise.resolve() };
+		},
+	});
+	const animations = withIris(fixture);
+	const theme = themeFor(fixture);
+	theme.loadTheme();
+
+	theme.setThemeWithTransition("dark", { x: 900, y: 40 });
+	expect(fixture.document.documentElement.dataset.themeIris).toBe("");
+	updates[0]?.();
+	await settle();
+
+	const radius = theme.irisRadius(900, 40, 1000, 800);
+	expect(animations).toEqual([
+		{
+			keyframes: {
+				clipPath: [
+					"circle(0px at 900px 40px)",
+					`circle(${radius}px at 900px 40px)`,
+				],
+			},
+			options: {
+				duration: 400,
+				easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+				pseudoElement: "::view-transition-new(root)",
+			},
+		},
+	]);
+	expect(fixture.document.documentElement.dataset.themeIris).toBeUndefined();
+	expectTheme(fixture, "dark", "dark");
+});
+
+test("keeps the crossfade without an origin and skips the iris when nothing changes", async () => {
+	const updates: Array<() => void> = [];
+	const fixture = createFixture({
+		startViewTransition(update) {
+			updates.push(update);
+			return { ready: Promise.resolve(), finished: Promise.resolve() };
+		},
+	});
+	const animations = withIris(fixture);
+	const theme = themeFor(fixture);
+	theme.loadTheme();
+
+	theme.setThemeWithTransition("dark");
+	expect(fixture.document.documentElement.dataset.themeIris).toBeUndefined();
+	updates[0]?.();
+	await settle();
+	theme.setThemeWithTransition("dark", { x: 10, y: 10 });
+	await settle();
+	expect([updates.length, animations.length]).toEqual([1, 0]);
+	expect(fixture.document.documentElement.dataset.themeIris).toBeUndefined();
+
+	const reducedMotion = createFixture({
+		prefersReducedMotion: true,
+		startViewTransition(update) {
+			updates.push(update);
+			return { ready: Promise.resolve() };
+		},
+	});
+	const reducedAnimations = withIris(reducedMotion);
+	themeFor(reducedMotion).setThemeWithTransition("dark", { x: 10, y: 10 });
+	await settle();
+	expect([updates.length, reducedAnimations.length]).toEqual([1, 0]);
+	expectTheme(reducedMotion, "dark", "dark");
+});
+
+test("sizes the iris to reach the farthest corner", () => {
+	const { irisRadius } = themeFor(createFixture());
+	expect(irisRadius(0, 0, 100, 50)).toBeCloseTo(Math.hypot(100, 50));
+	expect(irisRadius(50, 25, 100, 50)).toBeCloseTo(Math.hypot(50, 25));
+	expect(irisRadius(90, 10, 100, 50)).toBeCloseTo(Math.hypot(90, 40));
 });

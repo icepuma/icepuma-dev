@@ -17,16 +17,19 @@ const pageTitle = title === siteName ? siteName : `${title} - ${siteName}`;
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+		/>
 		<meta name="color-scheme" content="light dark" />
 		<meta
 			name="theme-color"
-			content="#edf1f0"
+			content="#eaf0ef"
 			media="(prefers-color-scheme: light)"
 		/>
 		<meta
 			name="theme-color"
-			content="#070d0f"
+			content="#060e11"
 			media="(prefers-color-scheme: dark)"
 		/>
 		{description && <meta name="description" content={description} />}
@@ -65,8 +68,9 @@ const pageTitle = title === siteName ? siteName : `${title} - ${siteName}`;
 		<link rel="manifest" href="/site.webmanifest" />
 		<link rel="sitemap" href="/sitemap-index.xml" />
 		<link rel="canonical" href={Astro.url} />
-		<Font cssVariable="--font-plex" />
-		<Font cssVariable="--font-plex-condensed" />
+		<Font cssVariable="--font-plex" preload={[{ weight: 400 }]} />
+		<Font cssVariable="--font-chakra" preload={[{ weight: 600 }]} />
+		<Font cssVariable="--font-jetbrains" preload={[{ weight: 400 }]} />
 		<script is:inline>
 			(() => {
 				let theme = "system";
@@ -95,6 +99,23 @@ const pageTitle = title === siteName ? siteName : `${title} - ${siteName}`;
 				document.documentElement.setAttribute("data-theme", resolvedTheme);
 				document.documentElement.dataset.themeChoice = theme;
 				document.documentElement.style.colorScheme = resolvedTheme;
+			})();
+		</script>
+		<script is:inline>
+			// The dial draws in once per visit, and never when the reader arrives
+			// on an anchor or comes back through history.
+			(() => {
+				try {
+					const [entry] = performance.getEntriesByType("navigation");
+					if (
+						sessionStorage.getItem("hud-boot") ||
+						location.hash ||
+						entry?.type === "back_forward"
+					)
+						return;
+					sessionStorage.setItem("hud-boot", "1");
+					document.documentElement.setAttribute("data-boot", "");
+				} catch {}
 			})();
 		</script>
 	</head>

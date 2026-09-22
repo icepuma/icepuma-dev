@@ -56,7 +56,12 @@
 
 		button.addEventListener("click", () => {
 			const next = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
-			setThemeWithTransition(next);
+			// The new palette opens as an iris from the centre of the button.
+			const bounds = button.getBoundingClientRect();
+			setThemeWithTransition(next, {
+				x: bounds.left + bounds.width / 2,
+				y: bounds.top + bounds.height / 2,
+			});
 			sync(next, true);
 		});
 

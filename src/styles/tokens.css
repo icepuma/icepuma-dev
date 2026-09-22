@@ -1,0 +1,101 @@
+/* Colour tokens for both grounds. Every block is tagged so
+   tests/contrast.test.ts can measure it: keep the tags, keep hex values for
+   colours, and keep each -system block identical to its counterpart. */
+
+/* tokens:light */
+:root {
+	color-scheme: light;
+	--background: #eaf0ef;
+	--surface: #f1f5f4;
+	--surface-hover: #e6eff0;
+	--foreground: #0e1b1e;
+	--muted-foreground: #4a5d61;
+	--primary: #006a7d;
+	--primary-foreground: #f1f5f4;
+	--accent: #94510a;
+	--rule: #c3cfce;
+	--rule-strong: #8fa0a0;
+	--ring: #006a7d;
+	--grid-mark: #cfd9d8;
+	--glow-opacity: 0;
+	--hero-wash: transparent;
+}
+
+/* tokens:dark */
+:root[data-theme="dark"] {
+	color-scheme: dark;
+	--background: #060e11;
+	--surface: #0d1c21;
+	--surface-hover: #132b31;
+	--foreground: #d8e8ea;
+	--muted-foreground: #8ea6aa;
+	--primary: #57d6ea;
+	--primary-foreground: #060e11;
+	--accent: #f0ab4a;
+	--rule: #17292e;
+	--rule-strong: #2a454c;
+	--ring: #57d6ea;
+	--grid-mark: #17292e;
+	--glow-opacity: 0.24;
+	--hero-wash: rgb(87 214 234 / 0.07);
+}
+
+/* Without JavaScript the page follows the system preference. */
+@media (prefers-color-scheme: dark) {
+	/* tokens:dark-system */
+	:root:not([data-theme]) {
+		color-scheme: dark;
+		--background: #060e11;
+		--surface: #0d1c21;
+		--surface-hover: #132b31;
+		--foreground: #d8e8ea;
+		--muted-foreground: #8ea6aa;
+		--primary: #57d6ea;
+		--primary-foreground: #060e11;
+		--accent: #f0ab4a;
+		--rule: #17292e;
+		--rule-strong: #2a454c;
+		--ring: #57d6ea;
+		--grid-mark: #17292e;
+		--glow-opacity: 0.24;
+		--hero-wash: rgb(87 214 234 / 0.07);
+	}
+}
+
+/* Stronger text, rules, and no glow when the reader asks for more contrast. */
+@media (prefers-contrast: more) {
+	/* tokens:light-more */
+	:root {
+		--muted-foreground: #33464a;
+		--primary: #00566a;
+		--ring: #00566a;
+		--accent: #7a4205;
+		--rule: #9aabab;
+		--rule-strong: #5f7373;
+		--glow-opacity: 0;
+	}
+
+	/* tokens:dark-more */
+	:root[data-theme="dark"] {
+		--muted-foreground: #b3c7ca;
+		--primary: #7fe4f3;
+		--ring: #7fe4f3;
+		--accent: #ffc06a;
+		--rule: #2c464d;
+		--rule-strong: #5b7d85;
+		--glow-opacity: 0;
+	}
+}
+
+@media (prefers-contrast: more) and (prefers-color-scheme: dark) {
+	/* tokens:dark-more-system */
+	:root:not([data-theme]) {
+		--muted-foreground: #b3c7ca;
+		--primary: #7fe4f3;
+		--ring: #7fe4f3;
+		--accent: #ffc06a;
+		--rule: #2c464d;
+		--rule-strong: #5b7d85;
+		--glow-opacity: 0;
+	}
+}

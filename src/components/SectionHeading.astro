@@ -2,14 +2,17 @@
 export interface Props {
 	title: string;
 	intro?: string;
+	sub?: string;
 }
 
-const { title, intro } = Astro.props;
+const { title, intro, sub } = Astro.props;
 ---
 
 <div class="section-heading">
-	<h2 id={`${title.toLowerCase()}-heading`}>
-		<span>{title}</span>
-	</h2>
-	{intro && <p>{intro}</p>}
+	<div class="section-bar">
+		<h2 id={`${title.toLowerCase()}-heading`}>{title}</h2>
+		<span class="section-scale" aria-hidden="true"></span>
+		{sub && <span class="section-sub" lang="ja" aria-hidden="true">{sub}</span>}
+	</div>
+	{intro && <p class="section-intro">{intro}</p>}
 </div>
