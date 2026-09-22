@@ -7,13 +7,18 @@
     "motion": [
       {
         "name": "ease-out",
-        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
-        "purpose": "Out-quint for feedback, state, and release."
+        "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
+        "purpose": "Out-quad for feedback, colour, and release."
       },
       {
         "name": "ease-acquire",
-        "value": "cubic-bezier(0.16, 1, 0.3, 1)",
-        "purpose": "Out-expo for arrivals: brackets, rings, the iris, the dial."
+        "value": "cubic-bezier(0.33, 1, 0.68, 1)",
+        "purpose": "Out-cubic for arrivals: brackets, corner marks, rings, the dial."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(0.65, 0, 0.35, 1)",
+        "purpose": "In-out cubic for the theme iris and for rings turning back out; nothing snaps."
       },
       {
         "name": "control-feedback",
@@ -22,17 +27,17 @@
       },
       {
         "name": "lock-on",
-        "value": "brackets 180ms in (bottom pair +40ms), 120ms out; endpoint rings 480ms in",
-        "purpose": "Panels acquire three or four brackets; project endpoints spin their rings in."
+        "value": "brackets 340ms in (bottom pair +40ms), 260ms out; endpoint rings 700ms in, counter-rotating over 900ms",
+        "purpose": "Panels glide their brackets in; project endpoints dial their rings in around a centred, still arrow."
       },
       {
         "name": "corner-marks",
-        "value": "180ms in, 120ms out",
+        "value": "280ms in, 220ms out",
         "purpose": "Small controls and the current navigation link; the reticle moves in place and never slides."
       },
       {
         "name": "theme-iris",
-        "value": "clip-path circle, 400ms, out-expo",
+        "value": "clip-path circle, 600ms, in-out cubic",
         "purpose": "A theme change from the button opens from its centre; otherwise a 180ms crossfade; instant for reduced motion."
       },
       {

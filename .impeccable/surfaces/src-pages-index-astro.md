@@ -23,10 +23,10 @@ USER DECISIONS: The week dial as the hero; a compact sticky top bar on phones ra
 
 ## Interaction set
 
-- Lock-on, graded by importance: project panels take three brackets and spinning endpoint rings; music and social take four brackets; stack chips and calendar cells change colour and border only. Hover runs only for mouse input.
+- Lock-on, graded by importance: project panels take three brackets and endpoint rings that dial in around a centred, still arrow; music and social take four brackets; stack chips and calendar cells change colour and border only. Hover runs only for mouse input.
 - A touch attention lock gives the panel under a reading line 30% down the viewport its brackets once scrolling stops.
 - The current navigation link keeps its corner marks; the reticle moves in place, never slides.
-- A theme change from the button opens as a 400ms iris from its centre.
+- A theme change from the button opens as a 600ms in-out iris from its centre.
 - The dial draws in once per visit; its inner ring turns with scroll; fine pointers tilt it by at most 4°; the now tick moves once a minute.
 - The live readouts decode once as their data arrives: the only text scramble on the page, drawn on an aria-hidden mask.
 - Section scales draw in as their sections arrive and turn cyan while current.

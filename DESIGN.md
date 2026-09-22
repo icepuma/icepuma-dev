@@ -158,10 +158,12 @@ Motion is a state language and deliberately scarce.
 - **At rest nothing moves.** The clock and the now tick change once a minute; there are no seconds and no blinking.
 - **Once per visit** the dial draws itself in (about 900ms) and the live readouts resolve with a short decode. It never replays, and it is skipped when the reader arrives on an anchor or through history.
 - **Scroll** drives two things, both CSS scroll-driven and static where unsupported: the section scale draws in as its section arrives, and the dial's inner ring turns up to 45° as the hero leaves.
-- **Hover and focus** take 160–240ms, colour and underline 120–180ms, a press under 200ms, the theme iris 400ms.
-- Two easings: `--ease-out` (out-quint) for feedback and `--ease-acquire` (out-expo) for arrivals. Anything that arrives uses the longer acquire; anything that leaves is faster.
+- **Hover and focus**: brackets and corner marks glide in over 260–340ms and fade out over about 220ms; the endpoint rings dial in over 700–900ms; colour and underline take 120–220ms; a press stays under 200ms; the theme iris sweeps out over 600ms.
+- Three easings: `--ease-out` (out-quad) for feedback and release, `--ease-acquire` (out-cubic) for arrivals, and `--ease-in-out` (in-out cubic) for the iris and for rings turning back out. Releases are only slightly faster than arrivals.
 
 **The Answer-or-Once Rule.** Every movement answers the reader (scroll, hover, focus, press, theme choice) or runs once per visit. Nothing loops.
+
+**The No-Snap Rule.** No curve spends most of its travel in the first frames: reveals glide, releases fade, and the arrow inside the endpoint rings never moves.
 
 **The Budget Rule.** At most two effects per hover plus the press, at most two animations at once, nothing travels more than 8px.
 
@@ -178,11 +180,11 @@ Square everywhere except one cut: **project panels carry a single 12px chamfer a
 ## Components
 
 - **Navigation** — six direct links. The current one carries `aria-current="location"`, a surface chip, and its corner marks; the reticle moves from link to link in place and never slides. Hover underlines in cyan.
-- **Theme control** — one tri-state button, Light → Dark → System, with the glyph for the current mode crossfading in place. Its accessible name states the mode and the next action; a live region speaks only after a press. A palette change from the button opens as a circular iris from the button's centre over 400ms; without an origin it crossfades for 180ms; reduced motion and unsupported browsers switch instantly.
+- **Theme control** — one tri-state button, Light → Dark → System, with the glyph for the current mode crossfading in place. Its accessible name states the mode and the next action; a live region speaks only after a press. A palette change from the button opens as a circular iris from the button's centre over 600ms, easing in and out; without an origin it crossfades for 180ms; reduced motion and unsupported browsers switch instantly.
 - **Week dial** — inline SVG, `aria-hidden`, built at build time from `schedule.yaml`: 168 hour ticks with long midnight ticks, seven week arcs (weekdays amber, days off dashed and muted, today cyan), one inner ring that turns with scroll, crosshair ticks, and today's day in the centre. JavaScript marks today and places the now tick at `(day·24 + hour + minute/60) / 168 · 360°` in Berlin time. Fine pointers tilt it by at most 4°. Below 48rem the minor ticks and the day labels hide.
 - **Readouts** — `BERLIN hh:mm CET/CEST` and `TODAY <focus>`, built from the calendar row. Rendered hidden and revealed by JavaScript; without JavaScript there is no clock and no placeholder.
 - **Section heading** — the English title, a short tick scale that turns cyan while its section is current, the Japanese sub-label, and the intro.
-- **Project panel** — title, description, and the amber destination (breaking only after slashes) above a ringed endpoint. Hover and focus lock on: three brackets snap in and the endpoint rings spin in. Focus also turns the frame cyan at 2px, following the cut.
+- **Project panel** — title, description, and the amber destination (breaking only after slashes) above a ringed endpoint. Hover and focus lock on: three brackets glide in and the endpoint rings dial in, counter-rotating around the arrow, which stays centred. Focus also turns the frame cyan at 2px, following the cut.
 - **Music and social panels** — square panels; hover and focus bring four brackets.
 - **Stack chips** — 32px square hairline chips with 44px targets; hover and focus change colour and border only.
 - **Calendar** — a duty roster. Today gets a cyan frame, `aria-current="date"` on its day, and the Today tag; days off are hatched beside the word, never behind it.

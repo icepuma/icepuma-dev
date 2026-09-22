@@ -295,8 +295,8 @@ test("opens the new palette as an iris from the theme button", async () => {
 				],
 			},
 			options: {
-				duration: 400,
-				easing: "cubic-bezier(0.16, 1, 0.3, 1)",
+				duration: 600,
+				easing: "cubic-bezier(0.65, 0, 0.35, 1)",
 				pseudoElement: "::view-transition-new(root)",
 			},
 		},
