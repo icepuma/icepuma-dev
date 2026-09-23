@@ -109,7 +109,13 @@ function runScan(band: number) {
 	const root = document.documentElement;
 	if (typeof root.animate !== "function") return;
 	const frames = scanFrames(window.innerHeight, band);
-	const timing = { duration: SCAN_DURATION, easing: SCAN_EASING };
+	// Hold the last frame: the transition is torn down a frame after the
+	// animations end, and without a fill the old palette would flash back.
+	const timing = {
+		duration: SCAN_DURATION,
+		easing: SCAN_EASING,
+		fill: "forwards" as const,
+	};
 	root.animate(
 		{
 			maskPosition: frames.mask.map(

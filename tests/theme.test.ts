@@ -319,7 +319,11 @@ function withScan(fixture: ReturnType<typeof createFixture>) {
 }
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
-const scanTiming = { duration: 900, easing: "cubic-bezier(0.37, 0, 0.63, 1)" };
+const scanTiming = {
+	duration: 900,
+	easing: "cubic-bezier(0.37, 0, 0.63, 1)",
+	fill: "forwards",
+};
 
 test("writes the new palette in with a scan line from the theme button", async () => {
 	const updates: Array<() => void> = [];
