@@ -31,7 +31,7 @@ const createThemeModule = new Function(
 	"document",
 	"CustomEvent",
 	new Bun.Transpiler({ loader: "ts" }).transformSync(
-		`${themeSource}\nreturn { applyTheme, irisRadius, loadTheme, resolveTheme, setTheme, setThemeWithTransition, setupThemeListener };`,
+		`${themeSource}\nreturn { applyTheme, loadTheme, resolveTheme, scanBand, scanFrames, setTheme, setThemeWithTransition, setupThemeListener };`,
 	),
 ) as ThemeFactory;
 const prepaintSource = source("../src/layouts/MinimalLayout.astro").match(
@@ -87,7 +87,11 @@ function createFixture(options: FixtureOptions = {}) {
 	const window = Object.assign(new EventTarget(), {
 		localStorage: storage,
 		matchMedia: (query: string) =>
-			query === "(prefers-reduced-motion: reduce)" ? reducedMotion : media,
+			query === "(prefers-reduced-motion: reduce)"
+				? reducedMotion
+				: query === "(prefers-color-scheme: dark)"
+					? media
+					: { matches: false },
 	});
 	return {
 		document,
@@ -193,7 +197,7 @@ test("uses a view transition only when the palette changes", () => {
 	expectTheme(fixture, "light", "light");
 });
 
-test("falls back without view transitions or with reduced motion", () => {
+test("falls back without view transitions and crossfades with reduced motion", () => {
 	const unsupported = createFixture();
 	themeFor(unsupported).setThemeWithTransition("dark");
 	expectTheme(unsupported, "dark", "dark");
@@ -201,13 +205,17 @@ test("falls back without view transitions or with reduced motion", () => {
 	let transitions = 0;
 	const reducedMotion = createFixture({
 		prefersReducedMotion: true,
-		startViewTransition() {
+		startViewTransition(update) {
 			transitions += 1;
+			update();
 			return { ready: Promise.resolve() };
 		},
 	});
-	themeFor(reducedMotion).setThemeWithTransition("dark");
-	expect(transitions).toBe(0);
+	themeFor(reducedMotion).setThemeWithTransition("dark", { x: 10, y: 10 });
+	expect(transitions).toBe(1);
+	expect(
+		reducedMotion.document.documentElement.dataset.themeScan,
+	).toBeUndefined();
 	expectTheme(reducedMotion, "dark", "dark");
 
 	const failedTransition = createFixture({
@@ -255,20 +263,65 @@ test("prepaint uses the saved choice and tolerates blocked storage", () => {
 	}
 });
 
-function withIris(fixture: ReturnType<typeof createFixture>) {
+type FakeBeam = {
+	attributes: Map<string, string>;
+	className: string;
+	removed: boolean;
+	styles: Map<string, string>;
+};
+
+function withScan(fixture: ReturnType<typeof createFixture>) {
 	const animations: Array<{ keyframes: unknown; options: unknown }> = [];
-	Object.assign(fixture.document.documentElement, {
+	const beams: FakeBeam[] = [];
+	const body: unknown[] = [];
+	const properties = new Map<string, string>();
+	const root = fixture.document.documentElement;
+	Object.assign(root, {
 		animate(keyframes: unknown, options: unknown) {
 			animations.push({ keyframes, options });
 		},
 	});
-	Object.assign(fixture.window, { innerWidth: 1000, innerHeight: 800 });
-	return animations;
+	Object.assign(root.style, {
+		setProperty(name: string, value: string) {
+			properties.set(name, value);
+		},
+	});
+	Object.assign(fixture.document, {
+		body: {
+			append(node: unknown) {
+				body.push(node);
+			},
+		},
+		createElement() {
+			const beam = {
+				attributes: new Map<string, string>(),
+				className: "",
+				removed: false,
+				styles: new Map<string, string>(),
+				remove() {
+					beam.removed = true;
+				},
+				setAttribute(name: string, value: string) {
+					beam.attributes.set(name, value);
+				},
+				style: {
+					setProperty(name: string, value: string) {
+						beam.styles.set(name, value);
+					},
+				},
+			};
+			beams.push(beam);
+			return beam;
+		},
+	});
+	Object.assign(fixture.window, { innerHeight: 800 });
+	return { animations, beams, body, properties };
 }
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+const scanTiming = { duration: 900, easing: "cubic-bezier(0.37, 0, 0.63, 1)" };
 
-test("opens the new palette as an iris from the theme button", async () => {
+test("writes the new palette in with a scan line from the theme button", async () => {
 	const updates: Array<() => void> = [];
 	const fixture = createFixture({
 		startViewTransition(update) {
@@ -276,36 +329,47 @@ test("opens the new palette as an iris from the theme button", async () => {
 			return { ready: Promise.resolve(), finished: Promise.resolve() };
 		},
 	});
-	const animations = withIris(fixture);
+	const scan = withScan(fixture);
 	const theme = themeFor(fixture);
 	theme.loadTheme();
+	const root = fixture.document.documentElement;
 
-	theme.setThemeWithTransition("dark", { x: 900, y: 40 });
-	expect(fixture.document.documentElement.dataset.themeIris).toBe("");
+	theme.setThemeWithTransition("dark", { x: 900.4, y: 40 });
+	expect(root.dataset.themeScan).toBe("");
+	expect(scan.properties.get("--scan-band")).toBe("160px");
+	// The beam is only created for the new state, after the old snapshot.
+	expect(scan.beams).toHaveLength(0);
 	updates[0]?.();
+	const [beam] = scan.beams;
+	expect(scan.body).toEqual([beam]);
+	expect([beam?.className, beam?.attributes.get("aria-hidden")]).toEqual([
+		"theme-scan",
+		"true",
+	]);
+	expect(beam?.styles.get("--scan-x")).toBe("900px");
 	await settle();
 
-	const radius = theme.irisRadius(900, 40, 1000, 800);
-	expect(animations).toEqual([
+	expect(scan.animations).toEqual([
 		{
 			keyframes: {
-				clipPath: [
-					"circle(0px at 900px 40px)",
-					`circle(${radius}px at 900px 40px)`,
-				],
+				maskPosition: ["0 -960px, 0 -960px, 0 0", "0 0px, 0 0px, 0 0"],
 			},
+			options: { ...scanTiming, pseudoElement: "::view-transition-old(root)" },
+		},
+		{
+			keyframes: { transform: ["translateY(-12px)", "translateY(948px)"] },
 			options: {
-				duration: 600,
-				easing: "cubic-bezier(0.65, 0, 0.35, 1)",
-				pseudoElement: "::view-transition-new(root)",
+				...scanTiming,
+				pseudoElement: "::view-transition-group(theme-scan)",
 			},
 		},
 	]);
-	expect(fixture.document.documentElement.dataset.themeIris).toBeUndefined();
+	expect(beam?.removed).toBe(true);
+	expect(root.dataset.themeScan).toBeUndefined();
 	expectTheme(fixture, "dark", "dark");
 });
 
-test("keeps the crossfade without an origin and skips the iris when nothing changes", async () => {
+test("keeps a plain crossfade without an origin and does nothing when nothing changes", async () => {
 	const updates: Array<() => void> = [];
 	const fixture = createFixture({
 		startViewTransition(update) {
@@ -313,36 +377,32 @@ test("keeps the crossfade without an origin and skips the iris when nothing chan
 			return { ready: Promise.resolve(), finished: Promise.resolve() };
 		},
 	});
-	const animations = withIris(fixture);
+	const scan = withScan(fixture);
 	const theme = themeFor(fixture);
 	theme.loadTheme();
 
 	theme.setThemeWithTransition("dark");
-	expect(fixture.document.documentElement.dataset.themeIris).toBeUndefined();
+	expect(fixture.document.documentElement.dataset.themeScan).toBeUndefined();
 	updates[0]?.();
 	await settle();
 	theme.setThemeWithTransition("dark", { x: 10, y: 10 });
 	await settle();
-	expect([updates.length, animations.length]).toEqual([1, 0]);
-	expect(fixture.document.documentElement.dataset.themeIris).toBeUndefined();
-
-	const reducedMotion = createFixture({
-		prefersReducedMotion: true,
-		startViewTransition(update) {
-			updates.push(update);
-			return { ready: Promise.resolve() };
-		},
-	});
-	const reducedAnimations = withIris(reducedMotion);
-	themeFor(reducedMotion).setThemeWithTransition("dark", { x: 10, y: 10 });
-	await settle();
-	expect([updates.length, reducedAnimations.length]).toEqual([1, 0]);
-	expectTheme(reducedMotion, "dark", "dark");
+	expect([
+		updates.length,
+		scan.animations.length,
+		scan.beams.length,
+		scan.properties.size,
+	]).toEqual([1, 0, 0, 0]);
+	expectTheme(fixture, "dark", "dark");
 });
 
-test("sizes the iris to reach the farthest corner", () => {
-	const { irisRadius } = themeFor(createFixture());
-	expect(irisRadius(0, 0, 100, 50)).toBeCloseTo(Math.hypot(100, 50));
-	expect(irisRadius(50, 25, 100, 50)).toBeCloseTo(Math.hypot(50, 25));
-	expect(irisRadius(90, 10, 100, 50)).toBeCloseTo(Math.hypot(90, 40));
+test("sizes the scan band to the viewport and rides the beam on its edge", () => {
+	const { scanBand, scanFrames } = themeFor(createFixture());
+	expect([scanBand(800), scanBand(400), scanBand(2000)]).toEqual([
+		160, 120, 240,
+	]);
+	expect(scanFrames(800, 160)).toEqual({
+		mask: ["0 -960px", "0 0px"],
+		beam: ["translateY(-12px)", "translateY(948px)"],
+	});
 });

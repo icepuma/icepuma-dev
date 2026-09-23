@@ -1636,19 +1636,88 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 
 /* --- theme change -------------------------------------------------------- */
 
-/* By default an explicit theme change is a short crossfade. From the theme
-   button it opens as an iris instead, animated from script. */
+/* Without an origin, or when motion is reduced, a theme change is a soft
+   crossfade. */
 ::view-transition-group(root),
 ::view-transition-old(root),
 ::view-transition-new(root) {
-	animation-duration: 180ms;
-	animation-timing-function: var(--ease-out);
+	animation-duration: 240ms;
+	animation-timing-function: var(--ease-in-out);
 }
 
-html[data-theme-iris]::view-transition-old(root),
-html[data-theme-iris]::view-transition-new(root) {
+/* From the theme button the new palette is written in by a scan line. The
+   old palette lies on top and is masked away from the top down: solid below
+   the beam, thinning into raster lines for one band behind it, gone above.
+   Script slides the mask and rides the beam along its front edge. */
+html[data-theme-scan]::view-transition-old(root),
+html[data-theme-scan]::view-transition-new(root) {
 	animation: none;
 	mix-blend-mode: normal;
+}
+
+html[data-theme-scan]::view-transition-old(root) {
+	--scan-head: calc(100vh + var(--scan-band, 20vh));
+	--scan-sheet: calc(200vh + var(--scan-band, 20vh));
+	z-index: 1;
+	-webkit-mask-image:
+		linear-gradient(
+			to bottom,
+			transparent calc(var(--scan-head) - 2px),
+			#000 var(--scan-head)
+		),
+		linear-gradient(to bottom, transparent 100vh, rgb(0 0 0 / 0.7) var(--scan-head)),
+		repeating-linear-gradient(to bottom, #000 0 1px, transparent 1px 3px);
+	mask-image:
+		linear-gradient(
+			to bottom,
+			transparent calc(var(--scan-head) - 2px),
+			#000 var(--scan-head)
+		),
+		linear-gradient(to bottom, transparent 100vh, rgb(0 0 0 / 0.7) var(--scan-head)),
+		repeating-linear-gradient(to bottom, #000 0 1px, transparent 1px 3px);
+	mask-size:
+		100% var(--scan-sheet),
+		100% var(--scan-sheet),
+		100% 3px;
+	mask-repeat: no-repeat, no-repeat, repeat;
+	mask-position:
+		0 calc(-1 * var(--scan-head)),
+		0 calc(-1 * var(--scan-head)),
+		0 0;
+	mask-composite: add, intersect;
+}
+
+::view-transition-group(theme-scan),
+::view-transition-old(theme-scan),
+::view-transition-new(theme-scan) {
+	animation: none;
+}
+
+/* The beam: a hairline with ruler ticks on the hero grid's 48px rhythm, a
+   cursor where the theme button sits, and a soft glow. It only exists while
+   a scan runs. */
+.theme-scan {
+	--scan-x: 50%;
+	position: fixed;
+	inset: 0 0 auto;
+	z-index: 30;
+	height: 24px;
+	pointer-events: none;
+	transform: translateY(-100%);
+	view-transition-name: theme-scan;
+	background:
+		linear-gradient(var(--primary), var(--primary)) 0 50% / 100% 1px
+		no-repeat,
+		repeating-linear-gradient(90deg, var(--primary) 0 1px, transparent 1px 48px)
+		0 50% / 100% 7px no-repeat,
+		linear-gradient(var(--primary), var(--primary)) var(--scan-x) 0 / 1px 100%
+		no-repeat,
+		linear-gradient(
+			to bottom,
+			transparent,
+			color-mix(in srgb, var(--primary) 22%, transparent) 50%,
+			transparent
+		);
 }
 
 html:active-view-transition :is(.control, h3, .social-platform) {
@@ -1697,11 +1766,6 @@ html:active-view-transition .hud-frame::after {
 		rotate: none !important;
 	}
 
-	::view-transition-group(root),
-	::view-transition-old(root),
-	::view-transition-new(root) {
-		animation: none;
-	}
 }
 
 @media (forced-colors: active) {

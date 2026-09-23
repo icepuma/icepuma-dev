@@ -56,7 +56,7 @@
 
 		button.addEventListener("click", () => {
 			const next = ORDER[(ORDER.indexOf(current) + 1) % ORDER.length];
-			// The new palette opens as an iris from the centre of the button.
+			// The scan's cursor sits under the button that started it.
 			const bounds = button.getBoundingClientRect();
 			setThemeWithTransition(next, {
 				x: bounds.left + bounds.width / 2,

@@ -6,7 +6,7 @@ Personal portfolio website built with Astro, TypeScript, and Tailwind CSS v4, in
 
 ### Components
 - `src/components/Nav.astro` - Six always-visible section links
-- `src/components/ThemeSwitcher.astro` - Tri-state theme button (sun / crescent / display), opens the iris from its centre
+- `src/components/ThemeSwitcher.astro` - Tri-state theme button (sun / crescent / display), starts the theme scan
 - `src/components/SectionHeading.astro` - Section title, tick scale, Japanese sub-label, intro
 - `src/components/ExternalLink.astro` - New-tab link; `panel` adds the frame, brackets, and endpoint rings
 - `src/components/WeekDial.astro` - The hero's week dial, built from the calendar collection
@@ -15,7 +15,7 @@ Personal portfolio website built with Astro, TypeScript, and Tailwind CSS v4, in
 - `src/layouts/MinimalLayout.astro` - Base layout, fonts, metadata, pre-paint theme script, once-per-visit boot flag
 
 ### Utilities
-- `src/utils/theme.ts` - Theme state, persistence, view transitions, theme iris
+- `src/utils/theme.ts` - Theme state, persistence, view transitions, theme scan line
 - `src/utils/navigation.ts` - Scroll spy, back to top, header scroll state, touch attention lock
 - `src/utils/schedule.ts` - Berlin weekday and clock, week angle (pure)
 - `src/utils/dial.ts` - Dial geometry used at build time (pure)

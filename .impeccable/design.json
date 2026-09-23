@@ -18,7 +18,7 @@
       {
         "name": "ease-in-out",
         "value": "cubic-bezier(0.65, 0, 0.35, 1)",
-        "purpose": "In-out cubic for the theme iris and for rings turning back out; nothing snaps."
+        "purpose": "In-out cubic for crossfades and for rings turning back out; nothing snaps."
       },
       {
         "name": "control-feedback",
@@ -36,9 +36,9 @@
         "purpose": "Small controls and the current navigation link; the reticle moves in place and never slides."
       },
       {
-        "name": "theme-iris",
-        "value": "clip-path circle, 600ms, in-out cubic",
-        "purpose": "A theme change from the button opens from its centre; otherwise a 180ms crossfade; instant for reduced motion."
+        "name": "theme-scan",
+        "value": "mask slide and beam translate, 900ms, cubic-bezier(0.37, 0, 0.63, 1)",
+        "purpose": "A theme change from the button is written in by a scan line with ruler ticks; the old palette thins into fading raster lines behind it. Otherwise a 240ms crossfade."
       },
       {
         "name": "dial-boot",
@@ -228,7 +228,7 @@
       "name": "Theme control",
       "kind": "button",
       "refersTo": "theme-selected",
-      "description": "One tri-state button: each press advances Light to Dark to System; the glyph crossfades in place and a palette change opens as an iris from the button.",
+      "description": "One tri-state button: each press advances Light to Dark to System; the glyph crossfades in place and a palette change is written in by a scan line that starts under the button.",
       "html": "<button class=\"sample\" type=\"button\" aria-label=\"Color theme: Dark. Switch to System theme.\"><svg class=\"icon\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.5a5 5 0 0 0 7.5 7.5 7.5 7.5 0 1 1-7.5-7.5Z\"></path></svg></button>",
       "css": ".sample { position: relative; display: grid; place-items: center; width: 44px; min-height: 44px; padding: 0; border: 0; background: transparent; color: #8ea6aa; cursor: pointer; transition: color 180ms cubic-bezier(0.22, 1, 0.36, 1); } .sample:hover, .sample:focus-visible { color: #57d6ea; } .sample::before, .sample::after { position: absolute; content: \"\"; width: 7px; height: 7px; opacity: 0; transition: opacity 120ms cubic-bezier(0.22, 1, 0.36, 1); } .sample::before { inset: 0 auto auto 0; border-top: 1px solid #57d6ea; border-left: 1px solid #57d6ea; } .sample::after { inset: auto 0 0 auto; border-bottom: 1px solid #57d6ea; border-right: 1px solid #57d6ea; } .sample:hover::before, .sample:hover::after, .sample:focus-visible::before, .sample:focus-visible::after { opacity: 1; } .sample:focus-visible { outline: 2px solid #57d6ea; outline-offset: 3px; }"
     },
