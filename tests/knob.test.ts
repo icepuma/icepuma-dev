@@ -191,7 +191,7 @@ function createFixture(
 		navigator: { vibrate: (ms: number) => vibrations.push(ms) },
 	});
 	const document = { documentElement: new EventTarget() };
-	const commits: Array<[string, { x: number; y: number }]> = [];
+	const commits: Array<[string, { x: number; y: number; r: number }]> = [];
 	const sources: string[] = [];
 	const handle = createKnob(window, document).initKnob(
 		control as unknown as HTMLElement,
@@ -230,8 +230,12 @@ function createFixture(
 		document.documentElement.dispatchEvent(fired);
 		return fired;
 	};
+	const clickRoot = (x: number, y: number) =>
+		document.documentElement.dispatchEvent(event("click", x, y));
 	return {
 		checked: () => radios.find((radio) => radio.checked)?.value,
+		clickRoot,
+		document,
 		commits,
 		dataset,
 		handle,
@@ -258,7 +262,7 @@ test("turns through the detents with a drag and commits on release", () => {
 	expect(fixture.commits).toEqual([]);
 
 	fixture.pointer("pointerup", 190, 150);
-	expect(fixture.commits).toEqual([["dark", { x: 150, y: 150 }]]);
+	expect(fixture.commits).toEqual([["dark", { x: 150, y: 150, r: 50 }]]);
 	expect(fixture.styles.has("--knob-angle")).toBe(false);
 	expect(fixture.dataset.turning).toBeUndefined();
 });
@@ -408,7 +412,7 @@ test("a press during a reveal ends it and turns the knob", () => {
 	expect(interrupts).toBe(2);
 });
 
-test("presses away from the knob during a reveal, or with no reveal, change nothing", () => {
+test("with no reveal running, a press on the root changes nothing", () => {
 	let interrupts = 0;
 	const idle = createFixture("light", {
 		interrupt: () => {
@@ -417,11 +421,24 @@ test("presses away from the knob during a reveal, or with no reveal, change noth
 		},
 	});
 	idle.pressRoot(150, 110);
-	expect([idle.dataset.turning, interrupts]).toEqual([undefined, 1]);
-
 	idle.pressRoot(400, 400);
-	expect(interrupts).toBe(1);
+	expect([idle.dataset.turning, interrupts]).toEqual([undefined, 2]);
 	expect(idle.commits).toEqual([]);
+});
+
+test("a press away from the knob ends a reveal and its click goes through", () => {
+	const fixture = createFixture("light", { interrupt: () => true });
+	const clicked: string[] = [];
+	const link = { click: () => clicked.push("link") };
+	Object.assign(fixture.document, {
+		elementFromPoint: () => ({ closest: () => link }),
+	});
+	fixture.pressRoot(400, 400);
+	fixture.clickRoot(400, 400);
+	// Only the click that follows a press is forwarded.
+	fixture.clickRoot(400, 400);
+	expect(clicked).toEqual(["link"]);
+	expect([fixture.dataset.turning, fixture.commits]).toEqual([undefined, []]);
 });
 
 test("commits a radio changed from the keyboard or a label", () => {
@@ -430,7 +447,7 @@ test("commits a radio changed from the keyboard or a label", () => {
 	if (!light) throw new Error("No radios.");
 	light.checked = true;
 	light.dispatchEvent(new Event("change"));
-	expect(fixture.commits).toEqual([["light", { x: 150, y: 150 }]]);
+	expect(fixture.commits).toEqual([["light", { x: 150, y: 150, r: 50 }]]);
 });
 
 test("follows a theme changed elsewhere without committing it again", () => {

@@ -5,12 +5,12 @@ Personal portfolio website built with Astro, TypeScript, and Tailwind CSS v4, in
 ## Key Files
 
 ### Components
-- `src/components/Nav.astro` - Six push-button keys; the current section's key latches
+- `src/components/Nav.astro` - Six round section buttons with lowercase legends; the current section's button lights
 - `src/components/Receiver.astro` - The hero object: scale window, Berlin display, today's station, grille, knob
 - `src/components/TuningScale.astro` - The week as a waveband, built from the calendar collection
 - `src/components/ThemeKnob.astro` - Three-radio selector drawn as a hyper-realistic knob; saved choice checked while parsing
 - `src/components/SectionHeading.astro` - Pilot lamp, title, German sub-label, intro
-- `src/components/ExternalLink.astro` - New-tab link; `panel` adds the corner arrow that swaps on hover
+- `src/components/ExternalLink.astro` - Link off the site, same tab; `panel` adds the corner arrow that swaps on hover
 
 ### Layouts
 - `src/layouts/MinimalLayout.astro` - Base layout, font, metadata, pre-paint theme script, once-per-visit boot flag
@@ -22,7 +22,7 @@ Personal portfolio website built with Astro, TypeScript, and Tailwind CSS v4, in
 - `src/utils/scale.ts` - Tuning scale geometry and stations, used at build time (pure)
 - `src/utils/lcd.ts` - Seven-segment geometry and digits (pure)
 - `src/utils/schedule.ts` - Berlin weekday and clock, week fraction (pure)
-- `src/utils/navigation.ts` - Scroll spy, back to top, header scroll state, touch attention
+- `src/utils/navigation.ts` - Scroll spy, back to top, header scroll state
 
 ### Data
 - `src/content/projects/*.md` - Six projects (name, url, order)
@@ -52,7 +52,7 @@ bun test
 
 The site uses a CSS variable-based theme system with Tailwind CSS v4:
 
-1. **CSS Variables**: hex tokens in `tokens.css` for both grounds, plus a no-JS system copy and more-contrast overrides; key, metal, and shadow tokens are materials and are not measured
+1. **CSS Variables**: hex tokens in `tokens.css` for both grounds, plus a no-JS system copy and more-contrast overrides; key, metal, and shadow material tokens are not measured
 2. **Theme Switching**: `data-theme` (resolved light/dark) and `data-theme-choice` (light/dark/system) on the HTML element; the knob's radios follow `data-theme-choice`
 3. **Semantic Roles**: `background`, `surface`, `surface-hover`, `foreground`, `muted-foreground`, `primary` (orange text for hover and focus), `signal` (orange marks and fills), `lamp` (green pilot lamps), `rule`, `rule-strong`, `ring`, `window` (the scale's glass), `lcd`
 4. **Palette**: one signal orange for now and for action, one green lamp for "on", and everything else in black and grey print

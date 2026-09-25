@@ -1,4 +1,5 @@
 ---
+// A link off the site, marked by its arrow. It opens in the same tab.
 interface Props {
 	href: string;
 	class?: string;
@@ -12,8 +13,6 @@ const arrows = panel ? 2 : 1;
 
 <a
 	href={href}
-	target="_blank"
-	rel="noopener noreferrer"
 	class:list={["control external-link", { panel }, className]}
 >
 	<slot />
@@ -35,5 +34,4 @@ const arrows = panel ? 2 : 1;
 			</svg>
 		))}
 	</span>
-	<span class="sr-only"> (opens in a new tab)</span>
 </a>

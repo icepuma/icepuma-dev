@@ -17,13 +17,12 @@ function todayValue(row: HTMLElement | null) {
 	const link = document.createElement("a");
 	link.className = "live-today-link";
 	link.href = source.href;
-	link.target = "_blank";
-	link.rel = "noopener noreferrer";
-	const note = document.createElement("span");
-	note.className = "sr-only";
-	note.textContent = " (opens in a new tab)";
+	// Read aloud as "Today: …", so it is not mistaken for the calendar link.
+	const prefix = document.createElement("span");
+	prefix.className = "sr-only";
+	prefix.textContent = "Today: ";
 	const arrow = source.querySelector(".external-arrow")?.cloneNode(true);
-	link.append(label, ...(arrow ? [arrow] : []), note);
+	link.append(prefix, label, ...(arrow ? [arrow] : []));
 	return link;
 }
 
