@@ -125,7 +125,7 @@ const musicLinks = [
 ---
 
 <MinimalLayout
-	title="icepuma.dev"
+	title="Stefan Ruzitschka"
 	description="Principal Engineer at Dataciders GmbH — Berlin, Germany"
 >
 	<a href="#main" class="skip-link">Skip to content</a>
@@ -205,7 +205,7 @@ const musicLinks = [
 						<dt>{entry.data.day}</dt>
 						<dd>
 							{entry.data.url ? (
-								<ExternalLink href={entry.data.url} class="calendar-link">{entry.data.focus}</ExternalLink>
+								<ExternalLink href={entry.data.url} class="calendar-link"><span class="sr-only">{entry.data.day}: </span>{entry.data.focus}</ExternalLink>
 							) : <span class="calendar-off">{entry.data.focus}</span>}
 						</dd>
 					</div>
@@ -254,7 +254,6 @@ const musicLinks = [
 
 <script>
 	import {
-		initAttentionLock,
 		initBackToTop,
 		initHeaderState,
 		initSectionNavigation,
@@ -265,7 +264,6 @@ const musicLinks = [
 	initBackToTop();
 	initHeaderState();
 	initSectionNavigation();
-	initAttentionLock();
 	// iOS only applies :active press styles once a touch listener exists.
 	document.addEventListener("touchstart", () => {}, { passive: true });
 	// On phones the brand row scrolls away and only the keys stay stuck, so

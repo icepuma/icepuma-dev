@@ -240,16 +240,16 @@ test("marks Berlin's today on the calendar, the scale, and the readout", () => {
 	expect(terms).toEqual([null, null, "date", null, null, null, null]);
 
 	const [link] = fixture.parts["[data-live-today]"].children as FakeElement[];
-	expect([link?.tag, link?.href, link?.target, link?.rel]).toEqual([
+	expect([link?.tag, link?.href, link?.target]).toEqual([
 		"a",
 		"https://github.com/rawkode-academy/rawkode-academy",
-		"_blank",
-		"noopener noreferrer",
+		"",
 	]);
-	const [label, arrow, note] = (link?.children ?? []) as FakeElement[];
+	// Read aloud as "Today: Rawkode Academy", apart from the calendar's link.
+	const [prefix, label, arrow] = (link?.children ?? []) as FakeElement[];
+	expect(prefix?.textContent).toBe("Today: ");
 	expect(label?.textContent).toBe("Rawkode Academy");
 	expect(arrow).toEqual({ cloneOf: "svg" });
-	expect(note?.textContent).toBe(" (opens in a new tab)");
 
 	// Saturday early morning in Berlin is still Friday in UTC.
 	fixture.setNow("2026-09-25T23:30:00Z");

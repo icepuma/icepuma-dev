@@ -8,10 +8,7 @@ type NavigationFactory = (
 	document: object,
 ) => Pick<
 	NavigationModule,
-	| "initAttentionLock"
-	| "initBackToTop"
-	| "initSectionNavigation"
-	| "initHeaderState"
+	"initBackToTop" | "initSectionNavigation" | "initHeaderState"
 >;
 type ClickOptions = Partial<{
 	altKey: boolean;
@@ -29,7 +26,7 @@ const createNavigation = new Function(
 	"window",
 	"document",
 	new Bun.Transpiler({ loader: "ts" }).transformSync(
-		`${navigationSource}\nreturn { initAttentionLock, initBackToTop, initSectionNavigation, initHeaderState };`,
+		`${navigationSource}\nreturn { initBackToTop, initSectionNavigation, initHeaderState };`,
 	),
 ) as NavigationFactory;
 
@@ -354,126 +351,4 @@ test("selects Social at the real document end", () => {
 	).toEqual([null, null, null, null, null, "location"]);
 	expect(fixture.sections.social.getAttribute("data-current")).toBe("");
 	expect(fixture.sections.projects.getAttribute("data-current")).toBeNull();
-});
-
-type ObserverEntry = { isIntersecting: boolean; target: unknown };
-
-function createAttentionFixture(
-	options: Partial<{
-		hover: boolean;
-		observer: boolean;
-		reducedMotion: boolean;
-	}> = {},
-) {
-	const panels = ["intar", "advent", "fbtoggl"].map(() => {
-		const attributes = new Map<string, string>();
-		return {
-			attributes,
-			removeAttribute: (name: string) => attributes.delete(name),
-			setAttribute: (name: string, value: string) =>
-				attributes.set(name, value),
-		};
-	});
-	let report: ((entries: ObserverEntry[]) => void) | undefined;
-	let init: unknown;
-	const observed: unknown[] = [];
-	class FakeIntersectionObserver {
-		constructor(
-			callback: (entries: ObserverEntry[]) => void,
-			options: unknown,
-		) {
-			report = callback;
-			init = options;
-		}
-		observe(target: unknown) {
-			observed.push(target);
-		}
-	}
-	const timers = new Map<number, () => void>();
-	let nextTimer = 1;
-	const window = Object.assign(new EventTarget(), {
-		IntersectionObserver:
-			options.observer === false ? undefined : FakeIntersectionObserver,
-		matchMedia: (query: string) => ({
-			matches:
-				(query === "(hover: hover)" && (options.hover ?? false)) ||
-				(query === "(prefers-reduced-motion: reduce)" &&
-					(options.reducedMotion ?? false)),
-		}),
-		setTimeout(callback: () => void) {
-			const id = nextTimer++;
-			timers.set(id, callback);
-			return id;
-		},
-		clearTimeout(id: number) {
-			timers.delete(id);
-		},
-	});
-	const document = {
-		querySelectorAll: (selector: string) =>
-			selector === ".panel" ? panels : [],
-	};
-	createNavigation(window, document).initAttentionLock();
-	return {
-		init: () => init,
-		observed,
-		panels,
-		pendingTimers: () => timers.size,
-		report: (entries: ObserverEntry[]) => report?.(entries),
-		settle() {
-			const callbacks = [...timers.values()];
-			timers.clear();
-			for (const callback of callbacks) callback();
-		},
-		sighted: () => panels.map((panel) => panel.attributes.has("data-sighted")),
-		window,
-	};
-}
-
-test("locks onto the panel under the reading line once scrolling stops", () => {
-	const fixture = createAttentionFixture();
-	const [intar, advent, fbtoggl] = fixture.panels;
-	expect(fixture.observed).toEqual(fixture.panels);
-	expect(fixture.init()).toEqual({ rootMargin: "-30% 0px -69% 0px" });
-
-	fixture.report([{ target: advent, isIntersecting: true }]);
-	expect(fixture.sighted()).toEqual([false, false, false]);
-	fixture.settle();
-	expect(fixture.sighted()).toEqual([false, true, false]);
-
-	fixture.window.dispatchEvent(new Event("scroll"));
-	expect(fixture.pendingTimers()).toBe(1);
-	fixture.report([
-		{ target: advent, isIntersecting: false },
-		{ target: fbtoggl, isIntersecting: true },
-	]);
-	expect(fixture.pendingTimers()).toBe(1);
-	fixture.settle();
-	expect(fixture.sighted()).toEqual([false, false, true]);
-
-	fixture.report([
-		{ target: intar, isIntersecting: true },
-		{ target: fbtoggl, isIntersecting: true },
-	]);
-	fixture.settle();
-	expect(fixture.sighted()).toEqual([true, false, false]);
-
-	fixture.report([
-		{ target: intar, isIntersecting: false },
-		{ target: fbtoggl, isIntersecting: false },
-	]);
-	fixture.settle();
-	expect(fixture.sighted()).toEqual([false, false, false]);
-});
-
-test("leaves hover devices, reduced motion, and old browsers alone", () => {
-	for (const options of [{ hover: true }, { reducedMotion: true }]) {
-		const fixture = createAttentionFixture(options);
-		fixture.report([{ target: fixture.panels[0], isIntersecting: true }]);
-		fixture.settle();
-		expect(fixture.sighted()).toEqual([false, false, false]);
-	}
-	const legacy = createAttentionFixture({ observer: false });
-	legacy.window.dispatchEvent(new Event("scroll"));
-	expect([legacy.observed.length, legacy.pendingTimers()]).toEqual([0, 0]);
 });

@@ -32,7 +32,7 @@ const createThemeModule = new Function(
 	"document",
 	"CustomEvent",
 	new Bun.Transpiler({ loader: "ts" }).transformSync(
-		`${themeSource}\nreturn { applyTheme, interruptThemeTransition, loadTheme, resolveTheme, revealBand, revealFrames, revealRadius, setTheme, setThemeWithTransition, setupThemeListener };`,
+		`${themeSource}\nreturn { applyTheme, interruptThemeTransition, loadTheme, resolveTheme, revealBand, revealGeometry, revealRadius, setTheme, setThemeWithTransition, setupThemeListener };`,
 	),
 ) as ThemeFactory;
 const prepaintSource = source("../src/layouts/MinimalLayout.astro").match(
@@ -264,95 +264,165 @@ test("prepaint uses the saved choice and tolerates blocked storage", () => {
 	}
 });
 
-function withReveal(
-	fixture: ReturnType<typeof createFixture>,
-	options: { animateThrows?: boolean } = {},
-) {
-	const animations: Array<{ keyframes: unknown; options: unknown }> = [];
+function withReveal(fixture: ReturnType<typeof createFixture>) {
 	const properties = new Map<string, string>();
-	const root = fixture.document.documentElement;
-	let cancelled = 0;
-	Object.assign(root, {
-		animate(keyframes: unknown, timing: unknown) {
-			if (options.animateThrows) throw new Error("Unsupported keyframes");
-			animations.push({ keyframes, options: timing });
-			return {
-				cancel() {
-					cancelled += 1;
-				},
-			};
-		},
-	});
-	Object.assign(root.style, {
+	Object.assign(fixture.document.documentElement.style, {
 		setProperty(name: string, value: string) {
 			properties.set(name, value);
 		},
 	});
 	Object.assign(fixture.window, { innerWidth: 1200, innerHeight: 800 });
-	return { animations, cancelled: () => cancelled, properties };
+	return { properties };
+}
+
+// A view transition the test drives: it hands over its update, and ends
+// when told to.
+function drivenTransitions() {
+	const updates: Array<() => void> = [];
+	const ends: Array<() => void> = [];
+	return {
+		updates,
+		end: (index = ends.length - 1) => ends[index]?.(),
+		startViewTransition(update: () => void) {
+			updates.push(update);
+			let resolve!: () => void;
+			const finished = new Promise<void>((done) => {
+				resolve = done;
+			});
+			ends.push(resolve);
+			return { ready: Promise.resolve(), finished, skipTransition: resolve };
+		},
+	};
 }
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
 
 test("spreads the new palette out from under the knob", async () => {
-	const updates: Array<() => void> = [];
+	const driven = drivenTransitions();
 	const fixture = createFixture({
-		startViewTransition(update) {
-			updates.push(update);
-			return { ready: Promise.resolve(), finished: Promise.resolve() };
-		},
+		startViewTransition: driven.startViewTransition,
 	});
 	const reveal = withReveal(fixture);
 	const theme = themeFor(fixture);
 	theme.loadTheme();
 	const root = fixture.document.documentElement;
 
-	theme.setThemeWithTransition("dark", { x: 900.4, y: 40 });
-	expect(root.dataset.themeReveal).toBe("");
+	theme.setThemeWithTransition("dark", { x: 900.4, y: 40, r: 55.6 });
+	// Nothing changes before the old page is captured.
+	expect([root.dataset.themeReveal, root.dataset.themeChanging]).toEqual([
+		undefined,
+		undefined,
+	]);
+	expect(reveal.properties.size).toBe(0);
+	expectTheme(fixture, "system", "light");
+
+	// Then the reveal, the hold on other transitions, and the palette land
+	// together. The farthest corner is the bottom left, 1179px away; the ring
+	// band has to pass it too.
+	driven.updates[0]?.();
 	expect(Object.fromEntries(reveal.properties)).toEqual({
 		"--reveal-x": "900px",
 		"--reveal-y": "40px",
+		"--reveal-core": "56px",
 		"--reveal-band": "160px",
+		"--reveal-to": "1339px",
 	});
-	updates[0]?.();
-	await settle();
-
-	// The farthest corner is the bottom left, 1179px away; the ring band
-	// has to pass it too.
-	expect(reveal.animations).toEqual([
-		{
-			keyframes: { "--reveal": ["0px", "1339px"] },
-			options: {
-				duration: 820,
-				easing: "cubic-bezier(0.37, 0, 0.63, 1)",
-				fill: "forwards",
-				pseudoElement: "::view-transition-new(root)",
-			},
-		},
+	expect([root.dataset.themeReveal, root.dataset.themeChanging]).toEqual([
+		"",
+		"",
 	]);
-	// The finished reveal lets go of its held last frame.
-	expect(reveal.cancelled()).toBe(1);
-	expect(root.dataset.themeReveal).toBeUndefined();
 	expectTheme(fixture, "dark", "dark");
+
+	// The finished transition lets go of the page.
+	driven.end();
+	await settle();
+	expect([root.dataset.themeReveal, root.dataset.themeChanging]).toEqual([
+		undefined,
+		undefined,
+	]);
 });
 
-test("falls back to the crossfade when the reveal cannot animate", async () => {
+test("a crossfade holds other transitions too, but reveals nothing", async () => {
+	const driven = drivenTransitions();
 	const fixture = createFixture({
-		startViewTransition(update) {
-			update();
-			return { ready: Promise.resolve(), finished: new Promise(() => {}) };
-		},
+		prefersReducedMotion: true,
+		startViewTransition: driven.startViewTransition,
 	});
-	withReveal(fixture, { animateThrows: true });
+	const reveal = withReveal(fixture);
 	const theme = themeFor(fixture);
 	theme.loadTheme();
 	const root = fixture.document.documentElement;
 
-	theme.setThemeWithTransition("dark", { x: 100, y: 100 });
-	expect(root.dataset.themeReveal).toBe("");
+	theme.setThemeWithTransition("dark", { x: 100, y: 100, r: 50 });
+	driven.updates[0]?.();
+	expect([root.dataset.themeReveal, root.dataset.themeChanging]).toEqual([
+		undefined,
+		"",
+	]);
+	expect(reveal.properties.size).toBe(0);
+	driven.end();
 	await settle();
-	// The transition is still running, now as a plain crossfade.
-	expect(root.dataset.themeReveal).toBeUndefined();
+	expect(root.dataset.themeChanging).toBeUndefined();
+	expectTheme(fixture, "dark", "dark");
+});
+
+test("only the latest transition lets go of the page", async () => {
+	const driven = drivenTransitions();
+	const fixture = createFixture({
+		startViewTransition: driven.startViewTransition,
+	});
+	withReveal(fixture);
+	const theme = themeFor(fixture);
+	theme.loadTheme();
+	const root = fixture.document.documentElement;
+
+	theme.setThemeWithTransition("dark", { x: 100, y: 100, r: 50 });
+	driven.updates[0]?.();
+	theme.setThemeWithTransition("light", { x: 100, y: 100, r: 50 });
+	driven.updates[1]?.();
+	// The first one ends while the second still runs.
+	driven.end(0);
+	await settle();
+	expect([root.dataset.themeReveal, root.dataset.themeChanging]).toEqual([
+		"",
+		"",
+	]);
+	driven.end(1);
+	await settle();
+	expect([root.dataset.themeReveal, root.dataset.themeChanging]).toEqual([
+		undefined,
+		undefined,
+	]);
+	expectTheme(fixture, "light", "light");
+});
+
+test("a transition that ends before its update never holds the page", async () => {
+	let finish!: () => void;
+	let update!: () => void;
+	const fixture = createFixture({
+		startViewTransition(next) {
+			update = next;
+			return {
+				ready: new Promise<void>(() => {}),
+				finished: new Promise<void>((resolve) => {
+					finish = resolve;
+				}),
+			};
+		},
+	});
+	withReveal(fixture);
+	const theme = themeFor(fixture);
+	theme.loadTheme();
+	const root = fixture.document.documentElement;
+
+	theme.setThemeWithTransition("dark", { x: 100, y: 100, r: 50 });
+	finish();
+	await settle();
+	update();
+	expect([root.dataset.themeReveal, root.dataset.themeChanging]).toEqual([
+		undefined,
+		undefined,
+	]);
 	expectTheme(fixture, "dark", "dark");
 });
 
@@ -377,12 +447,15 @@ test("a press on the knob can end a running reveal once", async () => {
 	withReveal(fixture);
 	const theme = themeFor(fixture);
 	theme.loadTheme();
+	const root = fixture.document.documentElement;
 
 	expect(theme.interruptThemeTransition()).toBe(false);
 	theme.setThemeWithTransition("dark", { x: 100, y: 100 });
 	expect(theme.interruptThemeTransition()).toBe(true);
 	expect(theme.interruptThemeTransition()).toBe(false);
 	expect(skipped).toBe(1);
+	await settle();
+	expect(root.dataset.themeChanging).toBeUndefined();
 
 	theme.setThemeWithTransition("light", { x: 100, y: 100 });
 	finish();
@@ -392,33 +465,29 @@ test("a press on the knob can end a running reveal once", async () => {
 });
 
 test("keeps a plain crossfade without an origin and does nothing when nothing changes", async () => {
-	const updates: Array<() => void> = [];
+	const driven = drivenTransitions();
 	const fixture = createFixture({
-		startViewTransition(update) {
-			updates.push(update);
-			return { ready: Promise.resolve(), finished: Promise.resolve() };
-		},
+		startViewTransition: driven.startViewTransition,
 	});
 	const reveal = withReveal(fixture);
 	const theme = themeFor(fixture);
 	theme.loadTheme();
 
 	theme.setThemeWithTransition("dark");
+	driven.updates[0]?.();
 	expect(fixture.document.documentElement.dataset.themeReveal).toBeUndefined();
-	updates[0]?.();
+	driven.end();
 	await settle();
 	theme.setThemeWithTransition("dark", { x: 10, y: 10 });
 	await settle();
-	expect([
-		updates.length,
-		reveal.animations.length,
-		reveal.properties.size,
-	]).toEqual([1, 0, 0]);
+	expect([driven.updates.length, reveal.properties.size]).toEqual([1, 0]);
 	expectTheme(fixture, "dark", "dark");
 });
 
 test("sizes the reveal to the screen and reaches every corner", () => {
-	const { revealBand, revealFrames, revealRadius } = themeFor(createFixture());
+	const { revealBand, revealGeometry, revealRadius } = themeFor(
+		createFixture(),
+	);
 	expect([
 		revealBand({ width: 1200, height: 800 }),
 		revealBand({ width: 375, height: 812 }),
@@ -428,5 +497,14 @@ test("sizes the reveal to the screen and reaches every corner", () => {
 	expect(revealRadius({ x: 150, y: 200 }, { width: 300, height: 400 })).toBe(
 		250,
 	);
-	expect(revealFrames(500, 100)).toEqual(["0px", "600px"]);
+	// Without a radius the reveal starts from a point.
+	expect(
+		revealGeometry({ x: 150, y: 200 }, { width: 300, height: 400 }),
+	).toEqual({
+		"--reveal-x": "150px",
+		"--reveal-y": "200px",
+		"--reveal-core": "0px",
+		"--reveal-band": "80px",
+		"--reveal-to": "330px",
+	});
 });

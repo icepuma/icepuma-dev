@@ -3,12 +3,14 @@ const THEME_EVENT = "theme-change";
 
 export type Theme = "dark" | "light" | "system";
 export type ResolvedTheme = "dark" | "light";
-export type Origin = { x: number; y: number };
+// Where a change starts, and the radius of the control there, which takes
+// the new palette at once.
+export type Origin = { x: number; y: number; r?: number };
 
 let currentTheme: Theme = "system";
 let storageAvailable = true;
 let themeChange = 0;
-let revealChange = 0;
+let transitionChange = 0;
 
 function isTheme(value: string | undefined | null): value is Theme {
 	return value === "dark" || value === "light" || value === "system";
@@ -74,9 +76,6 @@ function getCurrentResolvedTheme(): ResolvedTheme {
 		: resolveTheme(currentTheme);
 }
 
-const REVEAL_DURATION = 820;
-const REVEAL_EASING = "cubic-bezier(0.37, 0, 0.63, 1)";
-
 type Viewport = { width: number; height: number };
 
 // How far the reveal travels from the knob to reach the farthest corner.
@@ -97,31 +96,18 @@ export function revealBand(viewport: Viewport) {
 	return Math.round(Math.min(Math.max(short * 0.2, 80), 200));
 }
 
-// The reveal grows until its ring band has passed the farthest corner.
-export function revealFrames(radius: number, band: number) {
-	return ["0px", `${radius + band}px`];
-}
-
-// Starts the reveal on the new palette and hands back its animation, or
-// null when the engine cannot animate the pseudo-element.
-function runReveal(radius: number, band: number): Animation | null {
-	const root = document.documentElement;
-	if (typeof root.animate !== "function") return null;
-	try {
-		// Hold the last frame: the transition is torn down a frame after the
-		// animation ends, and without a fill the old palette would flash back.
-		return root.animate(
-			{ "--reveal": revealFrames(radius, band) },
-			{
-				duration: REVEAL_DURATION,
-				easing: REVEAL_EASING,
-				fill: "forwards",
-				pseudoElement: "::view-transition-new(root)",
-			},
-		);
-	} catch {
-		return null;
-	}
+// Everything CSS needs to draw the reveal: where it starts, the disc there
+// that takes the new palette at once, the ring band, and how far the band's
+// edge travels to pass the farthest corner.
+export function revealGeometry(origin: Origin, viewport: Viewport) {
+	const band = revealBand(viewport);
+	return {
+		"--reveal-x": `${Math.round(origin.x)}px`,
+		"--reveal-y": `${Math.round(origin.y)}px`,
+		"--reveal-core": `${Math.round(origin.r ?? 0)}px`,
+		"--reveal-band": `${band}px`,
+		"--reveal-to": `${revealRadius(origin, viewport) + band}px`,
+	};
 }
 
 type Transition = { skipTransition?: () => void };
@@ -155,43 +141,50 @@ export function setThemeWithTransition(theme: Theme, origin?: Origin) {
 	}
 
 	// From the knob the new palette spreads out from under it, trailing a band
-	// of rings like the knob's own spun face. Reduced motion and forced
-	// colours keep a plain crossfade instead.
+	// of rings like the knob's own spun face; CSS runs it. Reduced motion and
+	// forced colours keep a plain crossfade instead.
 	const still =
 		window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
 		window.matchMedia("(forced-colors: active)").matches;
 	const root = document.documentElement;
-	// setTheme advances themeChange, so the reveal keeps a counter of its own.
-	const reveal = origin && !still ? ++revealChange : 0;
-	const viewport = { width: window.innerWidth, height: window.innerHeight };
-	const band = reveal ? revealBand(viewport) : 0;
-	const radius = reveal && origin ? revealRadius(origin, viewport) : 0;
+	const reveal =
+		origin && !still
+			? revealGeometry(origin, {
+					width: window.innerWidth,
+					height: window.innerHeight,
+				})
+			: null;
+	// setTheme advances themeChange, so transitions keep a counter of their
+	// own: only the latest one lets go of the page.
+	const owner = ++transitionChange;
 	let transition: Transition | undefined;
-	let animation: Animation | null = null;
-	const current = () => reveal !== 0 && reveal === revealChange;
+	let done = false;
 	const finish = () => {
-		animation?.cancel();
+		done = true;
 		if (activeTransition === transition) activeTransition = undefined;
-		if (current()) delete root.dataset.themeReveal;
+		if (owner !== transitionChange) return;
+		delete root.dataset.themeChanging;
+		delete root.dataset.themeReveal;
+	};
+	// The old page is captured. Everything the change touches lands in one
+	// style pass: the hold on every other transition, the reveal, and the
+	// palette itself.
+	const update = () => {
+		if (applied || change !== themeChange) return;
+		if (!done && owner === transitionChange) {
+			root.dataset.themeChanging = "";
+			if (reveal) {
+				for (const [name, value] of Object.entries(reveal))
+					root.style.setProperty(name, value);
+				root.dataset.themeReveal = "";
+			}
+		}
+		apply();
 	};
 	try {
-		if (reveal && origin) {
-			root.style.setProperty("--reveal-x", `${Math.round(origin.x)}px`);
-			root.style.setProperty("--reveal-y", `${Math.round(origin.y)}px`);
-			root.style.setProperty("--reveal-band", `${band}px`);
-			root.dataset.themeReveal = "";
-		}
-		const started = document.startViewTransition(apply);
+		const started = document.startViewTransition(update);
 		activeTransition = transition = started;
-		void started.ready
-			.then(() => {
-				if (!current()) return;
-				animation = runReveal(radius, band);
-				// Without the animation the new palette would stay masked, so
-				// fall back to the crossfade.
-				if (!animation) delete root.dataset.themeReveal;
-			}, apply)
-			.catch(() => {});
+		void started.ready.catch(update);
 		void started.finished?.then(finish, finish);
 	} catch {
 		finish();

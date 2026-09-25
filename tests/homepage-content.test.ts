@@ -100,12 +100,10 @@ test("the built homepage keeps its public content available without JavaScript",
 	expect(stackLinks).toHaveLength(stackItems.length);
 	for (const [index, [link, contents]] of stackLinks.entries()) {
 		expect(link).toMatch(/\bhref="https:\/\/[^"\s]+"/);
-		expect(link).toContain('target="_blank"');
-		expect(link).toContain('rel="noopener noreferrer"');
+		expect(link).not.toContain("target=");
 		expect(contents.trim().split("<")[0].trim()).toBe(
 			htmlText(stackItems[index]),
 		);
-		expect(contents).toContain("(opens in a new tab)");
 	}
 
 	const calendarDays = yamlValues("src/content/calendar/schedule.yaml", "day");

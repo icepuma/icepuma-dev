@@ -7,6 +7,9 @@ const OVERTRAVEL = 24;
 
 export type Position = (typeof POSITIONS)[number];
 export type Point = { x: number; y: number };
+// The knob's centre and radius. A theme change starts from the whole knob,
+// not from a point under it.
+export type Disc = Point & { r: number };
 // Who turned the knob: a pointer on the drawn knob, or its radios, which
 // assistive technology already announces.
 export type CommitSource = "pointer" | "radio";
@@ -105,9 +108,13 @@ export function sheenFor(
 	return Math.min(1, Math.max(-1, x)) * max || 0;
 }
 
-function centreOf(element: HTMLElement): Point {
+function discOf(element: HTMLElement): Disc {
 	const rect = element.getBoundingClientRect();
-	return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+	return {
+		x: rect.left + rect.width / 2,
+		y: rect.top + rect.height / 2,
+		r: rect.width / 2,
+	};
 }
 
 function trackSheen(knob: HTMLElement) {
@@ -121,7 +128,7 @@ function trackSheen(knob: HTMLElement) {
 	function step(time: number) {
 		frame = 0;
 		const target = pointer
-			? sheenFor(pointer, centreOf(knob), window.innerWidth)
+			? sheenFor(pointer, discOf(knob), window.innerWidth)
 			: 0;
 		const elapsed = Math.min(last ? time - last : 16, 64);
 		last = time;
@@ -167,7 +174,7 @@ function within(rect: DOMRect, point: Point) {
 // made elsewhere.
 export function initKnob(
 	control: HTMLElement,
-	onCommit: (position: Position, origin: Point, source: CommitSource) => void,
+	onCommit: (position: Position, origin: Disc, source: CommitSource) => void,
 	{ interrupt }: { interrupt?: () => boolean } = {},
 ) {
 	const knob = control.querySelector<HTMLElement>("[data-knob]");
@@ -191,7 +198,7 @@ export function initKnob(
 		aim(position);
 		if (position === committed) return;
 		committed = position;
-		onCommit(position, centreOf(knob), source);
+		onCommit(position, discOf(knob), source);
 	};
 
 	for (const input of radios) {
@@ -291,10 +298,21 @@ export function initKnob(
 	});
 
 	// While a theme change is revealed the page takes no pointer input, and
-	// every press lands on the root. A press on the knob or on one of its
-	// labels ends the reveal and does what it would have done.
+	// every press lands on the root. Any press ends the reveal. On the knob or
+	// one of its labels it does what it would have done; anywhere else, the
+	// click that follows goes to whatever is under the pointer once the
+	// reveal is gone.
 	if (interrupt) {
 		const labels = Array.from(control.querySelectorAll("label"));
+		let forward = false;
+		document.documentElement.addEventListener("click", (event) => {
+			if (event.target !== document.documentElement || !forward) return;
+			forward = false;
+			document
+				.elementFromPoint?.(event.clientX, event.clientY)
+				?.closest<HTMLElement>("a[href], button, label, summary")
+				?.click();
+		});
 		document.documentElement.addEventListener("pointerdown", (event) => {
 			if (event.target !== document.documentElement) return;
 			const point = { x: event.clientX, y: event.clientY };
@@ -310,8 +328,9 @@ export function initKnob(
 				: labels.find((candidate) =>
 						within(candidate.getBoundingClientRect(), point),
 					);
-			if ((!onKnob && !label) || !interrupt()) return;
-			if (onKnob) begin(event);
+			if (!interrupt()) return;
+			if (!onKnob && !label) forward = true;
+			else if (onKnob) begin(event);
 			else label?.control?.click();
 		});
 	}
