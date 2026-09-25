@@ -1,43 +1,86 @@
 /* Colour tokens for both grounds. Every block is tagged so
    tests/contrast.test.ts can measure it: keep the tags, keep hex values for
-   colours, and keep each -system block identical to its counterpart. */
+   the measured colours, and keep each -system block identical to its
+   counterpart. Material tokens (keys, metal, shadows) are not measured. */
 
 /* tokens:light */
 :root {
 	color-scheme: light;
-	--background: #eaf0ef;
-	--surface: #f1f5f4;
-	--surface-hover: #e6eff0;
-	--foreground: #0e1b1e;
-	--muted-foreground: #4a5d61;
-	--primary: #006a7d;
-	--primary-foreground: #f1f5f4;
-	--accent: #94510a;
-	--rule: #c3cfce;
-	--rule-strong: #8fa0a0;
-	--ring: #006a7d;
-	--grid-mark: #cfd9d8;
-	--glow-opacity: 0;
-	--hero-wash: transparent;
+	--background: #e5e4df;
+	--surface: #f4f3ef;
+	--surface-hover: #fbfaf7;
+	--foreground: #1a1a19;
+	--muted-foreground: #5c5b56;
+	--primary: #ad3d0c;
+	--primary-foreground: #ffffff;
+	--signal: #e85a20;
+	--signal-foreground: #1a1a19;
+	--lamp: #27903f;
+	--lamp-off: #cbc9c2;
+	--rule: #d5d3cc;
+	--rule-strong: #b3b1a9;
+	--ring: #ad3d0c;
+	--window: #161615;
+	--window-foreground: #eeebe4;
+	--window-muted: #a09d96;
+	--lcd: #c3c8b8;
+	--lcd-ink: #1d211b;
+	--key-face: #faf9f6;
+	--key-face-down: #e6e5df;
+	--key-lip: #bebcb4;
+	--key-shine: rgb(255 255 255 / 0.9);
+	--panel-shine: rgb(255 255 255 / 0.75);
+	--edge: rgb(0 0 0 / 0.06);
+	--shadow: 0 0 0;
+	--shadow-strength: 1;
+	--metal-hi: #fdfdfc;
+	--metal-mid: #d6d6d3;
+	--metal-lo: #a4a4a1;
+	--metal-deep: #6f6f6c;
+	--sheen-hi: 0.55;
+	--sheen-lo: 0.42;
+	--lcd-ghost: 0.08;
+	--glow: 0;
 }
 
 /* tokens:dark */
 :root[data-theme="dark"] {
 	color-scheme: dark;
-	--background: #060e11;
-	--surface: #0d1c21;
-	--surface-hover: #132b31;
-	--foreground: #d8e8ea;
-	--muted-foreground: #8ea6aa;
-	--primary: #57d6ea;
-	--primary-foreground: #060e11;
-	--accent: #f0ab4a;
-	--rule: #17292e;
-	--rule-strong: #2a454c;
-	--ring: #57d6ea;
-	--grid-mark: #17292e;
-	--glow-opacity: 0.24;
-	--hero-wash: rgb(87 214 234 / 0.07);
+	--background: #111110;
+	--surface: #1b1b1a;
+	--surface-hover: #242423;
+	--foreground: #ecebe5;
+	--muted-foreground: #a3a199;
+	--primary: #ff8b52;
+	--primary-foreground: #111110;
+	--signal: #ff7a3d;
+	--signal-foreground: #111110;
+	--lamp: #45d06c;
+	--lamp-off: #2e2e2c;
+	--rule: #2a2a28;
+	--rule-strong: #43433f;
+	--ring: #ff8b52;
+	--window: #0a0a09;
+	--window-foreground: #f0ede5;
+	--window-muted: #94918a;
+	--lcd: #0d0f0d;
+	--lcd-ink: #ffcf9a;
+	--key-face: #2b2b29;
+	--key-face-down: #1f1f1e;
+	--key-lip: #060606;
+	--key-shine: rgb(255 255 255 / 0.07);
+	--panel-shine: rgb(255 255 255 / 0.05);
+	--edge: rgb(255 255 255 / 0.07);
+	--shadow: 0 0 0;
+	--shadow-strength: 1.8;
+	--metal-hi: #e4e4e1;
+	--metal-mid: #aaaaa7;
+	--metal-lo: #737370;
+	--metal-deep: #464644;
+	--sheen-hi: 0.35;
+	--sheen-lo: 0.55;
+	--lcd-ghost: 0.06;
+	--glow: 1;
 }
 
 /* Without JavaScript the page follows the system preference. */
@@ -45,57 +88,79 @@
 	/* tokens:dark-system */
 	:root:not([data-theme]) {
 		color-scheme: dark;
-		--background: #060e11;
-		--surface: #0d1c21;
-		--surface-hover: #132b31;
-		--foreground: #d8e8ea;
-		--muted-foreground: #8ea6aa;
-		--primary: #57d6ea;
-		--primary-foreground: #060e11;
-		--accent: #f0ab4a;
-		--rule: #17292e;
-		--rule-strong: #2a454c;
-		--ring: #57d6ea;
-		--grid-mark: #17292e;
-		--glow-opacity: 0.24;
-		--hero-wash: rgb(87 214 234 / 0.07);
+		--background: #111110;
+		--surface: #1b1b1a;
+		--surface-hover: #242423;
+		--foreground: #ecebe5;
+		--muted-foreground: #a3a199;
+		--primary: #ff8b52;
+		--primary-foreground: #111110;
+		--signal: #ff7a3d;
+		--signal-foreground: #111110;
+		--lamp: #45d06c;
+		--lamp-off: #2e2e2c;
+		--rule: #2a2a28;
+		--rule-strong: #43433f;
+		--ring: #ff8b52;
+		--window: #0a0a09;
+		--window-foreground: #f0ede5;
+		--window-muted: #94918a;
+		--lcd: #0d0f0d;
+		--lcd-ink: #ffcf9a;
+		--key-face: #2b2b29;
+		--key-face-down: #1f1f1e;
+		--key-lip: #060606;
+		--key-shine: rgb(255 255 255 / 0.07);
+		--panel-shine: rgb(255 255 255 / 0.05);
+		--edge: rgb(255 255 255 / 0.07);
+		--shadow: 0 0 0;
+		--shadow-strength: 1.8;
+		--metal-hi: #e4e4e1;
+		--metal-mid: #aaaaa7;
+		--metal-lo: #737370;
+		--metal-deep: #464644;
+		--sheen-hi: 0.35;
+		--sheen-lo: 0.55;
+		--lcd-ghost: 0.06;
+		--glow: 1;
 	}
 }
 
-/* Stronger text, rules, and no glow when the reader asks for more contrast. */
+/* Stronger print and rules, and no glow, when the reader asks for more
+   contrast. */
 @media (prefers-contrast: more) {
 	/* tokens:light-more */
 	:root {
-		--muted-foreground: #33464a;
-		--primary: #00566a;
-		--ring: #00566a;
-		--accent: #7a4205;
-		--rule: #9aabab;
-		--rule-strong: #5f7373;
-		--glow-opacity: 0;
+		--muted-foreground: #454440;
+		--primary: #8f3208;
+		--ring: #8f3208;
+		--rule: #b3b1a9;
+		--rule-strong: #7f7d76;
+		--window-muted: #c2bfb8;
+		--glow: 0;
 	}
 
 	/* tokens:dark-more */
 	:root[data-theme="dark"] {
-		--muted-foreground: #b3c7ca;
-		--primary: #7fe4f3;
-		--ring: #7fe4f3;
-		--accent: #ffc06a;
-		--rule: #2c464d;
-		--rule-strong: #5b7d85;
-		--glow-opacity: 0;
+		--muted-foreground: #c4c2ba;
+		--primary: #ffa779;
+		--ring: #ffa779;
+		--rule: #3e3e3b;
+		--rule-strong: #6d6d68;
+		--window-muted: #bdbab2;
+		--glow: 0;
 	}
 }
 
 @media (prefers-contrast: more) and (prefers-color-scheme: dark) {
 	/* tokens:dark-more-system */
 	:root:not([data-theme]) {
-		--muted-foreground: #b3c7ca;
-		--primary: #7fe4f3;
-		--ring: #7fe4f3;
-		--accent: #ffc06a;
-		--rule: #2c464d;
-		--rule-strong: #5b7d85;
-		--glow-opacity: 0;
+		--muted-foreground: #c4c2ba;
+		--primary: #ffa779;
+		--ring: #ffa779;
+		--rule: #3e3e3b;
+		--rule-strong: #6d6d68;
+		--window-muted: #bdbab2;
+		--glow: 0;
 	}
 }

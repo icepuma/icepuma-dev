@@ -1,0 +1,55 @@
+---
+import {
+	bandPath,
+	type ScaleDay,
+	scaleTicks,
+	stations,
+	WEEK,
+} from "@/utils/scale";
+
+export interface Props {
+	days: ScaleDay[];
+}
+
+const { days } = Astro.props;
+
+// The week is the waveband: every tick is an hour, the long ticks are
+// midnights, and each run of days on one project is a station. The needle is
+// placed in Berlin time by script; nothing live is baked in.
+const bands = stations(days);
+const hours = scaleTicks(25, 31, (hour) => hour % 6 !== 0);
+const quarters = scaleTicks(21, 31, (hour) => hour % 6 === 0 && hour % 24 !== 0);
+const midnights = scaleTicks(12, 31, (hour) => hour % 24 === 0);
+---
+
+<div class="scale" data-scale aria-hidden="true">
+	<div class="scale-stations">
+		{bands.map((band) => (
+			<span
+				class:list={["scale-station", { "scale-station-off": band.off }]}
+				data-days={band.days.join(" ")}
+				style={`grid-column: ${band.column}`}
+			>{band.focus}</span>
+		))}
+	</div>
+	<svg class="scale-marks" viewBox={`0 0 ${WEEK} 32`} preserveAspectRatio="none">
+		{bands.map((band) => (
+			<path
+				class:list={["scale-band", { "scale-band-off": band.off }]}
+				data-days={band.days.join(" ")}
+				d={bandPath(band, 1, 5)}
+			/>
+		))}
+		<path class="scale-hours" d={hours} />
+		<path class="scale-quarters" d={quarters} />
+		<path class="scale-midnights" d={midnights} />
+		<path class="scale-base" d={`M0 31H${WEEK}`} />
+	</svg>
+	<div class="scale-days">
+		{days.map(({ day }) => (
+			<span data-scale-day data-day={day}>{day}</span>
+		))}
+	</div>
+	<span class="scale-ghost"></span>
+	<span class="scale-needle"></span>
+</div>

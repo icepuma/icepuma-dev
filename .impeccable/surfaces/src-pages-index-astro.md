@@ -2,35 +2,34 @@
 version: 1
 slug: "src-pages-index-astro"
 primary_target: "src/pages/index.astro"
-related_targets: ["src/styles/global.css","src/styles/tokens.css","src/components/WeekDial.astro","src/components/SectionHeading.astro","src/components/ExternalLink.astro","src/components/ThemeSwitcher.astro","src/layouts/MinimalLayout.astro"]
+related_targets: ["src/styles/global.css","src/styles/tokens.css","src/components/Receiver.astro","src/components/TuningScale.astro","src/components/ThemeKnob.astro","src/components/SectionHeading.astro","src/components/ExternalLink.astro","src/components/Nav.astro","src/layouts/MinimalLayout.astro"]
 ---
 
 # Homepage
 
-Mode: experience. The "Cyberbrain HUD" redesign governs this surface: lean clearly into Stand Alone Complex, with neat micro-interactions, first-class light and dark themes, every screen size from 320px phones up, pleasant to the eye, bold but not maxed out. Every content item, destination, and anchor is kept. No raster assets are needed.
+Mode: experience. The "Braun receiver" redesign governs this surface: a Braun-inspired interface with micro-interactions and a hyper-realistic knob to switch themes, first-class light and dark themes, every screen size from 320px phones up. Every content item, destination, and anchor is kept. No raster assets are needed.
 
 ## Direction contract
 
-THESIS: A calm cyberbrain HUD over one person's work, anchored by a week dial built from the real schedule.
+THESIS: One receiver on a catalogue page, less but better, built from the real schedule and the Berlin clock.
 
-OWN-WORLD: Teal-black night and daylight-briefing grounds; cyan for interaction and presence and amber for recorded data, with no alarm red; Chakra Petch capitals for the name and section titles, IBM Plex Sans for text, JetBrains Mono for data; one 12px cut corner on project panels; lock-on brackets; small, decorative Japanese section labels (開発, 経歴, 使用技術, 週間予定, 音楽, 連絡先).
+OWN-WORLD: Warm grey paper and Braun black grounds; white and anthracite bodies; black and grey print; one signal orange for now and for action and one green pilot lamp for "on"; Archivo alone; soft rectangles and circles; push-button keys; a punched grille; black glass over the scale; a seven-segment display; small German sub-labels (Projekte, Profil, Technische Daten, Wochenplan, Musik, Kontakt).
 
-STORY: Meet the name and today's schedule on the dial, then read the projects, the bio, the stack, the week, the music, and the social links.
+STORY: Meet the name and the receiver tuned to today, then read the projects, the bio, the stack, the week, the music, and the social links.
 
-FIRST VIEWPORT: A sticky header with all six links visible (two rows on phones, one row from 40rem) above the name, the role, live Berlin readouts, and the week dial. On desktop the first row of projects is visible at 1280×720.
+FIRST VIEWPORT: A sticky header with all six keys (two rows on phones, where the brand row scrolls away; one row from 48rem) above the name, the role, and the receiver. On desktop the first row of projects starts inside 1280×800.
 
-USER DECISIONS: The week dial as the hero; a compact sticky top bar on phones rather than a bottom dock; Japanese sub-labels. Earlier standing direction still holds: no custom logos, no decorative numbers, no slide indicators, no separator lines, navigation always visible, working Back to top.
+USER DECISIONS: A Braun-inspired interface, micro-interactions, and a hyper-realistic knob for the theme. Earlier standing direction still holds: no custom logos, no decorative numbers, no slide indicators, no separator lines, navigation always visible, working Back to top.
 
 ## Interaction set
 
-- Lock-on, graded by importance: project panels take three brackets and endpoint rings that dial in around a centred, still arrow; music and social take four brackets; stack chips and calendar cells change colour and border only. Hover runs only for mouse input.
-- A touch attention lock gives the panel under a reading line 30% down the viewport its brackets once scrolling stops.
-- The current navigation link keeps its corner marks; the reticle moves in place, never slides.
-- A theme change from the button is written in by a 900ms scan line: a ticked cyan beam sweeps down the screen and the old palette thins into fading raster lines behind it.
-- The dial draws in once per visit; its inner ring turns with scroll; fine pointers tilt it by at most 4°; the now tick moves once a minute.
-- The live readouts decode once as their data arrives: the only text scramble on the page, drawn on an aria-hidden mask.
-- Section scales draw in as their sections arrive and turn cyan while current.
+- The knob: three detents (Light, Auto, Dark). Labels and arrow keys change its radios; a drag turns it with stiction near each detent and give past the end stops, then springs into place on release; a tap advances one position. Its sheen follows a mouse, it presses 1% into the panel while held, and Android phones feel a haptic tick per detent.
+- A theme change spreads out from under the knob as a disc with a band of concentric rings at its edge.
+- Keys sink under a press and spring back; the current section's key stays latched with an orange lamp; section lamps light while read.
+- Panels lift on hover and press down under a click; the arrow printed in their corner runs out and an orange one slides in. A touch reader gets the lift on the panel under a reading line once scrolling stops.
+- The scale takes a ghost needle under a mouse and lights the day and station beneath it.
+- Once per visit the receiver powers on: a segment test on the display and the needle tuning in with a small overshoot.
 
 ## Research interpretation
 
-The dial, brackets, and bilingual labels are an original interpretation of the franchise's interface language: thin-line rings tied to a real target, dense real data on a strict grid, and short bilingual register labels. No franchise art, symbol, character, or on-screen text is reproduced; no ring carries text around it or an emblem in its centre; no statuses, file numbers, stamps, or redactions are invented. The WebGL inspection rings of the previous pass were replaced by SVG and CSS rings that echo the dial, work on touch, and cost no GPU context.
+The receiver, keys, grille, display, and knob are an original interpretation of Braun's design language under Dieter Rams and Dietrich Lubs: neutral bodies with one functional accent, quiet printed legends, a linear tuning scale with an orange pointer, a punched speaker grille, knurled aluminium knobs, and a seven-segment display. No Braun logo, product name, model number, or other mark is reproduced, and every instrument shows real data.

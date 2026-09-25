@@ -1,28 +1,100 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
+/* Registered so the knob can spring between detents and the theme reveal
+   can grow; unregistered they would jump. */
+@property --knob-angle {
+	syntax: "<angle>";
+	inherits: true;
+	initial-value: 0deg;
+}
+
+@property --reveal {
+	syntax: "<length>";
+	inherits: false;
+	initial-value: 0px;
+}
+
 :root {
 	--header-height: 6rem;
+	/* The brand row's height: its top padding plus a 44px target, or the
+	   line of type if the reader's font is larger. */
+	--brand-row: calc(0.25rem + max(44px, 1.4531rem));
 	--gutter: clamp(1rem, 4vw, 3rem);
-	--cut: 12px;
+	--radius-panel: 18px;
+	--radius-key: 6px;
 	--ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
-	--ease-acquire: cubic-bezier(0.33, 1, 0.68, 1);
 	--ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
-	--font-ja:
-		"Hiragino Sans", "Hiragino Kaku Gothic ProN", "Yu Gothic UI", "Yu Gothic",
-		Meiryo, "Noto Sans JP", "Noto Sans CJK JP", sans-serif;
+	/* One damped spring with a 6% overshoot, run at three lengths: 240ms for
+	   keys, 380ms for the knob, 1300ms for the needle. */
+	--spring: linear(
+		0,
+		0.044,
+		0.151,
+		0.291,
+		0.44,
+		0.585,
+		0.714,
+		0.822,
+		0.907,
+		0.971,
+		1.016,
+		1.044,
+		1.058,
+		1.063,
+		1.061,
+		1.055,
+		1.046,
+		1.037,
+		1.028,
+		1.019,
+		1.012,
+		1.007,
+		1.002,
+		0.999,
+		0.997,
+		0.996,
+		0.996,
+		0.996,
+		0.996,
+		0.997,
+		0.998,
+		1
+	);
+	/* Objects rest on the page like products on a catalogue table: a hairline
+	   edge, a lit top edge, a contact shadow, and a soft cast shadow. */
+	--shadow-panel:
+		0 0 0 1px var(--edge),
+		inset 0 1px 0 var(--panel-shine),
+		0 1px 2px rgb(var(--shadow) / calc(0.06 * var(--shadow-strength))),
+		0 12px 24px -16px rgb(var(--shadow) / calc(0.4 * var(--shadow-strength)));
+	--shadow-lift:
+		0 0 0 1px var(--edge),
+		inset 0 1px 0 var(--panel-shine),
+		0 2px 4px rgb(var(--shadow) / calc(0.06 * var(--shadow-strength))),
+		0 22px 34px -20px rgb(var(--shadow) / calc(0.5 * var(--shadow-strength)));
+	--shadow-press:
+		0 0 0 1px var(--edge),
+		inset 0 1px 0 var(--panel-shine),
+		0 1px 1px rgb(var(--shadow) / calc(0.08 * var(--shadow-strength)));
+	--shadow-key:
+		inset 0 1px 0 var(--key-shine),
+		0 0 0 1px var(--rule-strong),
+		0 1.5px 0 1px var(--key-lip),
+		0 3px 5px -1px rgb(var(--shadow) / calc(0.16 * var(--shadow-strength)));
+	--shadow-key-down:
+		inset 0 1px 2px rgb(var(--shadow) / calc(0.16 * var(--shadow-strength))),
+		0 0 0 1px var(--rule-strong),
+		0 0 0 1px var(--key-lip);
 }
 
 @theme inline {
-	--font-sans: var(--font-plex), sans-serif;
-	--font-display: var(--font-chakra), var(--font-plex), sans-serif;
-	--font-mono: var(--font-jetbrains), ui-monospace, monospace;
+	--font-sans: var(--font-archivo), "Helvetica Neue", Arial, sans-serif;
 	--color-background: var(--background);
 	--color-foreground: var(--foreground);
 	--color-muted-foreground: var(--muted-foreground);
 	--color-primary: var(--primary);
 	--color-primary-foreground: var(--primary-foreground);
-	--color-accent: var(--accent);
 	--color-ring: var(--ring);
 }
 
@@ -41,7 +113,7 @@ html {
 
 body {
 	font-size: 1rem;
-	line-height: 1.6;
+	line-height: 1.55;
 	font-synthesis: none;
 }
 
@@ -50,8 +122,8 @@ body {
 }
 
 ::selection {
-	background: var(--primary);
-	color: var(--primary-foreground);
+	background: var(--signal);
+	color: var(--signal-foreground);
 }
 
 :where(a, button, summary):focus-visible {
@@ -59,7 +131,7 @@ body {
 	outline-offset: 3px;
 }
 
-:where(a, button, summary) {
+:where(a, button, summary, label) {
 	-webkit-tap-highlight-color: transparent;
 	touch-action: manipulation;
 }
@@ -91,6 +163,7 @@ body {
 	z-index: 100;
 	inset: 0.75rem auto auto 1rem;
 	padding: 0.75rem 1.25rem;
+	border-radius: var(--radius-key);
 	background: var(--foreground);
 	color: var(--background);
 	transform: translateY(-200%);
@@ -103,16 +176,17 @@ body {
 
 /* --- header -------------------------------------------------------------- */
 
+/* On phones the brand row scrolls away and only the row of keys stays. */
 .site-header {
 	position: sticky;
-	top: 0;
+	top: calc(-1 * var(--brand-row));
 	z-index: 20;
 	isolation: isolate;
 	padding-top: env(safe-area-inset-top);
 }
 
-/* The fill lives on a pseudo-element so the blur never filters the links
-   and Safari tints its toolbar from the page, not from the header. */
+/* The fill lives on a pseudo-element so the blur never filters the keys and
+   Safari tints its toolbar from the page, not from the header. */
 .site-header::before {
 	position: absolute;
 	inset: 0;
@@ -124,20 +198,21 @@ body {
 
 @supports ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
 	.site-header::before {
-		background: color-mix(in srgb, var(--background) 88%, transparent);
-		-webkit-backdrop-filter: blur(16px);
-		backdrop-filter: blur(16px);
+		background: color-mix(in srgb, var(--background) 86%, transparent);
+		-webkit-backdrop-filter: blur(16px) saturate(1.2);
+		backdrop-filter: blur(16px) saturate(1.2);
 	}
 }
 
-/* A hairline confirms the header is floating once the page moves. */
+/* A soft edge confirms the header is floating once the page moves. */
 .site-header::after {
 	position: absolute;
 	inset: auto 0 0;
 	height: 1px;
 	pointer-events: none;
-	background: var(--rule);
 	content: "";
+	background: var(--rule);
+	box-shadow: 0 6px 14px rgb(var(--shadow) / calc(0.08 * var(--shadow-strength)));
 	opacity: 0;
 	transition: opacity 180ms var(--ease-out);
 }
@@ -148,13 +223,12 @@ html[data-scrolled] .site-header::after {
 
 .header-inner {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
+	grid-template-columns: minmax(0, 1fr);
 	grid-template-areas:
-		"brand theme"
-		"nav nav";
+		"brand"
+		"nav";
 	align-items: center;
-	column-gap: 1rem;
-	padding-block: 0.25rem;
+	padding-block: 0.25rem 0.375rem;
 }
 
 .brand {
@@ -165,99 +239,136 @@ html[data-scrolled] .site-header::after {
 	padding-inline: 0.25rem;
 	margin-inline-start: -0.25rem;
 	color: var(--foreground);
-	font-family: var(--font-mono);
-	font-size: 0.8125rem;
-	font-weight: 500;
-}
-
-.theme-control {
-	grid-area: theme;
-	display: flex;
-	align-items: center;
-	justify-content: flex-end;
-	min-inline-size: 44px;
-}
-
-/* All six links stay on one row on phones: sized to their words, never
-   truncated, and wrapped only on the narrowest screens or at high zoom. */
-.section-nav {
-	grid-area: nav;
-	display: flex;
-	flex-wrap: wrap;
-	justify-content: space-between;
-	margin-inline: -0.5rem;
-}
-
-.nav-link {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 44px;
-	min-height: 44px;
-	color: var(--muted-foreground);
-	font-family: var(--font-mono);
-	font-size: 0.6875rem;
-	text-decoration-thickness: 1px;
-	text-underline-offset: 0.5em;
-}
-
-.nav-link[aria-current="location"] {
-	color: var(--foreground);
-	background: var(--surface);
+	font-size: 0.9375rem;
+	font-weight: 600;
+	letter-spacing: -0.01em;
+	transition: color 160ms var(--ease-out);
 }
 
 @media (hover: hover) {
-	.nav-link:hover {
-		color: var(--primary);
-		text-decoration-line: underline;
-	}
-
 	.brand:hover {
 		color: var(--primary);
 	}
 }
 
-.nav-link:focus-visible {
-	color: var(--primary);
+/* All six keys stay on one row on phones, sized to their words; they wrap
+   only on the narrowest screens or at high zoom, and are never truncated. */
+.section-nav {
+	grid-area: nav;
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	gap: 0 0.1875rem;
 }
 
-.theme-cycle {
-	display: grid;
-	place-items: center;
-	width: 44px;
+/* --- keys ---------------------------------------------------------------- */
+
+/* A push-button: the cap is drawn 6px inside the link, so it looks 32px tall
+   while the target stays 44px. Pressing sinks it into the panel; its lip
+   disappears as it goes down. */
+.key {
+	position: relative;
+	isolation: isolate;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 0.5rem;
 	min-width: 44px;
 	min-height: 44px;
-	padding: 0;
-	color: var(--muted-foreground);
+	padding-inline: 0.75rem;
+	color: var(--foreground);
+	font-size: 0.875rem;
+	font-weight: 500;
+	line-height: 1;
+	white-space: nowrap;
+	text-decoration: none;
+	cursor: pointer;
+	transition:
+		translate 240ms var(--spring),
+		color 160ms var(--ease-out);
 }
 
-/* The three glyphs are stacked and crossfade, so the button never changes
-   size and the state is already correct before the first paint. */
-.theme-cycle .theme-icon {
-	grid-area: 1 / 1;
-	display: block;
-	opacity: 0;
-	transition: opacity 180ms var(--ease-out);
-}
-
-html[data-theme-choice="light"] .theme-icon[data-theme-icon="light"],
-html[data-theme-choice="dark"] .theme-icon[data-theme-icon="dark"],
-html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
-	opacity: 1;
+.key::before {
+	position: absolute;
+	inset: 6px 0;
+	z-index: -1;
+	content: "";
+	border-radius: var(--radius-key);
+	background-color: var(--key-face);
+	box-shadow: var(--shadow-key);
+	transition:
+		box-shadow 240ms var(--spring),
+		background-color 160ms var(--ease-out);
 }
 
 @media (hover: hover) {
-	.theme-cycle:hover {
-		color: var(--primary);
+	.key:hover::before {
+		background-color: color-mix(in srgb, var(--key-face), var(--foreground) 5%);
 	}
 }
 
-.theme-cycle:focus-visible,
-.theme-cycle:active {
-	color: var(--primary);
+.key:active {
+	translate: 0 1.5px;
+	transition-duration: 70ms;
 }
 
-/* --- controls ------------------------------------------------------------ */
+.key:active::before {
+	background-color: var(--key-face-down);
+	box-shadow: var(--shadow-key-down);
+	transition-duration: 70ms;
+}
+
+/* The section keys latch: the one being read stays pressed in, with a small
+   signal lamp under its word. Latching happens in place, nothing slides. */
+.nav-link {
+	padding-inline: 0.375rem;
+	color: var(--muted-foreground);
+	font-size: 0.6875rem;
+}
+
+.nav-link::after {
+	position: absolute;
+	left: 50%;
+	bottom: 10px;
+	width: 10px;
+	height: 2px;
+	margin-left: -5px;
+	border-radius: 1px;
+	content: "";
+	background: var(--signal);
+	opacity: 0;
+	scale: 0.3 1;
+	transition:
+		opacity 160ms var(--ease-out),
+		scale 240ms var(--spring);
+}
+
+.nav-link[aria-current="location"] {
+	color: var(--foreground);
+	translate: 0 1.5px;
+}
+
+.nav-link[aria-current="location"]::before {
+	background-color: var(--key-face-down);
+	box-shadow: var(--shadow-key-down);
+}
+
+.nav-link[aria-current="location"]::after {
+	opacity: 1;
+	scale: 1;
+}
+
+@media (hover: hover) {
+	.nav-link:hover {
+		color: var(--foreground);
+	}
+}
+
+.nav-link:focus-visible {
+	color: var(--foreground);
+}
+
+/* --- links and endpoints ------------------------------------------------- */
 
 .control {
 	position: relative;
@@ -265,384 +376,123 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	min-width: 44px;
 	cursor: pointer;
 	text-decoration: none;
-	transition:
-		transform 180ms var(--ease-out),
-		background-color 180ms var(--ease-out),
-		color 180ms var(--ease-out);
-}
-
-.control:active {
-	transform: translateY(1px);
-	transition-duration: 80ms;
 }
 
 .external-link {
 	color: inherit;
 }
 
-/* Small controls carry two corner marks that align on hover, focus, press,
-   or selection. The current section's link keeps them: the reticle moves in
-   place from link to link, it never slides. */
-:is(.brand, .nav-link, .theme-cycle, .back-to-top)::before,
-:is(.brand, .nav-link, .theme-cycle, .back-to-top)::after {
-	position: absolute;
-	z-index: 1;
-	width: 7px;
-	height: 7px;
-	pointer-events: none;
-	content: "";
-	opacity: 0;
-	transition:
-		transform 220ms var(--ease-out),
-		opacity 220ms var(--ease-out);
-}
-
-:is(.brand, .nav-link, .theme-cycle, .back-to-top)::before {
-	inset: 0 auto auto 0;
-	border-top: 1px solid var(--primary);
-	border-left: 1px solid var(--primary);
-	transform: translate(3px, 3px);
-}
-
-:is(.brand, .nav-link, .theme-cycle, .back-to-top)::after {
-	inset: auto 0 0 auto;
-	border-right: 1px solid var(--primary);
-	border-bottom: 1px solid var(--primary);
-	transform: translate(-3px, -3px);
-}
-
-:is(.brand, .nav-link, .theme-cycle, .back-to-top):is(:focus-visible, :active)::before,
-:is(.brand, .nav-link, .theme-cycle, .back-to-top):is(:focus-visible, :active)::after,
-.nav-link[aria-current="location"]::before,
-.nav-link[aria-current="location"]::after {
-	opacity: 1;
-	transform: none;
-	transition:
-		transform 280ms var(--ease-acquire),
-		opacity 280ms var(--ease-acquire);
-}
-
-@media (hover: hover) {
-	:is(.brand, .nav-link, .theme-cycle, .back-to-top):hover::before,
-	:is(.brand, .nav-link, .theme-cycle, .back-to-top):hover::after {
-		opacity: 1;
-		transform: none;
-		transition:
-			transform 280ms var(--ease-acquire),
-			opacity 280ms var(--ease-acquire);
-	}
-}
-
 .link-endpoint {
-	position: relative;
 	display: inline-grid;
 	place-items: center;
 	flex-shrink: 0;
-	width: 1.25rem;
-	height: 1.25rem;
-	color: var(--primary);
 }
 
 .external-arrow {
 	flex-shrink: 0;
-	color: var(--primary);
-	transition: transform 200ms var(--ease-out);
-}
-
-.control:not(.project-row):focus-visible .external-arrow {
-	transform: translate(2px, -2px);
-}
-
-@media (hover: hover) {
-	.control:not(.project-row):hover .external-arrow {
-		transform: translate(2px, -2px);
-	}
+	transition: translate 220ms var(--spring);
 }
 
 /* --- panels -------------------------------------------------------------- */
 
-/* A panel draws its frame on a child span, so the link itself is never
-   clipped and keeps its own focus ring. */
-.hud-panel {
-	isolation: isolate;
+.panel {
+	position: relative;
+	border-radius: var(--radius-panel);
+	background-color: var(--surface);
+	box-shadow: var(--shadow-panel);
+	transition:
+		translate 300ms var(--ease-out),
+		box-shadow 300ms var(--ease-out),
+		background-color 200ms var(--ease-out);
 }
 
-.hud-frame {
+.panel:focus-visible {
+	outline-offset: 4px;
+}
+
+/* Every panel prints a small arrow in its corner. When the panel lifts, the
+   arrow runs out at the top right and a fresh one, in signal orange, slides
+   in from the bottom left. */
+.panel-arrow {
+	position: relative;
+	width: 1.25rem;
+	height: 1.25rem;
+	overflow: hidden;
+	color: var(--muted-foreground);
+	transition: color 200ms var(--ease-out);
+}
+
+.panel-arrow .external-arrow {
 	position: absolute;
-	inset: 0;
-	z-index: -1;
-	pointer-events: none;
+	inset: 0.125rem;
+	transition: translate 380ms var(--ease-out);
 }
 
-.hud-frame::before,
-.hud-frame::after {
-	position: absolute;
-	inset: 0;
-	content: "";
-	transition: background-color 180ms var(--ease-out);
+.panel-arrow .external-arrow + .external-arrow {
+	translate: -1.25rem 1.25rem;
 }
 
-.hud-frame::before {
-	background: var(--frame, var(--rule-strong));
+.panel:is(:focus-visible, [data-sighted]) {
+	translate: 0 -2px;
+	background-color: var(--surface-hover);
+	box-shadow: var(--shadow-lift);
 }
 
-.hud-frame::after {
-	inset: 1px;
-	background: var(--fill, var(--surface));
+.panel:is(:focus-visible, [data-sighted]) .panel-arrow {
+	color: var(--signal);
 }
 
-/* One cut corner, on project panels only. The inner layer's cut is 0.59px
-   shorter (2 - √2), so the diagonal stays exactly one pixel wide. */
-.project-row .hud-frame::before {
-	clip-path: polygon(
-		0 0,
-		calc(100% - var(--cut)) 0,
-		100% var(--cut),
-		100% 100%,
-		0 100%
-	);
+.panel:is(:focus-visible, [data-sighted]) .panel-arrow .external-arrow {
+	translate: 1.25rem -1.25rem;
 }
 
-.project-row .hud-frame::after {
-	clip-path: polygon(
-		0 0,
-		calc(100% - var(--cut) + 0.59px) 0,
-		100% calc(var(--cut) - 0.59px),
-		100% 100%,
-		0 100%
-	);
-}
-
-.hud-panel:focus-visible {
-	outline: 2px solid transparent;
-	outline-offset: 0;
-}
-
-.hud-panel:focus-visible .hud-frame {
-	--frame: var(--ring);
-}
-
-.hud-panel:focus-visible .hud-frame::after {
-	inset: 2px;
-}
-
-.project-row:focus-visible .hud-frame::after {
-	clip-path: polygon(
-		0 0,
-		calc(100% - var(--cut) + 1.17px) 0,
-		100% calc(var(--cut) - 1.17px),
-		100% 100%,
-		0 100%
-	);
+.panel:is(:focus-visible, [data-sighted])
+	.panel-arrow
+	.external-arrow
+	+ .external-arrow {
+	translate: 0 0;
 }
 
 @media (hover: hover) {
-	.hud-panel:hover .hud-frame {
-		--fill: var(--surface-hover);
+	.panel:hover {
+		translate: 0 -2px;
+		background-color: var(--surface-hover);
+		box-shadow: var(--shadow-lift);
+	}
+
+	.panel:hover .panel-arrow {
+		color: var(--signal);
+	}
+
+	.panel:hover .panel-arrow .external-arrow {
+		translate: 1.25rem -1.25rem;
+	}
+
+	.panel:hover .panel-arrow .external-arrow + .external-arrow {
+		translate: 0 0;
 	}
 }
 
-/* Lock-on brackets: the top pair lands first and the bottom pair follows;
-   release is faster than acquire. Project panels leave the cut corner
-   bare, so they carry three brackets instead of four. */
-.hud-panel::before,
-.hud-panel::after {
-	--bracket: var(--primary);
-	position: absolute;
-	inset: -5px;
-	z-index: 1;
-	pointer-events: none;
-	content: "";
-	background-image:
-		linear-gradient(var(--bracket), var(--bracket)),
-		linear-gradient(var(--bracket), var(--bracket)),
-		linear-gradient(var(--bracket), var(--bracket)),
-		linear-gradient(var(--bracket), var(--bracket));
-	background-repeat: no-repeat;
-	background-size:
-		12px 1px,
-		1px 12px,
-		12px 1px,
-		1px 12px;
-	opacity: 0;
-	transition:
-		opacity 220ms var(--ease-out),
-		transform 260ms var(--ease-out);
-}
-
-.hud-panel::before {
-	background-position:
-		left top,
-		left top,
-		right top,
-		right top;
-	transform: translateY(-3px);
-}
-
-.hud-panel::after {
-	background-position:
-		left bottom,
-		left bottom,
-		right bottom,
-		right bottom;
-	transform: translateY(3px);
-}
-
-.project-row::before {
-	background-size:
-		12px 1px,
-		1px 12px,
-		0 0,
-		0 0;
-}
-
-.hud-panel:is(:focus-visible, :active, [data-sighted])::before,
-.hud-panel:is(:focus-visible, :active, [data-sighted])::after {
-	opacity: 1;
-	transform: none;
-	transition:
-		opacity 260ms var(--ease-acquire),
-		transform 340ms var(--ease-acquire);
-}
-
-.hud-panel:is(:focus-visible, :active, [data-sighted])::after {
-	transition-delay: 40ms;
-}
-
-@media (hover: hover) {
-	.hud-panel:hover::before,
-	.hud-panel:hover::after {
-		opacity: 1;
-		transform: none;
-		transition:
-			opacity 260ms var(--ease-acquire),
-			transform 340ms var(--ease-acquire);
-	}
-
-	.hud-panel:hover::after {
-		transition-delay: 40ms;
-	}
-}
-
-.hud-panel .link-endpoint {
-	width: 2.75rem;
-	height: 2.75rem;
-}
-
-/* The endpoint rings echo the dial: an hour rim and a seven-part week. They
-   dial in around the arrow, which never moves, and turn back out as they
-   fade. */
-.endpoint-rings {
-	position: absolute;
-	inset: 0;
-	width: 100%;
-	height: 100%;
-	opacity: 0;
-	transform: scale(0.82);
-	transition:
-		opacity 260ms var(--ease-out),
-		transform 420ms var(--ease-in-out);
-}
-
-.endpoint-rings circle {
-	transform-box: fill-box;
-	transform-origin: center;
-	transition: rotate 420ms var(--ease-in-out);
-}
-
-.endpoint-ring-outer {
-	opacity: 0.7;
-	rotate: -60deg;
-}
-
-.endpoint-ring-inner {
-	rotate: 60deg;
-}
-
-.project-row:focus-visible .endpoint-rings {
-	opacity: 1;
-	transform: none;
-	transition:
-		opacity 320ms var(--ease-out),
-		transform 700ms var(--ease-acquire);
-}
-
-.project-row:focus-visible .endpoint-rings circle {
-	rotate: 0deg;
-	transition: rotate 900ms var(--ease-acquire);
-}
-
-@media (hover: hover) {
-	.project-row:hover .endpoint-rings {
-		opacity: 1;
-		transform: none;
-		transition:
-			opacity 320ms var(--ease-out),
-			transform 700ms var(--ease-acquire);
-	}
-
-	.project-row:hover .endpoint-rings circle {
-		rotate: 0deg;
-		transition: rotate 900ms var(--ease-acquire);
-	}
-}
-
-.project-row:active .endpoint-rings {
-	opacity: 1;
-	transform: scale(1.08);
-	transition:
-		opacity 160ms var(--ease-out),
-		transform 200ms var(--ease-out);
-}
-
-.music-row .endpoint-rings,
-.social-row .endpoint-rings {
-	display: none;
+.panel:active {
+	translate: 0 1px;
+	box-shadow: var(--shadow-press);
+	transition-duration: 90ms;
 }
 
 /* --- hero ---------------------------------------------------------------- */
 
 .hero {
-	position: relative;
-	isolation: isolate;
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) auto;
-	grid-template-areas:
-		"identity identity"
-		"readout dial";
-	align-items: center;
-	gap: 1.5rem 1rem;
-	padding-block: clamp(1.75rem, 5vw, 3.5rem) clamp(0.5rem, 2vw, 1.5rem);
-}
-
-.hero::before {
-	position: absolute;
-	inset: -2rem calc(-1 * var(--gutter));
-	z-index: -1;
-	content: "";
-	pointer-events: none;
-	background: radial-gradient(
-		closest-side circle at 76% 55%,
-		var(--hero-wash),
-		transparent
-	);
-}
-
-.hero-grid {
-	display: none;
-}
-
-.identity {
-	grid-area: identity;
+	gap: clamp(1.75rem, 4vw, 2.75rem);
+	padding-block: clamp(2rem, 6vw, 4.5rem) 0;
 }
 
 .identity h1 {
-	font-family: var(--font-display);
-	font-size: clamp(2.25rem, 1.2rem + 5.2vw, 4.75rem);
+	margin-inline-start: -0.04em;
+	font-size: clamp(2.75rem, 1.3rem + 6vw, 5.5rem);
 	font-weight: 600;
-	line-height: 0.95;
-	letter-spacing: -0.005em;
-	text-transform: uppercase;
+	line-height: 0.92;
+	letter-spacing: -0.045em;
 }
 
 .identity p {
@@ -661,35 +511,35 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	gap: 0 0.375rem;
 }
 
-/* Inline links keep a resting underline, so they never rely on hue alone;
-   the cyan line draws over it from the left. */
+/* Inline links keep a resting underline, so they never rely on colour. */
 .identity .employer-link {
 	display: inline;
 	min-width: 0;
 	min-height: 0;
-	color: var(--primary);
+	color: var(--foreground);
 	white-space: nowrap;
-	padding-bottom: 2px;
-	background:
-		linear-gradient(currentColor, currentColor) left bottom / 0 1px no-repeat,
-		linear-gradient(var(--rule-strong), var(--rule-strong)) left bottom / 100%
-		1px no-repeat;
+	text-decoration: underline;
+	text-decoration-color: var(--rule-strong);
+	text-decoration-thickness: 1px;
+	text-underline-offset: 0.22em;
 	transition:
-		background-size 220ms var(--ease-out),
-		color 180ms var(--ease-out);
+		color 180ms var(--ease-out),
+		text-decoration-color 180ms var(--ease-out);
 }
 
 .identity .employer-link:focus-visible {
-	background-size:
-		100% 1px,
-		100% 1px;
+	color: var(--primary);
+	text-decoration-color: currentColor;
 }
 
 @media (hover: hover) {
 	.identity .employer-link:hover {
-		background-size:
-			100% 1px,
-			100% 1px;
+		color: var(--primary);
+		text-decoration-color: currentColor;
+	}
+
+	.identity .employer-link:hover .external-arrow {
+		translate: 1px -1px;
 	}
 }
 
@@ -697,7 +547,7 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	display: inline-grid;
 	width: 16px;
 	height: 16px;
-	margin-inline-start: 0.25rem;
+	margin-inline-start: 0.125rem;
 	vertical-align: -2px;
 }
 
@@ -705,248 +555,678 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	white-space: nowrap;
 }
 
-.hero-readout-slot {
-	grid-area: readout;
-	align-self: center;
-	min-width: 0;
-	min-block-size: 5rem;
-}
+/* --- receiver ------------------------------------------------------------ */
 
-.hero-readout {
+/* The one object on the page: a receiver whose waveband is the week. */
+.receiver {
+	--pad: clamp(0.75rem, 2.4vw, 1.25rem);
+	position: relative;
 	display: grid;
-	gap: 0.75rem;
-	font-family: var(--font-mono);
+	gap: var(--pad);
+	padding: var(--pad);
+	border-radius: 26px;
+	background-color: var(--surface);
+	box-shadow:
+		0 0 0 1px var(--edge),
+		inset 0 1px 0 var(--panel-shine),
+		0 2px 4px rgb(var(--shadow) / calc(0.05 * var(--shadow-strength))),
+		0 34px 54px -34px rgb(var(--shadow) / calc(0.55 * var(--shadow-strength)));
+}
+
+/* Black glass over the scale, lit warm from below at night. */
+.receiver-window {
+	position: relative;
+	padding: 0.75rem clamp(1rem, 3vw, 1.5rem) 0.75rem;
+	border-radius: 12px;
+	background:
+		radial-gradient(
+			120% 100% at 50% 130%,
+			rgb(255 138 70 / calc(0.16 * var(--glow))),
+			transparent 70%
+		),
+		var(--window);
+	box-shadow:
+		inset 0 2px 6px rgb(0 0 0 / 0.6),
+		inset 0 0 0 1px rgb(0 0 0 / 0.65),
+		0 1px 0 var(--panel-shine);
+	overflow: hidden;
+}
+
+.receiver-window::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+	pointer-events: none;
+	border-radius: inherit;
+	background: linear-gradient(
+		172deg,
+		rgb(255 255 255 / 0.11),
+		rgb(255 255 255 / 0.03) 38%,
+		transparent 38.4%
+	);
+}
+
+.scale {
+	position: relative;
+	display: grid;
+	grid-template-rows: auto 32px auto;
+	row-gap: 0.3125rem;
+	color: var(--window-muted);
+	font-size: 0.6875rem;
+	font-weight: 500;
+	line-height: 1.15;
+	cursor: default;
+	user-select: none;
+	-webkit-user-select: none;
+}
+
+/* Stations and days share the week's seven columns, so a long station name
+   wraps inside its own band instead of running into the next. */
+.scale-stations,
+.scale-days {
+	display: grid;
+	grid-template-columns: repeat(7, minmax(0, 1fr));
+	align-items: end;
+	text-align: center;
+}
+
+.scale-station {
+	padding-inline: 0.25rem;
+	text-wrap: balance;
+	transition: color 200ms var(--ease-out);
+}
+
+.scale-station:is([data-today], [data-tuned]),
+.scale-days :is([data-today], [data-tuned]) {
+	color: var(--window-foreground);
+}
+
+.scale-days span {
+	position: relative;
+	transition: color 200ms var(--ease-out);
+}
+
+/* Today's day carries a signal dot under its name, so it never relies on
+   brightness alone. */
+.scale-days [data-today]::after {
+	position: absolute;
+	left: 50%;
+	top: calc(100% + 3px);
+	width: 4px;
+	height: 4px;
+	margin-left: -2px;
+	border-radius: 50%;
+	content: "";
+	background: var(--signal);
+}
+
+.scale-marks {
+	display: block;
+	width: 100%;
+	height: 32px;
+	overflow: visible;
+}
+
+.scale-marks path {
+	fill: none;
+	vector-effect: non-scaling-stroke;
+}
+
+.scale-hours {
+	display: none;
+	stroke: var(--window-muted);
+	stroke-width: 1px;
+	opacity: 0.5;
+}
+
+.scale-quarters,
+.scale-base {
+	stroke: var(--window-muted);
+	stroke-width: 1px;
+}
+
+.scale-base {
+	opacity: 0.7;
+}
+
+.scale-midnights {
+	stroke: var(--window-foreground);
+	stroke-width: 1.25px;
+}
+
+.scale-band {
+	stroke: var(--window-muted);
+	stroke-width: 1px;
+	transition: stroke 200ms var(--ease-out);
+}
+
+.scale-band-off {
+	stroke-dasharray: 2 3;
+}
+
+.scale-band:is([data-today], [data-tuned]) {
+	stroke: var(--window-foreground);
+}
+
+.scale-needle,
+.scale-ghost {
+	position: absolute;
+	top: -0.375rem;
+	bottom: -0.375rem;
+	left: 0;
+	pointer-events: none;
+}
+
+/* The needle is now in Berlin. It is placed once a minute and never moves in
+   between. */
+.scale-needle {
+	left: calc(var(--now, 0) * 100%);
+	width: 2px;
+	margin-left: -1px;
+	border-radius: 1px;
+	background: var(--signal);
+	box-shadow: 0 0 7px rgb(255 122 61 / calc(0.6 * var(--glow)));
+	opacity: 0;
+	transition: opacity 200ms var(--ease-out);
+}
+
+.scale[data-now] .scale-needle {
+	opacity: 1;
+}
+
+.scale-ghost {
+	left: calc(var(--ghost, 0) * 100%);
+	width: 1px;
+	margin-left: -0.5px;
+	background: var(--window-foreground);
+	opacity: 0;
+	transition: opacity 180ms var(--ease-out);
+}
+
+.scale[data-ghost] .scale-ghost {
+	opacity: 0.4;
+}
+
+/* On phones the readouts share a row and the knob sits centred under them;
+   from 30rem the knob moves beside them. */
+.receiver-controls {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr);
+	justify-items: center;
+	align-items: center;
+	gap: 0.75rem 1rem;
+	padding-inline: 0.25rem;
+}
+
+/* The readouts sit side by side and wrap onto two rows when the type is
+   large or the screen narrow. */
+.readout {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-start;
+	gap: 1rem 1.5rem;
+	justify-self: stretch;
+	min-width: 0;
+}
+
+/* The readouts hold their place from the first paint and show once the
+   clock has been read, so nothing moves when it arrives. Without JavaScript
+   the whole row of controls stays out. */
+.readout[data-pending] {
+	visibility: hidden;
+}
+
+.readout dt {
+	margin-bottom: 0.375rem;
+	color: var(--muted-foreground);
 	font-size: 0.75rem;
-	line-height: 1.5;
+	font-weight: 500;
 }
 
-.hero-readout dt {
-	color: var(--muted-foreground);
-	text-transform: uppercase;
-	letter-spacing: 0.04em;
+.readout dd {
+	min-width: 0;
 }
 
-.hero-readout dd {
-	color: var(--foreground);
+.readout-today dd {
+	min-height: 1.55em;
+	font-size: 0.9375rem;
+	font-weight: 500;
 }
 
-.hero-readout [data-hud-zone] {
-	color: var(--muted-foreground);
-}
-
-.hud-today-link {
+.live-today-link {
+	position: relative;
 	display: inline-flex;
 	align-items: center;
 	gap: 0.375rem;
-	color: var(--primary);
+	color: var(--foreground);
 	text-decoration: underline;
 	text-decoration-color: var(--rule-strong);
 	text-decoration-thickness: 1px;
-	text-underline-offset: 0.35em;
-	transition: text-decoration-color 180ms var(--ease-out);
+	text-underline-offset: 0.25em;
+	transition:
+		color 180ms var(--ease-out),
+		text-decoration-color 180ms var(--ease-out);
 }
 
-.hud-today-link .external-arrow {
+.live-today-link .external-arrow {
 	width: 14px;
 	height: 14px;
 }
 
+/* The link reads as one line of type but takes a 44px press. */
+.live-today-link::after {
+	position: absolute;
+	inset: calc((100% - 44px) / 2) -0.375rem;
+	content: "";
+}
+
+.live-today-link:focus-visible {
+	color: var(--primary);
+	text-decoration-color: currentColor;
+}
+
 @media (hover: hover) {
-	.hud-today-link:hover {
+	.live-today-link:hover {
+		color: var(--primary);
 		text-decoration-color: currentColor;
+	}
+
+	.live-today-link:hover .external-arrow {
+		translate: 1px -1px;
 	}
 }
 
-.hud-off {
+.live-off {
 	color: var(--muted-foreground);
 }
 
-/* A decode host keeps its real text for assistive technology and layout;
-   the scramble is painted by an aria-hidden mask on top of it. */
-.decode {
-	position: relative;
-	font-variant-ligatures: none;
-}
-
-.decode[data-decoding] {
-	-webkit-text-fill-color: transparent;
-}
-
-.decode-mask {
-	position: absolute;
-	inset: 0;
-	overflow: hidden;
-	-webkit-text-fill-color: currentColor;
-	font-variant-ligatures: none;
-	white-space: pre;
-	pointer-events: none;
-	user-select: none;
-}
-
-/* --- week dial ----------------------------------------------------------- */
-
-/* One turn is one week. The rim ticks every hour, the arcs are the days of
-   the schedule, the cyan tick is now in Berlin, and only the inner ring,
-   which turns with scroll, carries no data. */
-.dial {
-	--dial-size: clamp(6.5rem, 30vw, 8rem);
-	grid-area: dial;
-	position: relative;
-	width: var(--dial-size);
-	aspect-ratio: 1;
-	perspective: 900px;
-}
-
-.dial-tilt {
-	position: absolute;
-	inset: 0;
-	transform-style: preserve-3d;
-	transform: rotateX(var(--tilt-y, 0deg)) rotateY(var(--tilt-x, 0deg));
-}
-
-.dial-layer {
-	position: absolute;
-	inset: 0;
+/* The speaker: a punched grille. Each hole catches a hairline of light on
+   its lower rim, and only whole holes are drawn. */
+.receiver-grille {
+	display: none;
+	align-self: stretch;
+	justify-self: center;
 	width: 100%;
-	height: 100%;
+	max-width: 15rem;
+	min-height: 5.5rem;
+	margin-block: 0.5rem;
+	background:
+		radial-gradient(
+			circle,
+			rgb(0 0 0 / calc(0.5 + 0.3 * var(--glow))) 0 1.5px,
+			transparent 2px
+		),
+		radial-gradient(
+			circle at 50% calc(50% + 0.75px),
+			var(--panel-shine) 0 1.5px,
+			transparent 2px
+		);
+	background-position: center;
+	background-repeat: space;
+	background-size: 8px 8px;
+}
+
+/* A liquid-crystal display: dark segments on grey-green glass by day, a
+   warm backlit reading at night. Unlit segments stay faintly visible and the
+   lit ones cast a hairline shadow onto the backplate. */
+.lcd {
+	position: relative;
+	display: inline-flex;
+	align-items: flex-end;
+	gap: 0.5rem;
+	padding: 0.5rem 0.625rem 0.5rem 0.75rem;
+	border-radius: 7px;
+	background:
+		radial-gradient(
+			140% 160% at 50% 0%,
+			rgb(255 170 100 / calc(0.12 * var(--glow))),
+			transparent 70%
+		),
+		var(--lcd);
+	box-shadow:
+		inset 0 1px 3px rgb(0 0 0 / 0.35),
+		inset 0 0 0 1px rgb(0 0 0 / 0.22),
+		0 1px 0 var(--panel-shine);
+	color: var(--lcd-ink);
+}
+
+.lcd::after {
+	position: absolute;
+	inset: 0;
+	content: "";
+	pointer-events: none;
+	border-radius: inherit;
+	background: linear-gradient(
+		165deg,
+		rgb(255 255 255 / 0.2),
+		transparent 46%
+	);
+}
+
+.lcd-digits {
+	display: block;
+	width: auto;
+	height: 1.75rem;
 	overflow: visible;
-	fill: none;
+	transform: skewX(-7deg);
+	filter: drop-shadow(0.75px 1px 0 rgb(0 0 0 / calc(0.14 * (1 - var(--glow)))))
+		drop-shadow(0 0 4px rgb(255 190 120 / calc(0.45 * var(--glow))));
 }
 
-.dial-week {
-	transform: translateZ(18px) scale(0.98);
+.lcd-segment {
+	fill: currentColor;
+	opacity: var(--lcd-ghost);
 }
 
-.dial-core {
-	transform: translateZ(36px) scale(0.96);
-}
-
-.dial-rim,
-.dial-hours,
-.dial-quarters,
-.dial-midnights,
-.dial-cross,
-.dial-now path {
-	vector-effect: non-scaling-stroke;
-}
-
-.dial-rim {
-	stroke: var(--rule-strong);
-	stroke-width: 1px;
-}
-
-.dial-hours {
-	display: none;
-	stroke: var(--rule-strong);
-	stroke-width: 1px;
-}
-
-.dial-quarters {
-	display: none;
-	stroke: var(--muted-foreground);
-	stroke-width: 1px;
-	opacity: 0.55;
-}
-
-.dial-midnights {
-	stroke: var(--muted-foreground);
-	stroke-width: 1.25px;
-}
-
-.dial-day {
-	stroke: var(--accent);
-	stroke-width: 9;
-}
-
-.dial-off {
-	stroke: var(--muted-foreground);
-	stroke-width: 4;
-	stroke-dasharray: 6 12;
-	opacity: 0.8;
-}
-
-.dial-day[data-today] {
-	stroke: var(--primary);
-	stroke-width: 12;
-	stroke-dasharray: none;
+.lcd-segment[data-lit],
+.lcd-colon {
+	fill: currentColor;
 	opacity: 1;
 }
 
-.dial-halo {
-	stroke: var(--primary);
-	stroke-width: 24;
-	opacity: 0;
-}
-
-.dial-halo[data-today] {
-	opacity: var(--glow-opacity);
-}
-
-.dial-now {
-	opacity: 0;
-	transform-box: view-box;
-	transform-origin: 50% 50%;
-	rotate: var(--now, 0deg);
-	transition: opacity 180ms var(--ease-out);
-}
-
-.dial-now path {
-	stroke: var(--primary);
-	stroke-width: 2px;
-}
-
-.dial[data-now] .dial-now {
-	opacity: 1;
-}
-
-.dial-spin {
-	transform-box: view-box;
-	transform-origin: 50% 50%;
-}
-
-.dial-spin circle {
-	stroke: var(--muted-foreground);
-	stroke-width: 5;
-	stroke-dasharray: 131 22 44 46;
-	opacity: 0.5;
-}
-
-.dial-cross {
-	stroke: var(--muted-foreground);
-	stroke-width: 1px;
-}
-
-.dial-labels {
-	display: none;
-	position: absolute;
-	inset: 0;
-	transform: translateZ(18px) scale(0.98);
-	font-family: var(--font-mono);
+.lcd-zone {
+	min-width: 2.6em;
+	padding-bottom: 0.125rem;
 	font-size: 0.6875rem;
-	line-height: 1;
-	color: var(--muted-foreground);
-}
-
-.dial-labels span {
-	position: absolute;
-	transform: translate(-50%, -50%);
-}
-
-.dial-labels [data-today] {
-	color: var(--primary);
-}
-
-.dial-centre {
-	position: absolute;
-	inset: 0;
-	display: grid;
-	place-items: center;
-	transform: translateZ(36px) scale(0.96);
-	font-family: var(--font-display);
-	font-size: calc(var(--dial-size) * 0.14);
 	font-weight: 600;
 	line-height: 1;
+	letter-spacing: 0.04em;
+}
+
+/* --- theme knob ---------------------------------------------------------- */
+
+/* A three-position selector: Light, Auto, Dark, at 60° apart. The radios are
+   the control; the knob, its scale, and the lit tick follow the checked one
+   through CSS, so the saved choice is already set at first paint. */
+.selector {
+	--d: min(6rem, 36vw);
+	--centre: calc(var(--d) * 1.1);
+	position: relative;
+	display: grid;
+	place-items: end center;
+	width: calc(var(--d) * 2.1);
+	height: calc(var(--d) * 1.7);
+	min-inline-size: 0;
+	margin: 0;
+	padding: 0 0 calc(var(--d) * 0.08);
+	border: 0;
+}
+
+/* Without JavaScript nothing can save a choice, so there is no knob. */
+html:not([data-theme-choice]) :is(.selector, .receiver-controls) {
+	display: none;
+}
+
+.selector-scale {
+	position: absolute;
+	left: 50%;
+	top: var(--centre);
+	pointer-events: none;
+}
+
+.selector-tick {
+	position: absolute;
+	left: 0;
+	top: 0;
+	width: 1.5px;
+	height: calc(var(--d) * 0.06);
+	margin-left: -0.75px;
+	background: var(--rule-strong);
+	transform-origin: 50% 0;
+	transform: rotate(var(--a)) translateY(calc(var(--d) * -0.66));
+}
+
+.selector-detent {
+	width: 2px;
+	height: calc(var(--d) * 0.1);
+	margin-left: -1px;
+	background: var(--muted-foreground);
+	transform: rotate(var(--a)) translateY(calc(var(--d) * -0.7));
+	transition: background-color 200ms var(--ease-out);
+}
+
+.selector:has(input[value="light"]:checked) [data-at="light"],
+.selector:has(input[value="system"]:checked) [data-at="system"],
+.selector:has(input[value="dark"]:checked) [data-at="dark"] {
+	background: var(--signal);
+}
+
+/* Each printed position is its own 44px label for its radio. */
+.selector-position {
+	position: absolute;
+	left: 50%;
+	top: var(--centre);
+	display: grid;
+	place-items: center;
+	min-width: 44px;
+	min-height: 44px;
+	padding-inline: 0.25rem;
+	color: var(--muted-foreground);
+	font-size: 0.75rem;
+	font-weight: 500;
+	cursor: pointer;
+	transform: translate(-50%, -50%) rotate(var(--a))
+		translateY(calc(var(--d) * -0.88)) rotate(calc(-1 * var(--a)));
+	transition: color 200ms var(--ease-out);
+}
+
+.selector-position:has(input:checked) {
 	color: var(--foreground);
+}
+
+@media (hover: hover) {
+	.selector-position:hover {
+		color: var(--foreground);
+	}
+}
+
+/* The knob, from the table up: its cast shadow, the knurled grip, the dark
+   seam under the cap, a chamfer, and the spun aluminium face with its
+   indicator. The face is drawn a hair above centre so the grip shows more
+   at the front, as a cylinder seen from slightly in front does. Only the
+   grip and the indicator turn: spun metal is round, so its light stays put
+   while the knob rotates, and follows the viewer instead. */
+.knob {
+	--lift: calc(var(--d) * -0.022);
+	position: relative;
+	width: var(--d);
+	height: var(--d);
+	border-radius: 50%;
+	cursor: grab;
+	/* A vertical swipe that starts on the knob still scrolls the page (the
+	   browser cancels the drag and the knob springs back); a sideways drag
+	   turns it. */
+	touch-action: pan-y;
+	user-select: none;
+	-webkit-user-select: none;
+	-webkit-tap-highlight-color: transparent;
+	transition: --knob-angle 380ms var(--spring);
+}
+
+.selector:has(input[value="light"]:checked) .knob {
+	--knob-angle: -60deg;
+}
+
+.selector:has(input[value="dark"]:checked) .knob {
+	--knob-angle: 60deg;
+}
+
+.selector[data-turning] .knob {
+	cursor: grabbing;
+	transition: none;
+}
+
+.knob > span {
+	position: absolute;
+	border-radius: 50%;
+	pointer-events: none;
+	transition: scale 140ms var(--ease-out);
+}
+
+.selector[data-turning] .knob > :not(.knob-shadow, .knob-focus) {
+	scale: 0.99;
+}
+
+.knob-shadow {
+	inset: 0;
+	box-shadow:
+		0 1px 1px rgb(var(--shadow) / calc(0.32 * var(--shadow-strength))),
+		0 2px 4px rgb(var(--shadow) / calc(0.2 * var(--shadow-strength))),
+		0 calc(var(--d) * 0.09) calc(var(--d) * 0.14) calc(var(--d) * -0.02)
+			rgb(var(--shadow) / calc(0.22 * var(--shadow-strength))),
+		0 calc(var(--d) * 0.22) calc(var(--d) * 0.3) calc(var(--d) * -0.1)
+			rgb(var(--shadow) / calc(0.3 * var(--shadow-strength)));
+	transition: box-shadow 140ms var(--ease-out);
+}
+
+.selector[data-turning] .knob-shadow {
+	box-shadow:
+		0 1px 1px rgb(var(--shadow) / calc(0.34 * var(--shadow-strength))),
+		0 2px 3px rgb(var(--shadow) / calc(0.2 * var(--shadow-strength))),
+		0 calc(var(--d) * 0.07) calc(var(--d) * 0.12) calc(var(--d) * -0.02)
+			rgb(var(--shadow) / calc(0.22 * var(--shadow-strength))),
+		0 calc(var(--d) * 0.18) calc(var(--d) * 0.26) calc(var(--d) * -0.1)
+			rgb(var(--shadow) / calc(0.26 * var(--shadow-strength)));
+}
+
+.knob-grip {
+	inset: 0;
+	rotate: var(--knob-angle);
+	background: repeating-conic-gradient(
+		from 0deg,
+		var(--metal-deep) 0deg,
+		var(--metal-lo) 0.6deg,
+		var(--metal-hi) 1.4deg,
+		var(--metal-mid) 2.1deg,
+		var(--metal-deep) 3deg
+	);
+}
+
+.knob-grip-light {
+	inset: 0;
+	background:
+		radial-gradient(circle, transparent 70%, rgb(0 0 0 / 0.3) 100%),
+		conic-gradient(
+			from -30deg,
+			rgb(255 255 255 / var(--sheen-hi)),
+			rgb(255 255 255 / 0) 22%,
+			rgb(0 0 0 / var(--sheen-lo)) 50%,
+			rgb(0 0 0 / 0.12) 78%,
+			rgb(255 255 255 / var(--sheen-hi))
+		);
+}
+
+.knob-seam {
+	inset: 8%;
+	translate: 0 var(--lift);
+	background: rgb(0 0 0 / 0.45);
+	filter: blur(calc(var(--d) * 0.006));
+}
+
+.knob-bevel {
+	inset: 9%;
+	translate: 0 var(--lift);
+	background: linear-gradient(
+		170deg,
+		var(--metal-hi) 10%,
+		var(--metal-mid) 45%,
+		var(--metal-deep) 95%
+	);
+}
+
+.knob-face {
+	inset: 12%;
+	translate: 0 var(--lift);
+	background:
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='1.1' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0 0.5 0 0 0 0.5 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+		repeating-radial-gradient(
+			circle at 50% 50%,
+			rgb(255 255 255 / 0) 0 0.5px,
+			rgb(255 255 255 / 0.1) 0.8px,
+			rgb(0 0 0 / 0.06) 1.3px,
+			rgb(255 255 255 / 0) 1.8px
+		),
+		conic-gradient(
+			from calc(-40deg + var(--sheen, 0deg)),
+			var(--metal-hi) 0deg,
+			var(--metal-mid) 26deg,
+			var(--metal-lo) 62deg,
+			var(--metal-mid) 96deg,
+			var(--metal-hi) 128deg,
+			var(--metal-hi) 132deg,
+			var(--metal-mid) 150deg,
+			var(--metal-lo) 176deg,
+			var(--metal-hi) 180deg,
+			var(--metal-mid) 206deg,
+			var(--metal-lo) 242deg,
+			var(--metal-mid) 276deg,
+			var(--metal-hi) 308deg,
+			var(--metal-hi) 312deg,
+			var(--metal-mid) 330deg,
+			var(--metal-lo) 354deg,
+			var(--metal-hi) 360deg
+		);
+	background-blend-mode: soft-light, normal, normal;
+	box-shadow:
+		inset 0 1px 0.5px rgb(255 255 255 / 0.8),
+		inset 0 -1px 1px rgb(0 0 0 / 0.2);
+}
+
+.knob-face-light {
+	inset: 12%;
+	translate: 0 var(--lift);
+	background: radial-gradient(
+		circle at 50% 30%,
+		rgb(255 255 255 / 0.16),
+		transparent 60%,
+		rgb(0 0 0 / 0.1)
+	);
+}
+
+.knob-mark {
+	inset: 12%;
+	translate: 0 var(--lift);
+	rotate: var(--knob-angle);
+}
+
+/* The indicator is an engraved groove filled with signal orange. */
+.knob-mark::before {
+	position: absolute;
+	left: 50%;
+	top: 6%;
+	width: calc(var(--d) * 0.03);
+	height: 26%;
+	content: "";
+	border-radius: 999px;
+	background: var(--signal);
+	box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.35);
+	translate: -50% 0;
+}
+
+.knob-centre {
+	left: 50%;
+	top: 50%;
+	width: 6%;
+	height: 6%;
+	translate: -50% calc(-50% + var(--lift));
+	background: radial-gradient(
+		circle,
+		rgb(0 0 0 / 0.16),
+		rgb(0 0 0 / 0.05) 45%,
+		rgb(255 255 255 / 0.25) 70%,
+		transparent 72%
+	);
+}
+
+.knob-focus {
+	inset: -6px;
+	border: 2px solid var(--ring);
+	opacity: 0;
+	transition: opacity 120ms var(--ease-out);
+}
+
+.selector:has(input:focus-visible) .knob-focus {
+	opacity: 1;
 }
 
 /* --- section heading ----------------------------------------------------- */
@@ -954,13 +1234,13 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 .page-section {
 	position: relative;
 	display: grid;
-	gap: 1.75rem;
+	gap: 1.5rem;
 	padding-block: clamp(3.5rem, 8vw, 6rem) 0;
 	scroll-margin-top: 1.5rem;
 }
 
 .projects-section {
-	padding-top: clamp(2.5rem, 5vw, 3.5rem);
+	padding-top: clamp(3rem, 6vw, 4.5rem);
 }
 
 .page-section:focus-visible {
@@ -974,55 +1254,53 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 
 .section-bar {
 	display: flex;
-	align-items: center;
-	gap: 1rem;
+	flex-wrap: wrap;
+	align-items: baseline;
+	gap: 0.25rem 0.75rem;
 }
 
 .section-bar h2 {
-	font-family: var(--font-display);
-	font-size: clamp(1.75rem, 1.35rem + 1.4vw, 2.25rem);
+	font-size: clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem);
 	font-weight: 600;
 	line-height: 1;
-	text-transform: uppercase;
+	letter-spacing: -0.035em;
 }
 
-/* A short scale, attached to the title and never a rule across the page.
-   It turns cyan while its register is being read. */
-.section-scale {
-	flex: 0 1 9rem;
-	min-width: 0;
-	height: 7px;
-	color: var(--rule-strong);
-	background:
-		linear-gradient(currentColor, currentColor) left bottom / 100% 1px
-		no-repeat,
-		repeating-linear-gradient(90deg, currentColor 0 1px, transparent 1px 12px)
-		left bottom / 100% 4px no-repeat,
-		linear-gradient(currentColor, currentColor) right bottom / 1px 100%
-		no-repeat;
-	transform-origin: left center;
-	transition: color 180ms var(--ease-out);
+/* A pilot lamp beside each title lights while its section is being read. */
+.section-lamp {
+	align-self: center;
+	flex-shrink: 0;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	background: var(--lamp-off);
+	box-shadow:
+		inset 0 1px 1px rgb(0 0 0 / 0.3),
+		0 1px 0 var(--panel-shine);
+	transition:
+		background-color 260ms var(--ease-out),
+		box-shadow 260ms var(--ease-out);
 }
 
-.page-section[data-current] .section-scale {
-	color: var(--primary);
-	transition-timing-function: var(--ease-acquire);
+.page-section[data-current] .section-lamp {
+	background: var(--lamp);
+	box-shadow:
+		inset 0 -1px 1px rgb(0 0 0 / 0.2),
+		0 0 0 1px color-mix(in srgb, var(--lamp) 60%, black),
+		0 0 10px color-mix(in srgb, var(--lamp) 65%, transparent);
 }
 
 .section-sub {
-	flex-shrink: 0;
-	font-family: var(--font-ja);
-	font-size: 0.8125rem;
-	font-weight: 500;
-	line-height: 1;
 	color: var(--muted-foreground);
+	font-size: 0.875rem;
+	font-weight: 500;
 }
 
 .section-intro {
-	margin-top: 0.75rem;
-	max-width: 44ch;
+	margin-top: 0.625rem;
+	max-width: 46ch;
 	color: var(--muted-foreground);
-	font-size: 0.9375rem;
+	font-size: 1rem;
 }
 
 /* --- projects ------------------------------------------------------------ */
@@ -1041,22 +1319,20 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	grid-template-columns: minmax(0, 1fr) auto;
 	grid-template-rows: auto 1fr auto;
 	grid-template-areas:
-		"title title"
+		"title endpoint"
 		"description description"
-		"destination endpoint";
+		"destination destination";
 	gap: 0.5rem 1rem;
 	height: 100%;
-	padding: 1.25rem 1.25rem 0.875rem;
+	padding: 1.25rem;
 }
 
 .project-row h3 {
 	grid-area: title;
-	padding-right: 0.5rem;
 	font-size: 1.25rem;
 	font-weight: 600;
-	line-height: 1.25;
-	letter-spacing: -0.01em;
-	transition: color 180ms var(--ease-out);
+	line-height: 1.2;
+	letter-spacing: -0.02em;
 }
 
 .project-description {
@@ -1064,65 +1340,55 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	max-width: 58ch;
 	color: var(--muted-foreground);
 	font-size: 0.9375rem;
-	line-height: 1.6;
+	line-height: 1.55;
 }
 
 .project-destination {
 	grid-area: destination;
-	align-self: center;
-	padding-top: 0.5rem;
-	font-family: var(--font-mono);
-	font-size: 0.75rem;
-	line-height: 1.5;
-	color: var(--accent);
+	padding-top: 0.25rem;
+	color: var(--muted-foreground);
+	font-size: 0.8125rem;
+	line-height: 1.45;
 }
 
 .project-row .link-endpoint {
 	grid-area: endpoint;
-	align-self: end;
-	margin-right: -0.375rem;
-}
-
-@media (hover: hover) {
-	.project-row:hover h3 {
-		color: var(--primary);
-	}
-}
-
-.project-row:focus-visible h3 {
-	color: var(--primary);
+	margin-top: 0.125rem;
 }
 
 /* --- about --------------------------------------------------------------- */
 
 .about-copy {
-	max-width: 36ch;
-	font-size: clamp(1.375rem, 1.1rem + 1vw, 1.75rem);
-	line-height: 1.45;
-	letter-spacing: -0.01em;
+	max-width: 34ch;
+	font-size: clamp(1.375rem, 1.05rem + 1.2vw, 1.875rem);
+	font-weight: 400;
+	line-height: 1.35;
+	letter-spacing: -0.02em;
 }
 
 /* --- stack --------------------------------------------------------------- */
 
+/* The stack is a keypad: one panel, a printed label per row, and a key per
+   tool. */
 .stack-list {
 	display: grid;
-	gap: 0.5rem;
+	gap: 0.25rem;
+	padding: 0.625rem clamp(1rem, 3vw, 1.5rem);
+	border-radius: var(--radius-panel);
+	background-color: var(--surface);
+	box-shadow: var(--shadow-panel);
 }
 
 .stack-row {
 	display: grid;
-	gap: 0.5rem;
-	padding: 1rem 1.25rem 0.75rem;
-	background: var(--surface);
+	gap: 0.125rem;
+	padding-block: 0.625rem;
 }
 
 .stack-row dt {
-	font-family: var(--font-mono);
-	font-size: 0.75rem;
+	color: var(--muted-foreground);
+	font-size: 0.8125rem;
 	font-weight: 500;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
-	color: var(--accent);
 }
 
 .stack-tools {
@@ -1132,48 +1398,11 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 }
 
 .stack-link {
-	display: inline-flex;
-	align-items: center;
-	isolation: isolate;
-	padding-inline: 0.75rem;
-	color: var(--foreground);
 	font-size: 0.9375rem;
-}
-
-/* The chip is drawn 6px inside the link, so it looks 32px tall while the
-   target stays 44px. */
-.stack-link::before {
-	position: absolute;
-	inset: 6px 0;
-	z-index: -1;
-	content: "";
-	border: 1px solid var(--rule-strong);
-	transition:
-		border-color 150ms var(--ease-out),
-		background-color 150ms var(--ease-out);
 }
 
 .stack-link .link-endpoint {
 	display: none;
-}
-
-.stack-link:focus-visible {
-	color: var(--primary);
-}
-
-.stack-link:focus-visible::before {
-	border-color: var(--primary);
-}
-
-@media (hover: hover) {
-	.stack-link:hover {
-		color: var(--primary);
-	}
-
-	.stack-link:hover::before {
-		border-color: var(--primary);
-		background: color-mix(in srgb, var(--primary) 8%, transparent);
-	}
 }
 
 /* --- calendar ------------------------------------------------------------ */
@@ -1186,22 +1415,62 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 .calendar-row {
 	position: relative;
 	display: grid;
-	grid-template-columns: 5rem minmax(0, 1fr);
+	grid-template-columns: 7rem minmax(0, 1fr);
 	align-items: center;
-	border: 1px solid var(--rule-strong);
-	background: var(--surface);
-	transition: border-color 150ms var(--ease-out);
+	min-height: 3.25rem;
+	border-radius: 12px;
+	background-color: var(--surface);
+	box-shadow: var(--shadow-panel);
+	transition:
+		translate 260ms var(--ease-out),
+		box-shadow 260ms var(--ease-out);
 }
 
 .calendar-row dt {
 	display: flex;
 	flex-wrap: wrap;
 	align-items: center;
-	gap: 0.375rem;
-	padding-inline: 0.875rem 0;
-	font-family: var(--font-mono);
-	font-size: 0.75rem;
-	color: var(--accent);
+	gap: 0.375rem 0.5rem;
+	padding-inline-start: 1rem;
+	color: var(--muted-foreground);
+	font-size: 0.8125rem;
+	font-weight: 500;
+}
+
+/* Every day has a pilot lamp; only today's is lit. */
+.calendar-row dt::before {
+	flex-shrink: 0;
+	width: 6px;
+	height: 6px;
+	border-radius: 50%;
+	content: "";
+	background: var(--lamp-off);
+	box-shadow: inset 0 1px 1px rgb(0 0 0 / 0.3);
+}
+
+.calendar-row[data-today] dt {
+	color: var(--foreground);
+}
+
+.calendar-row[data-today] dt::before {
+	background: var(--lamp);
+	box-shadow:
+		0 0 0 1px color-mix(in srgb, var(--lamp) 60%, black),
+		0 0 8px color-mix(in srgb, var(--lamp) 65%, transparent);
+}
+
+.calendar-row[data-today] dt::after {
+	content: "Today";
+	content: "Today" / "";
+	padding: 0.1875rem 0.375rem;
+	border-radius: 4px;
+	background: var(--signal);
+	color: var(--signal-foreground);
+	font-size: 0.6875rem;
+	font-weight: 600;
+	line-height: 1.2;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
 }
 
 .calendar-row dd {
@@ -1213,63 +1482,49 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	align-items: center;
 	justify-content: space-between;
 	gap: 1rem;
-	padding: 0.75rem 0.875rem;
+	min-height: 3.25rem;
+	padding: 0.5rem 1rem;
 	color: var(--foreground);
+	font-weight: 500;
+	transition: color 180ms var(--ease-out);
 }
 
 .calendar-off {
 	display: block;
-	padding: 0.75rem 0.875rem;
+	padding: 0.75rem 1rem;
 	color: var(--muted-foreground);
 }
 
-/* Days off are hatched beside the word, never behind it. */
-.calendar-row:has(.calendar-off)::after {
-	position: absolute;
-	inset: 0.5rem 0.5rem 0.5rem auto;
-	width: 40%;
-	content: "";
-	pointer-events: none;
-	background: repeating-linear-gradient(
-		135deg,
-		color-mix(in srgb, var(--rule) 55%, transparent) 0 1px,
-		transparent 1px 7px
-	);
-}
-
-.calendar-row[data-today] {
-	border-color: var(--primary);
-}
-
-/* The one solid cyan fill on the page. */
-.calendar-row[data-today] dt::after {
-	content: "Today";
-	content: "Today" / "";
-	padding: 0.125rem 0.375rem;
-	background: var(--primary);
-	color: var(--primary-foreground);
-	font-size: 0.6875rem;
-	font-weight: 500;
-	line-height: 1.4;
-	letter-spacing: 0.04em;
-	text-transform: uppercase;
+/* A day off is an empty slot pressed into the page, not a panel on it. */
+.calendar-row:has(.calendar-off) {
+	background-color: transparent;
+	box-shadow:
+		inset 0 0 0 1px var(--rule),
+		inset 0 1px 3px rgb(var(--shadow) / calc(0.07 * var(--shadow-strength)));
 }
 
 .calendar-row:has(.calendar-link:focus-visible) {
-	border-color: var(--primary);
+	translate: 0 -1px;
+	box-shadow: var(--shadow-lift);
 }
 
 .calendar-link:focus-visible {
 	color: var(--primary);
+	outline-offset: 2px;
 }
 
 @media (hover: hover) {
 	.calendar-row:has(.calendar-link:hover) {
-		border-color: var(--primary);
+		translate: 0 -1px;
+		box-shadow: var(--shadow-lift);
 	}
 
 	.calendar-link:hover {
 		color: var(--primary);
+	}
+
+	.calendar-link:hover .external-arrow {
+		translate: 1px -1px;
 	}
 }
 
@@ -1293,7 +1548,11 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	align-items: start;
 	gap: 1rem;
 	height: 100%;
-	padding: 1.25rem 0.875rem 1.25rem 1.25rem;
+	padding: 1.25rem;
+}
+
+.music-row .link-endpoint {
+	margin-top: 0.125rem;
 }
 
 .music-title {
@@ -1305,17 +1564,16 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 
 .music-title h3,
 .social-platform {
-	font-size: 1.0625rem;
+	font-size: 1.125rem;
 	font-weight: 600;
-	line-height: 1.4;
-	letter-spacing: -0.01em;
-	transition: color 180ms var(--ease-out);
+	line-height: 1.3;
+	letter-spacing: -0.015em;
 }
 
 .music-genre {
-	font-family: var(--font-mono);
-	font-size: 0.75rem;
-	color: var(--accent);
+	color: var(--muted-foreground);
+	font-size: 0.8125rem;
+	font-weight: 500;
 }
 
 .music-copy p {
@@ -1327,29 +1585,19 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 
 .social-row {
 	align-items: center;
+	padding-block: 1rem;
 }
 
 .social-copy {
 	display: grid;
-	gap: 0.25rem;
+	gap: 0.125rem;
 	min-width: 0;
 }
 
 .social-handle {
-	font-family: var(--font-mono);
-	font-size: 0.8125rem;
-	color: var(--accent);
+	color: var(--muted-foreground);
+	font-size: 0.875rem;
 	overflow-wrap: anywhere;
-}
-
-@media (hover: hover) {
-	:is(.music-row, .social-row):hover :is(h3, .social-platform) {
-		color: var(--primary);
-	}
-}
-
-:is(.music-row, .social-row):focus-visible :is(h3, .social-platform) {
-	color: var(--primary);
 }
 
 /* --- footer -------------------------------------------------------------- */
@@ -1362,40 +1610,28 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	gap: 0.5rem 1rem;
 	padding-block: clamp(3.5rem, 8vw, 6rem) max(1.5rem, env(safe-area-inset-bottom));
 	color: var(--muted-foreground);
-	font-family: var(--font-mono);
-	font-size: 0.75rem;
+	font-size: 0.875rem;
 }
 
 .back-to-top {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.625rem;
-	padding-inline: 0.5rem;
-	margin-inline-end: -0.5rem;
-}
-
-.control.back-to-top:focus-visible .external-arrow {
-	transform: translateY(-3px);
+	padding-inline: 0.875rem;
 }
 
 @media (hover: hover) {
-	.back-to-top:hover {
-		color: var(--foreground);
+	.back-to-top:hover .external-arrow {
+		translate: 0 -2px;
 	}
+}
 
-	.control.back-to-top:hover .external-arrow {
-		transform: translateY(-3px);
-	}
+.back-to-top:focus-visible .external-arrow {
+	translate: 0 -2px;
 }
 
 /* --- breakpoints --------------------------------------------------------- */
 
 @media (min-width: 22.5rem) {
-	.section-nav {
-		margin-inline: -0.25rem;
-	}
-
 	.nav-link {
+		padding-inline: 0.4375rem;
 		font-size: 0.75rem;
 	}
 }
@@ -1404,116 +1640,70 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	.social-list {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
+
+	.receiver-controls {
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		justify-items: stretch;
+	}
+
+	.readout {
+		flex-direction: column;
+		flex-wrap: nowrap;
+	}
+
+	.receiver-grille {
+		display: block;
+	}
+
+	.selector {
+		--d: min(6.5rem, 30vw);
+	}
 }
 
 @media (min-width: 40rem) {
-	.header-inner {
-		grid-template-columns: auto minmax(0, 1fr) auto;
-		grid-template-areas: "brand nav theme";
-		column-gap: 1.5rem;
-		padding-block: 0.375rem;
-	}
-
-	.section-nav {
-		justify-content: flex-end;
-		gap: 0.25rem;
-		margin-inline: 0;
-	}
-
-	.nav-link {
-		padding-inline: 0.625rem;
-	}
-
 	.project-list {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
+	}
+
+	.scale-hours {
+		display: block;
 	}
 }
 
 @media (min-width: 48rem) {
-	.hero {
-		grid-template-columns: minmax(0, 1fr) auto;
-		grid-template-areas:
-			"identity dial"
-			"readout dial";
-		align-items: end;
-		column-gap: clamp(2rem, 6vw, 5rem);
-		row-gap: 2.25rem;
+	.site-header {
+		top: 0;
 	}
 
-	.hero-readout-slot {
-		align-self: start;
-		min-block-size: 2.75rem;
+	.header-inner {
+		grid-template-columns: auto minmax(0, 1fr);
+		grid-template-areas: "brand nav";
+		column-gap: 2rem;
+		padding-block: 0.5rem;
 	}
 
-	.hero-readout {
-		grid-template-columns: repeat(2, auto);
-		justify-content: start;
-		column-gap: 2.5rem;
+	.section-nav {
+		justify-content: flex-end;
+		gap: 0.375rem;
 	}
 
-	.hero-grid {
-		position: absolute;
-		inset: -2rem calc(-1 * var(--gutter));
-		z-index: -1;
-		display: block;
-		width: calc(100% + 2 * var(--gutter));
-		height: calc(100% + 4rem);
-		pointer-events: none;
-		-webkit-mask-image: radial-gradient(
-			closest-side circle at 76% 55%,
-			#000 30%,
-			transparent
-		);
-		mask-image: radial-gradient(
-			closest-side circle at 76% 55%,
-			#000 30%,
-			transparent
-		);
+	.nav-link {
+		padding-inline: 0.75rem;
 	}
 
-	.hero-grid path {
-		stroke: var(--grid-mark);
-		stroke-width: 1;
+	.selector {
+		--d: 7rem;
 	}
 
-	.dial {
-		--dial-size: min(clamp(14rem, 28vw, 20rem), 52svh);
-		margin: 1.5rem;
-		align-self: center;
-	}
-
-	.dial-hours,
-	.dial-quarters,
-	.dial-labels {
-		display: block;
-	}
-
-	.dial-day {
-		stroke-width: 3;
-	}
-
-	.dial-off {
-		stroke-width: 1.5;
-		stroke-dasharray: 2 5;
-	}
-
-	.dial-day[data-today] {
-		stroke-width: 4.5;
-	}
-
-	.dial-halo {
-		stroke-width: 10;
-	}
-
-	.dial-spin circle {
-		stroke-width: 1.5;
+	.receiver-controls {
+		padding-inline: 0.5rem 0.25rem;
 	}
 
 	.stack-row {
-		grid-template-columns: 12rem minmax(0, 1fr);
-		align-items: baseline;
+		grid-template-columns: 11rem minmax(0, 1fr);
+		align-items: center;
 		column-gap: 1.5rem;
-		padding-block: 0.75rem;
+		padding-block: 0.375rem;
 	}
 
 	.calendar-list {
@@ -1524,11 +1714,19 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 		display: flex;
 		flex-direction: column;
 		align-items: stretch;
-		min-height: 6.5rem;
+		min-height: 7.5rem;
 	}
 
 	.calendar-row dt {
-		padding: 0.75rem 0.75rem 0;
+		padding: 0.875rem 0.875rem 0;
+	}
+
+	/* In a narrow day cell the tag sits in the free corner, so today's text
+	   lines up with the other days. */
+	.calendar-row[data-today] dt::after {
+		position: absolute;
+		left: 0.875rem;
+		bottom: 0.875rem;
 	}
 
 	.calendar-row dd {
@@ -1538,22 +1736,20 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	.calendar-link,
 	.calendar-off {
 		height: 100%;
-		padding: 0.5rem 0.75rem 0.75rem;
+		padding: 0.5rem 0.875rem 0.875rem;
 		font-size: 0.9375rem;
+		line-height: 1.35;
 	}
 
 	.calendar-link {
-		align-items: flex-start;
+		display: grid;
+		align-content: space-between;
+		justify-items: start;
+		gap: 0.75rem;
 	}
 
 	.calendar-link .link-endpoint {
-		display: none;
-	}
-
-	.calendar-row:has(.calendar-off)::after {
-		inset: auto 0.5rem 0.5rem;
-		width: auto;
-		height: 1.75rem;
+		justify-self: end;
 	}
 
 	.music-list {
@@ -1562,75 +1758,42 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 }
 
 @media (min-width: 64rem) {
+	.hero {
+		grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+		align-items: center;
+		column-gap: clamp(2rem, 5vw, 4.5rem);
+	}
+
 	.project-list {
 		grid-template-columns: repeat(3, minmax(0, 1fr));
 	}
 }
 
-/* --- scroll-linked motion ------------------------------------------------ */
+/* --- power on ------------------------------------------------------------ */
 
-/* The scale draws in as its section arrives and the inner ring turns as the
-   hero leaves. Each timeline is declared after the shorthand, which resets
-   it. */
-@supports (animation-timeline: view()) {
-	@media (prefers-reduced-motion: no-preference) {
-		.section-scale {
-			animation: section-scale-draw linear both;
-			animation-timeline: view();
-			animation-range: cover 5% cover 30%;
-		}
-
-		.dial {
-			view-timeline: --dial block;
-		}
-
-		.dial-spin {
-			animation: dial-spin linear both;
-			animation-timeline: --dial;
-			animation-range: exit 0% exit 100%;
-		}
-	}
-}
-
-@keyframes section-scale-draw {
-	from {
-		transform: scaleX(0);
-	}
-}
-
-@keyframes dial-spin {
-	to {
-		rotate: 45deg;
-	}
-}
-
-/* --- first load ---------------------------------------------------------- */
-
-/* Once per visit the dial draws itself in. Only the graphic moves, so it
-   never delays reading. */
+/* Once per visit the receiver powers on: the display runs its segment test
+   and the needle tunes in from Monday, overshooting a little before it
+   settles on now. Only the instrument moves, so reading is never delayed. */
 @media (prefers-reduced-motion: no-preference) {
-	html[data-boot] .dial-day:not(.dial-off) {
-		stroke-dasharray: 1;
-		stroke-dashoffset: 1;
-		animation: dial-draw 800ms var(--ease-acquire) forwards;
-		animation-delay: calc(150ms + var(--i, 0) * 60ms);
+	html[data-boot] .scale[data-now] .scale-needle {
+		animation: needle-tune 1300ms var(--spring) 250ms backwards;
 	}
 
-	html[data-boot]
-		:is(.dial-base, .dial-core, .dial-off, .dial-labels, .dial-centre) {
-		animation: dial-fade 700ms var(--ease-out) both;
+	html[data-boot] .lcd-segment {
+		animation: lcd-test 700ms step-end 150ms backwards;
 	}
 }
 
-@keyframes dial-draw {
-	to {
-		stroke-dashoffset: 0;
-	}
-}
-
-@keyframes dial-fade {
+@keyframes needle-tune {
 	from {
-		opacity: 0;
+		left: 0%;
+	}
+}
+
+@keyframes lcd-test {
+	from,
+	to {
+		opacity: 1;
 	}
 }
 
@@ -1645,87 +1808,34 @@ html[data-theme-choice="system"] .theme-icon[data-theme-icon="system"] {
 	animation-timing-function: var(--ease-in-out);
 }
 
-/* From the theme button the new palette is written in by a scan line. The
-   old palette lies on top and is masked away from the top down: solid below
-   the beam, thinning into raster lines for one band behind it, gone above.
-   Script slides the mask and rides the beam along its front edge. */
-html[data-theme-scan]::view-transition-old(root),
-html[data-theme-scan]::view-transition-new(root) {
+/* From the knob the new palette spreads out from under it. The new state
+   lies on top and is masked to a growing disc whose edge breaks into fine
+   concentric rings, like the knob's spun face; script grows --reveal. */
+html[data-theme-reveal]::view-transition-old(root),
+html[data-theme-reveal]::view-transition-new(root) {
 	animation: none;
 	mix-blend-mode: normal;
 }
 
-html[data-theme-scan]::view-transition-old(root) {
-	--scan-head: calc(100vh + var(--scan-band, 20vh));
-	--scan-sheet: calc(200vh + var(--scan-band, 20vh));
-	z-index: 1;
+html[data-theme-reveal]::view-transition-new(root) {
+	--at: var(--reveal-x, 50%) var(--reveal-y, 50%);
+	--inner: calc(var(--reveal) - var(--reveal-band, 120px));
 	-webkit-mask-image:
-		linear-gradient(
-			to bottom,
-			transparent calc(var(--scan-head) - 2px),
-			#000 var(--scan-head)
-		),
-		linear-gradient(to bottom, transparent 100vh, rgb(0 0 0 / 0.7) var(--scan-head)),
-		repeating-linear-gradient(to bottom, #000 0 1px, transparent 1px 3px);
+		radial-gradient(circle at var(--at), #000 var(--inner), transparent calc(var(--inner) + 0.5px)),
+		radial-gradient(circle at var(--at), #000 var(--inner), transparent var(--reveal)),
+		repeating-radial-gradient(circle at var(--at), #000 0 1.5px, transparent 1.5px 4px);
 	mask-image:
-		linear-gradient(
-			to bottom,
-			transparent calc(var(--scan-head) - 2px),
-			#000 var(--scan-head)
-		),
-		linear-gradient(to bottom, transparent 100vh, rgb(0 0 0 / 0.7) var(--scan-head)),
-		repeating-linear-gradient(to bottom, #000 0 1px, transparent 1px 3px);
-	mask-size:
-		100% var(--scan-sheet),
-		100% var(--scan-sheet),
-		100% 3px;
-	mask-repeat: no-repeat, no-repeat, repeat;
-	mask-position:
-		0 calc(-1 * var(--scan-head)),
-		0 calc(-1 * var(--scan-head)),
-		0 0;
+		radial-gradient(circle at var(--at), #000 var(--inner), transparent calc(var(--inner) + 0.5px)),
+		radial-gradient(circle at var(--at), #000 var(--inner), transparent var(--reveal)),
+		repeating-radial-gradient(circle at var(--at), #000 0 1.5px, transparent 1.5px 4px);
+	mask-repeat: no-repeat;
 	mask-composite: add, intersect;
 }
 
-::view-transition-group(theme-scan),
-::view-transition-old(theme-scan),
-::view-transition-new(theme-scan) {
-	animation: none;
-}
-
-/* The beam: a hairline with ruler ticks on the hero grid's 48px rhythm, a
-   cursor where the theme button sits, and a soft glow. It only exists while
-   a scan runs. */
-.theme-scan {
-	--scan-x: 50%;
-	position: fixed;
-	inset: 0 0 auto;
-	z-index: 30;
-	height: 24px;
-	pointer-events: none;
-	transform: translateY(-100%);
-	view-transition-name: theme-scan;
-	background:
-		linear-gradient(var(--primary), var(--primary)) 0 50% / 100% 1px
-		no-repeat,
-		repeating-linear-gradient(90deg, var(--primary) 0 1px, transparent 1px 48px)
-		0 50% / 100% 7px no-repeat,
-		linear-gradient(var(--primary), var(--primary)) var(--scan-x) 0 / 1px 100%
-		no-repeat,
-		linear-gradient(
-			to bottom,
-			transparent,
-			color-mix(in srgb, var(--primary) 22%, transparent) 50%,
-			transparent
-		);
-}
-
-html:active-view-transition :is(.control, h3, .social-platform) {
-	transition: none;
-}
-
-html:active-view-transition .hud-frame::before,
-html:active-view-transition .hud-frame::after {
+/* Colours change inside the reveal, not twice. The knob keeps its spring. */
+html:active-view-transition *:not(.knob),
+html:active-view-transition *::before,
+html:active-view-transition *::after {
 	transition: none;
 }
 
@@ -1752,20 +1862,6 @@ html:active-view-transition .hud-frame::after {
 		transition-duration: 0.01ms !important;
 		transition-delay: 0ms !important;
 	}
-
-	.control,
-	.control::before,
-	.control::after,
-	.external-arrow,
-	.endpoint-rings,
-	.dial-tilt {
-		transform: none !important;
-	}
-
-	.endpoint-rings circle {
-		rotate: none !important;
-	}
-
 }
 
 @media (forced-colors: active) {
@@ -1775,40 +1871,87 @@ html:active-view-transition .hud-frame::after {
 		backdrop-filter: none;
 	}
 
-	.nav-link[aria-current="location"] {
-		outline: 1px solid Highlight;
-		outline-offset: -2px;
+	.key::before {
+		border: 1px solid ButtonText;
+		box-shadow: none;
 	}
 
-	.hud-frame,
-	.hud-panel::before,
-	.hud-panel::after,
-	.hero-grid,
-	.hero::before,
-	.calendar-row::after {
+	.nav-link[aria-current="location"]::before {
+		border: 2px solid Highlight;
+	}
+
+	.nav-link::after,
+	.receiver-window::after,
+	.lcd::after {
 		display: none;
 	}
 
-	.hud-panel {
-		border: 1px solid CanvasText;
-	}
-
-	.hud-panel:focus-visible {
-		outline: 2px solid Highlight;
-		outline-offset: 2px;
-	}
-
-	.stack-link::before,
+	.panel,
+	.receiver,
+	.receiver-window,
+	.lcd,
+	.stack-list,
 	.calendar-row {
-		border-color: CanvasText;
+		border: 1px solid CanvasText;
+		box-shadow: none;
 	}
 
-	.dial-layer * {
+	.panel:focus-visible {
+		outline: 2px solid Highlight;
+	}
+
+	.scale-marks path {
 		stroke: CanvasText;
 	}
 
-	.dial [data-today],
-	.dial-now path {
-		stroke: Highlight;
+	.scale-needle,
+	.scale-days [data-today]::after {
+		background: Highlight;
+	}
+
+	.lcd-digits {
+		filter: none;
+	}
+
+	.lcd-segment,
+	.lcd-colon {
+		fill: CanvasText;
+	}
+
+	.knob {
+		border: 2px solid ButtonText;
+	}
+
+	.knob > span:not(.knob-mark, .knob-focus) {
+		display: none;
+	}
+
+	.knob-mark::before,
+	.selector:has(input[value="light"]:checked) [data-at="light"],
+	.selector:has(input[value="system"]:checked) [data-at="system"],
+	.selector:has(input[value="dark"]:checked) [data-at="dark"] {
+		background: Highlight;
+	}
+
+	.selector-tick {
+		background: CanvasText;
+	}
+
+	.knob-focus {
+		border-color: Highlight;
+	}
+
+	.section-lamp,
+	.calendar-row dt::before {
+		border: 1px solid CanvasText;
+	}
+
+	.page-section[data-current] .section-lamp,
+	.calendar-row[data-today] dt::before {
+		background: Highlight;
+	}
+
+	.calendar-row[data-today] dt::after {
+		border: 1px solid CanvasText;
 	}
 }

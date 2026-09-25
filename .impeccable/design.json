@@ -1,313 +1,372 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-09-22T23:26:37.000Z",
+  "generatedAt": "2026-09-25T01:00:00.000Z",
   "title": "Design System: icepuma.dev",
   "extensions": {
-    "shadows": [],
+    "shadows": [
+      {
+        "name": "shadow-panel",
+        "value": "0 0 0 1px edge, inset 0 1px 0 panel-shine, 0 1px 2px, 0 12px 24px -16px",
+        "purpose": "Objects rest on the paper like products on a catalogue table, lit from above."
+      },
+      {
+        "name": "shadow-lift",
+        "value": "0 22px 34px -20px",
+        "purpose": "A hovered panel lifts 2px."
+      },
+      {
+        "name": "shadow-press",
+        "value": "0 1px 1px",
+        "purpose": "A pressed panel settles 1px."
+      },
+      {
+        "name": "shadow-key",
+        "value": "inset top shine, 1px edge, 1.5px lip, 3px drop",
+        "purpose": "Keycaps; the lip disappears as a key sinks."
+      },
+      {
+        "name": "knob-cast",
+        "value": "contact, key light, and ambient shadows scaled to the knob",
+        "purpose": "The knob stands on the receiver; turning presses it 1% into the panel."
+      }
+    ],
     "motion": [
       {
         "name": "ease-out",
         "value": "cubic-bezier(0.25, 0.46, 0.45, 0.94)",
-        "purpose": "Out-quad for feedback, colour, and release."
-      },
-      {
-        "name": "ease-acquire",
-        "value": "cubic-bezier(0.33, 1, 0.68, 1)",
-        "purpose": "Out-cubic for arrivals: brackets, corner marks, rings, the dial."
+        "purpose": "Colour, opacity, lifts, and releases."
       },
       {
         "name": "ease-in-out",
         "value": "cubic-bezier(0.65, 0, 0.35, 1)",
-        "purpose": "In-out cubic for crossfades and for rings turning back out; nothing snaps."
+        "purpose": "Crossfades."
       },
       {
-        "name": "control-feedback",
-        "value": "transform, background-color, color 180ms; press 80ms",
-        "purpose": "Shared control response and one-pixel press."
+        "name": "spring",
+        "value": "linear() damped spring, 6% overshoot; 240ms keys, 380ms knob, 1300ms needle",
+        "purpose": "One mechanical spring for everything physical."
       },
       {
-        "name": "lock-on",
-        "value": "brackets 340ms in (bottom pair +40ms), 260ms out; endpoint rings 700ms in, counter-rotating over 900ms",
-        "purpose": "Panels glide their brackets in; project endpoints dial their rings in around a centred, still arrow."
+        "name": "key-press",
+        "value": "1.5px down in 70ms, spring back in 240ms",
+        "purpose": "Every key sinks under a press; the current section's key stays latched."
       },
       {
-        "name": "corner-marks",
-        "value": "280ms in, 220ms out",
-        "purpose": "Small controls and the current navigation link; the reticle moves in place and never slides."
+        "name": "knob-detents",
+        "value": "stiction 0.6 near each detent, about 7° give past the end stops, spring into the detent on release",
+        "purpose": "A steady drag reads as a click; an 8ms haptic tick per detent where supported."
       },
       {
-        "name": "theme-scan",
-        "value": "mask slide and beam translate, 900ms, cubic-bezier(0.37, 0, 0.63, 1)",
-        "purpose": "A theme change from the button is written in by a scan line with ruler ticks; the old palette thins into fading raster lines behind it. Otherwise a 240ms crossfade."
+        "name": "knob-sheen",
+        "value": "up to 12°, exponential approach (tau 180ms)",
+        "purpose": "Spun metal's streak of light follows the viewer while the knob turns underneath it."
       },
       {
-        "name": "dial-boot",
-        "value": "arcs draw 800ms with 60ms stagger; rings fade 700ms",
+        "name": "theme-reveal",
+        "value": "masked disc from the knob with a band of concentric rings, 820ms, cubic-bezier(0.37, 0, 0.63, 1)",
+        "purpose": "A theme change spreads out from under the knob; otherwise a 240ms crossfade."
+      },
+      {
+        "name": "power-on",
+        "value": "display segment test 700ms; needle tunes in from Monday over 1300ms",
         "purpose": "Once per visit, skipped on anchor or history arrival."
       },
       {
-        "name": "readout-decode",
-        "value": "about 300ms, ~30 updates a second",
-        "purpose": "The only text scramble: the live readouts resolve as their data arrives, on an aria-hidden mask."
+        "name": "scale-tuning",
+        "value": "ghost needle under a mouse, day and station lit",
+        "purpose": "Mouse users can tune across the week."
       },
       {
-        "name": "scroll-linked",
-        "value": "section scale draws over cover 5%–30%; inner dial ring turns 45° as the hero leaves",
-        "purpose": "CSS scroll-driven animations; static where unsupported."
-      },
-      {
-        "name": "header-hairline",
+        "name": "header-edge",
         "value": "opacity 180ms",
         "purpose": "Confirms the sticky header is floating once the page has scrolled."
       }
     ],
     "breakpoints": [
       {
-        "name": "tiny-nav",
+        "name": "small-keys",
         "value": "22.5rem"
       },
       {
-        "name": "social-columns",
+        "name": "receiver-row",
         "value": "30rem"
       },
       {
-        "name": "one-row-header",
+        "name": "two-projects",
         "value": "40rem"
       },
       {
-        "name": "wide-hero",
+        "name": "one-row-header",
         "value": "48rem"
       },
       {
-        "name": "three-projects",
+        "name": "wide-hero",
         "value": "64rem"
       }
     ],
     "backdrops": [
       {
         "name": "sticky-header",
-        "value": "background 88%; backdrop-filter blur(16px)",
-        "purpose": "Separate pseudo-element layer keeps navigation readable and lets Safari tint from the page; opaque fallback."
+        "value": "background 86%; backdrop-filter blur(16px) saturate(1.2)",
+        "purpose": "Separate pseudo-element layer keeps the keys readable; opaque fallback."
+      },
+      {
+        "name": "window-glass",
+        "value": "inner shadow and a diagonal reflection",
+        "purpose": "The scale and the display sit behind glass."
       }
     ],
     "colorMeta": {
       "light-background": {
         "role": "neutral",
-        "displayName": "Daylight Briefing",
-        "canonical": "#eaf0ef",
+        "displayName": "Paper",
+        "canonical": "#e5e4df",
         "tonalRamp": [
-          "#eaf0ef"
+          "#e5e4df"
         ]
       },
       "light-surface": {
         "role": "neutral",
-        "displayName": "Briefing Panel",
-        "canonical": "#f1f5f4",
+        "displayName": "White Body",
+        "canonical": "#f4f3ef",
         "tonalRamp": [
-          "#f1f5f4"
+          "#f4f3ef"
         ]
       },
       "light-surface-hover": {
         "role": "neutral",
-        "displayName": "Briefing Panel Lit",
-        "canonical": "#e6eff0",
+        "displayName": "White Body Lifted",
+        "canonical": "#fbfaf7",
         "tonalRamp": [
-          "#e6eff0"
+          "#fbfaf7"
         ]
       },
       "light-foreground": {
         "role": "neutral",
-        "displayName": "Graphite",
-        "canonical": "#0e1b1e",
+        "displayName": "Print",
+        "canonical": "#1a1a19",
         "tonalRamp": [
-          "#0e1b1e"
+          "#1a1a19"
         ]
       },
       "light-muted-foreground": {
         "role": "neutral",
-        "displayName": "Steel",
-        "canonical": "#4a5d61",
+        "displayName": "Grey Print",
+        "canonical": "#5c5b56",
         "tonalRamp": [
-          "#4a5d61"
+          "#5c5b56"
         ]
       },
       "light-primary": {
         "role": "primary",
-        "displayName": "Instrument Cyan",
-        "canonical": "#006a7d",
+        "displayName": "Signal Orange (text)",
+        "canonical": "#ad3d0c",
         "tonalRamp": [
-          "#006a7d"
+          "#ad3d0c"
         ]
       },
-      "light-accent": {
-        "role": "secondary",
-        "displayName": "Register Amber",
-        "canonical": "#94510a",
+      "light-signal": {
+        "role": "primary",
+        "displayName": "Signal Orange",
+        "canonical": "#e85a20",
         "tonalRamp": [
-          "#94510a"
+          "#e85a20"
+        ]
+      },
+      "light-lamp": {
+        "role": "secondary",
+        "displayName": "Pilot Green",
+        "canonical": "#27903f",
+        "tonalRamp": [
+          "#27903f"
+        ]
+      },
+      "light-window": {
+        "role": "neutral",
+        "displayName": "Black Glass",
+        "canonical": "#161615",
+        "tonalRamp": [
+          "#161615"
+        ]
+      },
+      "light-lcd": {
+        "role": "neutral",
+        "displayName": "Display Glass",
+        "canonical": "#c3c8b8",
+        "tonalRamp": [
+          "#c3c8b8"
         ]
       },
       "dark-background": {
         "role": "neutral",
-        "displayName": "Night Dive",
-        "canonical": "#060e11",
+        "displayName": "Braun Black",
+        "canonical": "#111110",
         "tonalRamp": [
-          "#060e11"
+          "#111110"
         ]
       },
       "dark-surface": {
         "role": "neutral",
-        "displayName": "Night Panel",
-        "canonical": "#0d1c21",
+        "displayName": "Anthracite Body",
+        "canonical": "#1b1b1a",
         "tonalRamp": [
-          "#0d1c21"
+          "#1b1b1a"
         ]
       },
       "dark-surface-hover": {
         "role": "neutral",
-        "displayName": "Night Panel Lit",
-        "canonical": "#132b31",
+        "displayName": "Anthracite Lifted",
+        "canonical": "#242423",
         "tonalRamp": [
-          "#132b31"
+          "#242423"
         ]
       },
       "dark-foreground": {
         "role": "neutral",
-        "displayName": "Signal White",
-        "canonical": "#d8e8ea",
+        "displayName": "Print (night)",
+        "canonical": "#ecebe5",
         "tonalRamp": [
-          "#d8e8ea"
+          "#ecebe5"
         ]
       },
       "dark-muted-foreground": {
         "role": "neutral",
-        "displayName": "Steel (night)",
-        "canonical": "#8ea6aa",
+        "displayName": "Grey Print (night)",
+        "canonical": "#a3a199",
         "tonalRamp": [
-          "#8ea6aa"
+          "#a3a199"
         ]
       },
       "dark-primary": {
         "role": "primary",
-        "displayName": "Instrument Cyan (night)",
-        "canonical": "#57d6ea",
+        "displayName": "Signal Orange (night text)",
+        "canonical": "#ff8b52",
         "tonalRamp": [
-          "#57d6ea"
+          "#ff8b52"
         ]
       },
-      "dark-accent": {
-        "role": "secondary",
-        "displayName": "Sodium Amber (night)",
-        "canonical": "#f0ab4a",
+      "dark-signal": {
+        "role": "primary",
+        "displayName": "Signal Orange (night)",
+        "canonical": "#ff7a3d",
         "tonalRamp": [
-          "#f0ab4a"
+          "#ff7a3d"
+        ]
+      },
+      "dark-lamp": {
+        "role": "secondary",
+        "displayName": "Pilot Green (night)",
+        "canonical": "#45d06c",
+        "tonalRamp": [
+          "#45d06c"
+        ]
+      },
+      "dark-window": {
+        "role": "neutral",
+        "displayName": "Black Glass (night)",
+        "canonical": "#0a0a09",
+        "tonalRamp": [
+          "#0a0a09"
+        ]
+      },
+      "dark-lcd": {
+        "role": "neutral",
+        "displayName": "Backlit Display",
+        "canonical": "#0d0f0d",
+        "tonalRamp": [
+          "#0d0f0d"
         ]
       }
     },
     "typographyMeta": {
       "display": {
-        "displayName": "Chamfered Display",
-        "purpose": "Chakra Petch 600 in capitals: the name, section titles, and the dial's day."
+        "displayName": "Grotesque Display",
+        "purpose": "Archivo 600, tightly tracked: the name, section titles, card titles."
       },
       "body": {
-        "displayName": "Humanist Body",
-        "purpose": "IBM Plex Sans for titles (600), prose, and the About statement."
+        "displayName": "Grotesque Text",
+        "purpose": "Archivo 400 for prose and the About statement."
       },
       "label": {
-        "displayName": "Instrument Data",
-        "purpose": "JetBrains Mono for navigation, readouts, destinations, categories, days, genres, and handles."
+        "displayName": "Printed Legend",
+        "purpose": "Archivo 500 at 11–13px: keys, labels, the scale, the knob's positions; tabular figures."
       },
-      "japanese": {
-        "displayName": "Register Sub-label",
-        "purpose": "System Japanese face at 13px, 500; decorative and aria-hidden."
+      "german": {
+        "displayName": "Second-Language Sub-label",
+        "purpose": "Archivo 500 in grey print beside each section title; decorative and aria-hidden."
       }
     }
   },
   "components": [
     {
-      "name": "Theme control",
-      "kind": "button",
-      "refersTo": "theme-selected",
-      "description": "One tri-state button: each press advances Light to Dark to System; the glyph crossfades in place and a palette change is written in by a scan line that starts under the button.",
-      "html": "<button class=\"sample\" type=\"button\" aria-label=\"Color theme: Dark. Switch to System theme.\"><svg class=\"icon\" width=\"20\" height=\"20\" viewBox=\"0 0 20 20\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"1.5\" stroke-linecap=\"round\" stroke-linejoin=\"round\" aria-hidden=\"true\"><path d=\"M10 2.5a5 5 0 0 0 7.5 7.5 7.5 7.5 0 1 1-7.5-7.5Z\"></path></svg></button>",
-      "css": ".sample { position: relative; display: grid; place-items: center; width: 44px; min-height: 44px; padding: 0; border: 0; background: transparent; color: #8ea6aa; cursor: pointer; transition: color 180ms cubic-bezier(0.22, 1, 0.36, 1); } .sample:hover, .sample:focus-visible { color: #57d6ea; } .sample::before, .sample::after { position: absolute; content: \"\"; width: 7px; height: 7px; opacity: 0; transition: opacity 120ms cubic-bezier(0.22, 1, 0.36, 1); } .sample::before { inset: 0 auto auto 0; border-top: 1px solid #57d6ea; border-left: 1px solid #57d6ea; } .sample::after { inset: auto 0 0 auto; border-bottom: 1px solid #57d6ea; border-right: 1px solid #57d6ea; } .sample:hover::before, .sample:hover::after, .sample:focus-visible::before, .sample:focus-visible::after { opacity: 1; } .sample:focus-visible { outline: 2px solid #57d6ea; outline-offset: 3px; }"
+      "name": "Theme knob",
+      "kind": "radiogroup",
+      "refersTo": "theme-knob",
+      "description": "Three radios (Light, Auto, Dark) drawn as a spun-aluminium knob with a knurled grip and an engraved orange indicator. Labels and arrow keys change the radios; a drag turns the knob through the detents; a tap advances one position. The theme spreads out from under the knob.",
+      "html": "<div class=\"ds-knob\"><span class=\"ds-grip\"></span><span class=\"ds-face\"></span><span class=\"ds-mark\"></span></div>",
+      "css": ".ds-knob { position: relative; width: 112px; height: 112px; border-radius: 50%; box-shadow: 0 1px 1px rgb(0 0 0 / .32), 0 10px 16px -2px rgb(0 0 0 / .22), 0 25px 34px -11px rgb(0 0 0 / .3); } .ds-knob span { position: absolute; border-radius: 50%; } .ds-grip { inset: 0; background: repeating-conic-gradient(#6f6f6c 0deg, #a4a4a1 .6deg, #fdfdfc 1.4deg, #d6d6d3 2.1deg, #6f6f6c 3deg); } .ds-face { inset: 12%; translate: 0 -2px; background: repeating-radial-gradient(circle, rgb(255 255 255 / 0) 0 .5px, rgb(255 255 255 / .1) .8px, rgb(0 0 0 / .06) 1.3px, rgb(255 255 255 / 0) 1.8px), conic-gradient(from -40deg, #fdfdfc, #d6d6d3 26deg, #a4a4a1 62deg, #d6d6d3 96deg, #fdfdfc 130deg, #d6d6d3 150deg, #a4a4a1 176deg, #fdfdfc 180deg, #d6d6d3 206deg, #a4a4a1 242deg, #d6d6d3 276deg, #fdfdfc 310deg, #d6d6d3 330deg, #a4a4a1 354deg, #fdfdfc); } .ds-mark { left: 50%; top: 18%; width: 3px; height: 20%; translate: -50% -2px; border-radius: 2px; background: #e85a20; }"
     },
     {
-      "name": "Project panel",
-      "kind": "custom",
-      "refersTo": "project-panel",
-      "description": "A panel with one 12px cut corner; hover and focus lock on with three brackets while the endpoint rings spin in.",
-      "html": "<a class=\"ds-panel\" href=\"#\"><strong>intar.dev</strong><span>github.com/intar-dev</span></a>",
-      "css": ".ds-panel { position: relative; isolation: isolate; display: grid; gap: 8px; padding: 20px; color: #d8e8ea; text-decoration: none; } .ds-panel::before { position: absolute; inset: 0; z-index: -1; content: \"\"; background: #2a454c; clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%); } .ds-panel::after { position: absolute; inset: 1px; z-index: -1; content: \"\"; background: #0d1c21; clip-path: polygon(0 0, calc(100% - 11.41px) 0, 100% 11.41px, 100% 100%, 0 100%); } .ds-panel span { color: #f0ab4a; font-family: monospace; font-size: 12px; }"
+      "name": "Push-button key",
+      "kind": "link",
+      "refersTo": "key",
+      "description": "A 32px cap inside a 44px target. Pressing sinks it 1.5px and its lip disappears; the current section's key stays latched with a short orange lamp under its word.",
+      "html": "<a class=\"ds-key\" href=\"#\">Projects</a>",
+      "css": ".ds-key { display: inline-flex; align-items: center; min-height: 32px; padding: 0 12px; border-radius: 6px; background: #faf9f6; color: #1a1a19; font: 500 13px Archivo, sans-serif; text-decoration: none; box-shadow: inset 0 1px 0 rgb(255 255 255 / .9), 0 0 0 1px #b3b1a9, 0 1.5px 0 1px #bebcb4; } .ds-key:active { translate: 0 1.5px; background: #e6e5df; box-shadow: inset 0 1px 2px rgb(0 0 0 / .16), 0 0 0 1px #b3b1a9; }"
     },
     {
-      "name": "Week dial",
+      "name": "Receiver",
       "kind": "custom",
-      "refersTo": "week-dial",
-      "description": "One turn is one week: 168 hour ticks, seven arcs from the schedule (weekdays amber, days off dashed, today cyan), a cyan now tick in Berlin time, and one inner ring that turns with scroll.",
-      "html": "<svg class=\"ds-dial\" viewBox=\"0 0 400 400\" aria-hidden=\"true\"><circle cx=\"200\" cy=\"200\" r=\"190\" /><path d=\"M204.19 40.05A160 160 0 0 1 322.44 97\" /></svg>",
-      "css": ".ds-dial { width: 240px; fill: none; } .ds-dial circle { stroke: #2a454c; } .ds-dial path { stroke: #f0ab4a; stroke-width: 3; }"
+      "refersTo": "receiver",
+      "description": "The hero object: the week as a tuning scale behind black glass with a needle at now in Berlin, a seven-segment display of the Berlin clock, today's station, a punched speaker grille, and the theme knob.",
+      "html": "<div class=\"ds-receiver\"><div class=\"ds-window\"><span class=\"ds-needle\"></span></div></div>",
+      "css": ".ds-receiver { padding: 20px; border-radius: 26px; background: #f4f3ef; box-shadow: 0 0 0 1px rgb(0 0 0 / .06), 0 34px 54px -34px rgb(0 0 0 / .55); } .ds-window { position: relative; height: 72px; border-radius: 12px; background: #161615; box-shadow: inset 0 2px 6px rgb(0 0 0 / .6); } .ds-needle { position: absolute; top: 4px; bottom: 4px; left: 62%; width: 2px; background: #e85a20; }"
     }
   ],
   "narrative": {
-    "northStar": "A calm cyberbrain HUD over one person's work",
-    "overview": "A project-first homepage in the Stand Alone Complex register: thin-line instruments, bilingual register labels, cyan for what you can act on, amber for what is recorded. The one bold object is a week dial built from the real schedule and the Berlin clock; everything else is quiet panels, a spec-sheet stack, and a duty-roster calendar. Motion answers the reader or runs once. Nothing is borrowed art or invented data.",
+    "northStar": "One receiver on a catalogue page: less, but better",
+    "overview": "A project-first homepage in the Braun register: warm grey paper, white and anthracite bodies, black print, one signal orange and one green pilot lamp. The one object is a receiver whose tuning scale is the real weekly schedule, whose needle and display follow the Berlin clock, and whose hyper-realistic knob switches the theme. Everything else is printed panels, a keypad, and a row of day slots. Controls behave like controls: keys sink and latch, panels lift, the knob clicks through detents.",
     "keyCharacteristics": [
-      "Two-signal palette: cyan for interaction and presence, amber for recorded data, no alarm red",
-      "A week dial built from the schedule and the Berlin clock",
-      "One cut corner, on project panels only, with lock-on brackets",
-      "Chakra Petch capitals, humanist body, monospace data, decorative Japanese sub-labels",
-      "Unnumbered content, always-visible navigation, no sliding indicators, no separators"
+      "One signal orange for now and for action, one green pilot lamp, data in grey print",
+      "A receiver built from the schedule and the Berlin clock",
+      "A hyper-realistic spun-aluminium knob with detents, springs, and a sheen that follows the viewer",
+      "Push-button keys that sink and latch, panels that lift, one mechanical spring",
+      "Archivo alone, German sub-labels, no separators, always-visible keys"
     ],
     "researchInterpretation": {
-      "summary": "The dial, brackets, and bilingual labels are an original interpretation of Stand Alone Complex interface language: thin-line rings tied to a real target, dense real data on a strict grid, and short bilingual register labels. No franchise art, character, symbol, or on-screen text is reproduced, and no ring carries text around it or an emblem in its centre.",
+      "summary": "The receiver, keys, grille, display, and knob are an original interpretation of Braun's design language under Dieter Rams and Dietrich Lubs: neutral bodies with one functional accent, lowercase-quiet printed legends, linear tuning scales with a red-orange pointer, punched speaker grilles, knurled aluminium knobs, and seven-segment displays. No Braun logo, product name, model number, or other mark is reproduced, and every instrument shows real data.",
       "sources": [
         {
-          "title": "Mamoru Oshii interview, Ghost in the Shell Official Global Site",
-          "url": "https://theghostintheshell.jp/en/feature/interview02_1",
-          "role": "Information density and visible cyberbrain-connection cues."
-        },
-        {
-          "title": "Ghost in the Shell: Stand Alone Complex episode 23, TELASA",
-          "url": "https://www.telasa.jp/videos/114068",
-          "role": "Licensed screen-image reference for a display tied to a local task."
-        },
-        {
-          "title": "Production I.G 1995 Ghost in the Shell still gallery",
-          "url": "https://www.production-ig.co.jp/works/ghost-in-the-shell/steels/02.html",
-          "role": "Optional thermoptic-interference reference."
-        },
-        {
-          "title": "Ghost in the Shell (1995 film), Wikipedia",
-          "url": "https://en.wikipedia.org/wiki/Ghost_in_the_Shell_(1995_film)",
-          "role": "Oshii's Hong Kong setting and the 'information deluge' theme behind the density and the old/new contrast."
+          "title": "Dieter Rams, Ten principles for good design",
+          "url": "https://www.vitsoe.com/gb/about/good-design",
+          "role": "Less, but better: one object, honest function, no decoration without purpose."
         }
       ]
     },
     "rules": [
       {
-        "name": "The Two-Signal Rule",
-        "body": "Cyan means you can act here or this is now; amber means this is recorded. Every colour change is paired with a shape change.",
+        "name": "The One-Signal Rule",
+        "body": "Orange means now or action; green means on. Nothing else has a hue.",
         "section": "colors"
       },
       {
-        "name": "The No-Alarm Rule",
-        "body": "No red is defined because the page has no alert state.",
+        "name": "The Printed-Data Rule",
+        "body": "Recorded data is grey print, never a colour.",
         "section": "colors"
       },
       {
-        "name": "The One-Cut Rule",
-        "body": "Only project panels are chamfered; chips, cells, tags, and buttons stay square.",
-        "section": "shapes"
+        "name": "The Pair Rule",
+        "body": "Every colour change comes with a shape change: a key sinks, a panel lifts, a lamp glows.",
+        "section": "colors"
       },
       {
-        "name": "The Answer-or-Once Rule",
-        "body": "Every movement answers the reader or runs once per visit; nothing loops.",
+        "name": "The Physical-Light Rule",
+        "body": "Light comes from above; the knob's spun face keeps its highlight still while it turns, and the sheen follows the viewer.",
         "section": "elevation"
       },
       {
-        "name": "The One-Decode Rule",
-        "body": "Text scrambles only in the live readouts, on an aria-hidden mask; the real text never changes.",
+        "name": "The Answer-or-Once Rule",
+        "body": "Every movement answers the reader or runs once per visit; nothing loops, blinks, or makes a sound.",
         "section": "elevation"
       },
       {
@@ -317,17 +376,17 @@
       }
     ],
     "dos": [
-      "Do keep every control at a 44px target and every action on cyan.",
-      "Do keep recorded data on amber and pair every colour change with a shape change.",
+      "Do keep every control at a 44px target and give every press a physical answer.",
+      "Do keep orange for now and action, green for lamps, and data in grey print.",
       "Do build instruments from real data.",
       "Do run bun test after any token change; the contrast test measures both themes.",
       "Do honour reduced motion, forced colours, reduced transparency, more contrast, and no-JavaScript reading."
     ],
     "donts": [
-      "Don't add section numbers, wide tracking, sliding indicators, separator lines, or a custom logo.",
-      "Don't chamfer anything but project panels, or glow anything but lines.",
-      "Don't scramble text anywhere but the live readouts, and never scramble Japanese.",
-      "Don't reproduce franchise art, marks, or on-screen text, or invent case numbers, timestamps, statuses, stamps, or redactions."
+      "Don't reproduce the Braun logo, product names, model numbers, or other marks.",
+      "Don't add section numbers, separator lines, sliding indicators, or a custom logo.",
+      "Don't add a second accent, colour data, or put glow on text.",
+      "Don't loop, blink, play sounds, or invent readings for an instrument to show."
     ]
   }
 }

@@ -8,8 +8,7 @@ export type Origin = { x: number; y: number };
 let currentTheme: Theme = "system";
 let storageAvailable = true;
 let themeChange = 0;
-let scanChange = 0;
-let activeBeam: HTMLElement | undefined;
+let revealChange = 0;
 
 function isTheme(value: string | undefined | null): value is Theme {
 	return value === "dark" || value === "light" || value === "system";
@@ -75,59 +74,67 @@ function getCurrentResolvedTheme(): ResolvedTheme {
 		: resolveTheme(currentTheme);
 }
 
-const SCAN_DURATION = 900;
-const SCAN_EASING = "cubic-bezier(0.37, 0, 0.63, 1)";
-const SCAN_BEAM = 24;
+const REVEAL_DURATION = 820;
+const REVEAL_EASING = "cubic-bezier(0.37, 0, 0.63, 1)";
 
-// The scan's travel: the old palette's mask slides up by the viewport plus
-// the raster band, and the beam rides the band's front edge down the page.
-export function scanFrames(viewport: number, band: number) {
-	const travel = viewport + band;
-	return {
-		mask: [`0 ${-travel}px`, "0 0px"],
-		beam: [
-			`translateY(${-SCAN_BEAM / 2}px)`,
-			`translateY(${travel - SCAN_BEAM / 2}px)`,
-		],
-	};
+type Viewport = { width: number; height: number };
+
+// How far the reveal travels from the knob to reach the farthest corner.
+export function revealRadius(origin: Origin, viewport: Viewport) {
+	return Math.ceil(
+		Math.max(
+			Math.hypot(origin.x, origin.y),
+			Math.hypot(viewport.width - origin.x, origin.y),
+			Math.hypot(origin.x, viewport.height - origin.y),
+			Math.hypot(viewport.width - origin.x, viewport.height - origin.y),
+		),
+	);
 }
 
-export function scanBand(viewport: number) {
-	return Math.round(Math.min(Math.max(viewport * 0.2, 120), 240));
+// The band of rings that trails the reveal's edge, sized to the screen.
+export function revealBand(viewport: Viewport) {
+	const short = Math.min(viewport.width, viewport.height);
+	return Math.round(Math.min(Math.max(short * 0.2, 80), 200));
 }
 
-function mountBeam(origin: Origin) {
-	const beam = document.createElement("div");
-	beam.className = "theme-scan";
-	beam.setAttribute("aria-hidden", "true");
-	beam.style.setProperty("--scan-x", `${Math.round(origin.x)}px`);
-	document.body.append(beam);
-	return beam;
+// The reveal grows until its ring band has passed the farthest corner.
+export function revealFrames(radius: number, band: number) {
+	return ["0px", `${radius + band}px`];
 }
 
-function runScan(band: number) {
+// Starts the reveal on the new palette and hands back its animation, or
+// null when the engine cannot animate the pseudo-element.
+function runReveal(radius: number, band: number): Animation | null {
 	const root = document.documentElement;
-	if (typeof root.animate !== "function") return;
-	const frames = scanFrames(window.innerHeight, band);
-	// Hold the last frame: the transition is torn down a frame after the
-	// animations end, and without a fill the old palette would flash back.
-	const timing = {
-		duration: SCAN_DURATION,
-		easing: SCAN_EASING,
-		fill: "forwards" as const,
-	};
-	root.animate(
-		{
-			maskPosition: frames.mask.map(
-				(position) => `${position}, ${position}, 0 0`,
-			),
-		},
-		{ ...timing, pseudoElement: "::view-transition-old(root)" },
-	);
-	root.animate(
-		{ transform: frames.beam },
-		{ ...timing, pseudoElement: "::view-transition-group(theme-scan)" },
-	);
+	if (typeof root.animate !== "function") return null;
+	try {
+		// Hold the last frame: the transition is torn down a frame after the
+		// animation ends, and without a fill the old palette would flash back.
+		return root.animate(
+			{ "--reveal": revealFrames(radius, band) },
+			{
+				duration: REVEAL_DURATION,
+				easing: REVEAL_EASING,
+				fill: "forwards",
+				pseudoElement: "::view-transition-new(root)",
+			},
+		);
+	} catch {
+		return null;
+	}
+}
+
+type Transition = { skipTransition?: () => void };
+let activeTransition: Transition | undefined;
+
+// While a view transition runs the page takes no pointer input. The knob
+// calls this to end a reveal early when it is pressed again.
+export function interruptThemeTransition() {
+	const transition = activeTransition;
+	if (!transition) return false;
+	activeTransition = undefined;
+	transition.skipTransition?.();
+	return true;
 }
 
 export function setThemeWithTransition(theme: Theme, origin?: Origin) {
@@ -147,38 +154,45 @@ export function setThemeWithTransition(theme: Theme, origin?: Origin) {
 		return theme;
 	}
 
-	// From the theme button the new palette is written in by a scan line.
-	// Reduced motion and forced colours keep a plain crossfade instead.
+	// From the knob the new palette spreads out from under it, trailing a band
+	// of rings like the knob's own spun face. Reduced motion and forced
+	// colours keep a plain crossfade instead.
 	const still =
 		window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
 		window.matchMedia("(forced-colors: active)").matches;
 	const root = document.documentElement;
-	// setTheme advances themeChange, so the scan keeps a counter of its own.
-	const scan = origin && !still ? ++scanChange : 0;
-	const band = scan ? scanBand(window.innerHeight) : 0;
-	let beam: HTMLElement | undefined;
+	// setTheme advances themeChange, so the reveal keeps a counter of its own.
+	const reveal = origin && !still ? ++revealChange : 0;
+	const viewport = { width: window.innerWidth, height: window.innerHeight };
+	const band = reveal ? revealBand(viewport) : 0;
+	const radius = reveal && origin ? revealRadius(origin, viewport) : 0;
+	let transition: Transition | undefined;
+	let animation: Animation | null = null;
+	const current = () => reveal !== 0 && reveal === revealChange;
 	const finish = () => {
-		beam?.remove();
-		if (scan && scan === scanChange) delete root.dataset.themeScan;
+		animation?.cancel();
+		if (activeTransition === transition) activeTransition = undefined;
+		if (current()) delete root.dataset.themeReveal;
 	};
 	try {
-		if (scan) {
-			activeBeam?.remove();
-			root.style.setProperty("--scan-band", `${band}px`);
-			root.dataset.themeScan = "";
+		if (reveal && origin) {
+			root.style.setProperty("--reveal-x", `${Math.round(origin.x)}px`);
+			root.style.setProperty("--reveal-y", `${Math.round(origin.y)}px`);
+			root.style.setProperty("--reveal-band", `${band}px`);
+			root.dataset.themeReveal = "";
 		}
-		const transition = document.startViewTransition(() => {
-			apply();
-			// The beam exists only in the new state, so it is never part of
-			// the old snapshot it sweeps across.
-			if (origin && scan) activeBeam = beam = mountBeam(origin);
-		});
-		void transition.ready
+		const started = document.startViewTransition(apply);
+		activeTransition = transition = started;
+		void started.ready
 			.then(() => {
-				if (scan && scan === scanChange) runScan(band);
+				if (!current()) return;
+				animation = runReveal(radius, band);
+				// Without the animation the new palette would stay masked, so
+				// fall back to the crossfade.
+				if (!animation) delete root.dataset.themeReveal;
 			}, apply)
 			.catch(() => {});
-		void transition.finished?.then(finish, finish);
+		void started.finished?.then(finish, finish);
 	} catch {
 		finish();
 		apply();

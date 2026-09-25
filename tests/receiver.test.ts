@@ -2,15 +2,18 @@ import { expect, test } from "bun:test";
 import { readFileSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 
-type HudModule = typeof import("../src/utils/hud");
-type HudFactory = (
+type ReceiverModule = typeof import("../src/utils/receiver");
+type ReceiverFactory = (
 	window: object,
 	document: object,
-) => Pick<HudModule, "approach" | "initHudClock" | "markToday" | "tiltFor">;
+) => Pick<
+	ReceiverModule,
+	"initReceiverClock" | "markToday" | "showDigits" | "slotAt"
+>;
 
-// hud.ts imports schedule.ts and decode.ts, so the three sources are joined
-// into one scope with their imports and exports removed.
-const hudSource = ["schedule", "decode", "hud"]
+// receiver.ts imports schedule.ts and lcd.ts, so the three sources are
+// joined into one scope with their imports and exports removed.
+const receiverSource = ["schedule", "lcd", "receiver"]
 	.map((name) =>
 		readFileSync(
 			fileURLToPath(new URL(`../src/utils/${name}.ts`, import.meta.url)),
@@ -20,13 +23,13 @@ const hudSource = ["schedule", "decode", "hud"]
 	.join("\n")
 	.replace(/^import\b[\s\S]*?;[ \t]*$/gm, "")
 	.replaceAll("export ", "");
-const createHud = new Function(
+const createReceiver = new Function(
 	"window",
 	"document",
 	new Bun.Transpiler({ loader: "ts" }).transformSync(
-		`${hudSource}\nreturn { approach, initHudClock, markToday, tiltFor };`,
+		`${receiverSource}\nreturn { initReceiverClock, markToday, showDigits, slotAt };`,
 	),
-) as HudFactory;
+) as ReceiverFactory;
 
 const week = [
 	{ day: "Mon", focus: "intar.dev", url: "https://github.com/intar-dev" },
@@ -66,11 +69,6 @@ class FakeElement {
 			this.values.set(name, value);
 		},
 	};
-	classList = {
-		add: (name: string) => {
-			this.classes.add(name);
-		},
-	};
 
 	constructor(
 		readonly tag: string,
@@ -104,6 +102,10 @@ class FakeElement {
 		return this.lookup[selector] ?? null;
 	}
 
+	querySelectorAll(selector: string) {
+		return (this.lookup[selector] as unknown[] | undefined) ?? [];
+	}
+
 	removeAttribute(name: string) {
 		this.attributes.delete(name);
 	}
@@ -117,6 +119,30 @@ class FakeElement {
 	}
 }
 
+function createDisplay() {
+	const cells = Array.from({ length: 4 }, () => {
+		const segments = Object.fromEntries(
+			["a", "b", "c", "d", "e", "f", "g"].map((segment) => [
+				`[data-segment="${segment}"]`,
+				new FakeElement("path"),
+			]),
+		);
+		return new FakeElement("g", {}, segments);
+	});
+	const display = new FakeElement("svg", {}, { "[data-digit]": cells });
+	const lit = () =>
+		cells.map((cell) =>
+			["a", "b", "c", "d", "e", "f", "g"]
+				.filter((segment) =>
+					(
+						cell.lookup[`[data-segment="${segment}"]`] as FakeElement
+					).hasAttribute("data-lit"),
+				)
+				.join(""),
+		);
+	return { display, lit };
+}
+
 function createFixture() {
 	const rows = week.map(({ day, focus, url }) => {
 		const dt = new FakeElement("dt");
@@ -128,20 +154,25 @@ function createFixture() {
 			: null;
 		return new FakeElement("div", { day, focus }, { dt, "a[href]": link });
 	});
-	const arcs = week.map(({ day }) => new FakeElement("path", { day }));
+	const scaleDays = week.map(({ day }) => new FakeElement("span", { day }));
+	const stations = ["Mon Tue", "Wed Thu", "Fri", "Sat Sun"].map(
+		(days) => new FakeElement("span", { days }),
+	);
+	const { display, lit } = createDisplay();
 	const parts = {
-		"[data-hud-clock]": new FakeElement("time"),
-		"[data-hud-dial]": new FakeElement("div"),
-		"[data-hud-dial-day]": new FakeElement("span"),
-		"[data-hud-readout]": Object.assign(new FakeElement("dl"), {
-			hidden: true,
-		}),
-		"[data-hud-today]": new FakeElement("dd"),
-		"[data-hud-zone]": new FakeElement("span"),
+		"[data-live-clock]": new FakeElement("time"),
+		"[data-live-readout]": (() => {
+			const readout = new FakeElement("dl");
+			readout.setAttribute("data-pending", "");
+			return readout;
+		})(),
+		"[data-live-today]": new FakeElement("dd"),
+		"[data-live-zone]": new FakeElement("span"),
+		"[data-lcd]": display,
+		"[data-scale]": new FakeElement("div"),
 	};
 	const document = Object.assign(new EventTarget(), {
 		hidden: false,
-		documentElement: { hasAttribute: () => false },
 		createElement: (tag: string) => new FakeElement(tag),
 		querySelector(selector: string) {
 			const row = selector.match(/^\.calendar-row\[data-day="(\w+)"\]$/);
@@ -150,7 +181,8 @@ function createFixture() {
 			return parts[selector as keyof typeof parts] ?? null;
 		},
 		querySelectorAll(selector: string) {
-			if (selector === "[data-day]") return [...rows, ...arcs];
+			if (selector === "[data-day]") return [...rows, ...scaleDays];
+			if (selector === "[data-days]") return stations;
 			if (selector === ".calendar-row dt")
 				return rows.map((row) => row.lookup.dt);
 			return [];
@@ -163,7 +195,6 @@ function createFixture() {
 			timers.delete(id);
 		},
 		matchMedia: () => ({ matches: false }),
-		requestAnimationFrame: () => 0,
 		setTimeout(callback: () => void, delay: number) {
 			const id = nextTimer++;
 			timers.set(id, { callback, delay });
@@ -171,13 +202,12 @@ function createFixture() {
 		},
 	};
 	let now = new Date("2026-09-23T12:00:00Z");
-	const hud = createHud(window, document);
 	return {
-		arcs,
 		document,
-		hud,
+		lit,
 		now: () => now,
 		parts,
+		receiver: createReceiver(window, document),
 		rows,
 		runTimer() {
 			const [entry] = timers.entries();
@@ -190,24 +220,26 @@ function createFixture() {
 		},
 		timers,
 		todayMarks: () =>
-			[...rows, ...arcs]
+			[...rows, ...scaleDays, ...stations]
 				.filter((element) => element.hasAttribute("data-today"))
-				.map((element) => `${element.tag}:${element.dataset.day}`),
+				.map(
+					(element) =>
+						`${element.tag}:${element.dataset.day ?? element.dataset.days}`,
+				),
 	};
 }
 
-test("marks Berlin's today on the calendar, the dial, and the readout", () => {
+test("marks Berlin's today on the calendar, the scale, and the readout", () => {
 	const fixture = createFixture();
-	expect(fixture.hud.markToday(fixture.now)).toBe("Wed");
-	expect(fixture.todayMarks()).toEqual(["div:Wed", "path:Wed"]);
+	expect(fixture.receiver.markToday(fixture.now)).toBe("Wed");
+	expect(fixture.todayMarks()).toEqual(["div:Wed", "span:Wed", "span:Wed Thu"]);
 	const terms = fixture.rows.map(
 		(row) =>
 			(row.lookup.dt as FakeElement).attributes.get("aria-current") ?? null,
 	);
 	expect(terms).toEqual([null, null, "date", null, null, null, null]);
-	expect(fixture.parts["[data-hud-dial-day]"].textContent).toBe("WED");
 
-	const [link] = fixture.parts["[data-hud-today]"].children as FakeElement[];
+	const [link] = fixture.parts["[data-live-today]"].children as FakeElement[];
 	expect([link?.tag, link?.href, link?.target, link?.rel]).toEqual([
 		"a",
 		"https://github.com/rawkode-academy/rawkode-academy",
@@ -215,47 +247,56 @@ test("marks Berlin's today on the calendar, the dial, and the readout", () => {
 		"noopener noreferrer",
 	]);
 	const [label, arrow, note] = (link?.children ?? []) as FakeElement[];
-	expect([label?.className, label?.textContent]).toEqual([
-		"decode",
-		"Rawkode Academy",
-	]);
+	expect(label?.textContent).toBe("Rawkode Academy");
 	expect(arrow).toEqual({ cloneOf: "svg" });
 	expect(note?.textContent).toBe(" (opens in a new tab)");
 
 	// Saturday early morning in Berlin is still Friday in UTC.
 	fixture.setNow("2026-09-25T23:30:00Z");
-	expect(fixture.hud.markToday(fixture.now)).toBe("Sat");
-	expect(fixture.todayMarks()).toEqual(["div:Sat", "path:Sat"]);
-	const [off] = fixture.parts["[data-hud-today]"].children as FakeElement[];
+	expect(fixture.receiver.markToday(fixture.now)).toBe("Sat");
+	expect(fixture.todayMarks()).toEqual(["div:Sat", "span:Sat", "span:Sat Sun"]);
+	const [off] = fixture.parts["[data-live-today]"].children as FakeElement[];
 	expect([off?.tag, off?.className, off?.textContent]).toEqual([
 		"span",
-		"decode hud-off",
+		"live-off",
 		"Off",
 	]);
 });
 
-test("runs the clock once a minute and rolls the day over", () => {
+test("lights the display's segments for a reading", () => {
+	const { display, lit } = createDisplay();
+	const { receiver } = createFixture();
+	receiver.showDigits(display as unknown as Element, "14:32");
+	expect(lit()).toEqual(["bc", "bcfg", "abcdg", "abdeg"]);
+	receiver.showDigits(display as unknown as Element, "08:07");
+	expect(lit()).toEqual(["abcdef", "abcdefg", "abcdef", "abc"]);
+});
+
+test("runs the clock once a minute, moves the needle, and rolls the day over", () => {
 	const fixture = createFixture();
 	fixture.setNow("2026-09-23T12:00:42Z");
-	fixture.hud.initHudClock(fixture.now);
+	fixture.receiver.initReceiverClock(fixture.now);
 
 	const { parts } = fixture;
-	expect(parts["[data-hud-readout]"].hidden).toBe(false);
-	expect(parts["[data-hud-clock]"].textContent).toBe("14:00");
-	expect(parts["[data-hud-clock]"].attributes.get("datetime")).toBe("14:00");
-	expect(parts["[data-hud-zone]"].textContent).toBe("CEST");
-	expect(parts["[data-hud-dial]"].style.values.get("--now")).toBe("132.86deg");
-	expect(parts["[data-hud-dial]"].hasAttribute("data-now")).toBe(true);
+	expect(parts["[data-live-readout]"].hasAttribute("data-pending")).toBe(false);
+	expect(parts["[data-live-clock]"].textContent).toBe("14:00");
+	expect(parts["[data-live-clock]"].attributes.get("datetime")).toBe("14:00");
+	expect(parts["[data-live-zone]"].textContent).toBe("CEST");
+	expect(fixture.lit()).toEqual(["bc", "bcfg", "abcdef", "abcdef"]);
+	// Wednesday 14:00 is 62 hours into the 168-hour week.
+	expect(parts["[data-scale]"].style.values.get("--now")).toBe(
+		(62 / 168).toFixed(5),
+	);
+	expect(parts["[data-scale]"].hasAttribute("data-now")).toBe(true);
 	expect([...fixture.timers.values()].map((timer) => timer.delay)).toEqual([
 		18_000,
 	]);
-	expect(fixture.todayMarks()).toEqual(["div:Wed", "path:Wed"]);
+	expect(fixture.todayMarks()).toEqual(["div:Wed", "span:Wed", "span:Wed Thu"]);
 
 	fixture.setNow("2026-09-23T22:00:00Z");
 	fixture.runTimer();
-	expect(parts["[data-hud-clock]"].textContent).toBe("00:00");
-	expect(parts["[data-hud-dial-day]"].textContent).toBe("THU");
-	expect(fixture.todayMarks()).toEqual(["div:Thu", "path:Thu"]);
+	expect(parts["[data-live-clock]"].textContent).toBe("00:00");
+	expect(fixture.todayMarks()).toEqual(["div:Thu", "span:Thu", "span:Wed Thu"]);
 	expect(fixture.timers.size).toBe(1);
 
 	fixture.document.hidden = true;
@@ -264,33 +305,17 @@ test("runs the clock once a minute and rolls the day over", () => {
 	fixture.document.hidden = false;
 	fixture.setNow("2026-09-23T22:05:10Z");
 	fixture.document.dispatchEvent(new Event("visibilitychange"));
-	expect(parts["[data-hud-clock]"].textContent).toBe("00:05");
+	expect(parts["[data-live-clock]"].textContent).toBe("00:05");
 	expect(fixture.timers.size).toBe(1);
 });
 
-test("tilts toward the pointer within four degrees and eases without overshoot", () => {
-	const { hud } = createFixture();
-	const rect = { left: 900, top: 100, width: 300, height: 300 };
-	const viewport = { width: 1440, height: 900 };
-	expect(hud.tiltFor({ x: 1050, y: 250 }, rect, viewport)).toEqual({
-		x: 0,
-		y: 0,
+test("divides the scale into one slot per day and clamps at the ends", () => {
+	const { receiver } = createFixture();
+	expect(receiver.slotAt(150, 100, 700, 7)).toEqual({
+		fraction: 50 / 700,
+		index: 0,
 	});
-	expect(hud.tiltFor({ x: 5000, y: -5000 }, rect, viewport)).toEqual({
-		x: 4,
-		y: 4,
-	});
-	const left = hud.tiltFor({ x: 0, y: 700 }, rect, viewport);
-	expect(left.x).toBeLessThan(0);
-	expect(left.y).toBeLessThan(0);
-	expect(Math.abs(left.x)).toBeLessThanOrEqual(4);
-
-	let value = 0;
-	for (const elapsed of [16, 16, 64, 200, 1000]) {
-		const next = hud.approach(value, 4, elapsed);
-		expect(next).toBeGreaterThan(value);
-		expect(next).toBeLessThanOrEqual(4);
-		value = next;
-	}
-	expect(hud.approach(4, 4, 16)).toBe(4);
+	expect(receiver.slotAt(450, 100, 700, 7).index).toBe(3);
+	expect(receiver.slotAt(0, 100, 700, 7)).toEqual({ fraction: 0, index: 0 });
+	expect(receiver.slotAt(2000, 100, 700, 7)).toEqual({ fraction: 1, index: 6 });
 });

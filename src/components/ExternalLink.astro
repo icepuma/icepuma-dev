@@ -6,42 +6,34 @@ interface Props {
 }
 
 const { href, class: className, panel = false } = Astro.props;
+// A panel's corner holds a second arrow that slides in as the first runs out.
+const arrows = panel ? 2 : 1;
 ---
 
 <a
 	href={href}
 	target="_blank"
 	rel="noopener noreferrer"
-	class:list={["control external-link", { "hud-panel": panel }, className]}
+	class:list={["control external-link", { panel }, className]}
 >
 	<slot />
-	{panel && <span class="hud-frame" aria-hidden="true" />}
-	<span class="link-endpoint">
-		{panel && (
+	<span class:list={["link-endpoint", { "panel-arrow": panel }]}>
+		{Array.from({ length: arrows }, () => (
 			<svg
-				class="endpoint-rings"
-				viewBox="0 0 48 48"
+				class="external-arrow"
+				width="16"
+				height="16"
+				viewBox="0 0 24 24"
 				fill="none"
 				stroke="currentColor"
+				stroke-width="1.75"
+				stroke-linecap="round"
+				stroke-linejoin="round"
 				aria-hidden="true"
 			>
-				<circle class="endpoint-ring-outer" cx="24" cy="24" r="21" pathLength="56" stroke-dasharray="1 1" />
-				<circle class="endpoint-ring-inner" cx="24" cy="24" r="15" pathLength="70" stroke-dasharray="8 2" />
-				<path d="M24 0v4M24 44v4M0 24h4M44 24h4" />
+				<path d="M7 17 17 7M8.5 7H17v8.5" />
 			</svg>
-		)}
-		<svg
-			class="external-arrow"
-			width="16"
-			height="16"
-			viewBox="0 0 24 24"
-			fill="none"
-			stroke="currentColor"
-			stroke-width="1.5"
-			aria-hidden="true"
-		>
-			<path d="M6 18 18 6M6 6h12v12" />
-		</svg>
+		))}
 	</span>
 	<span class="sr-only"> (opens in a new tab)</span>
 </a>

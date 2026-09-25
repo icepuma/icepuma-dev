@@ -411,7 +411,7 @@ function createAttentionFixture(
 	});
 	const document = {
 		querySelectorAll: (selector: string) =>
-			selector === ".hud-panel" ? panels : [],
+			selector === ".panel" ? panels : [],
 	};
 	createNavigation(window, document).initAttentionLock();
 	return {

@@ -112,13 +112,11 @@ export function initHeaderState() {
 }
 
 // Touch screens have no hover, so the panel the reader settles on takes the
-// lock-on instead: the one under a reading line 30% down the viewport, once
+// lift instead: the one under a reading line 30% down the viewport, once
 // scrolling has stopped. One panel at a time, and nothing on hover devices.
 export function initAttentionLock() {
 	const Observer = window.IntersectionObserver;
-	const panels = Array.from(
-		document.querySelectorAll<HTMLElement>(".hud-panel"),
-	);
+	const panels = Array.from(document.querySelectorAll<HTMLElement>(".panel"));
 	if (typeof Observer !== "function" || !panels.length) return;
 	const hover = window.matchMedia("(hover: hover)");
 	const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");

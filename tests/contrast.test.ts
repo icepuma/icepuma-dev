@@ -78,40 +78,49 @@ test("both themes define the same tokens and the no-JS copies match", () => {
 
 test("every text token meets AA on every ground", () => {
 	const failures: string[] = [];
+	const measure = (
+		name: string,
+		palette: Tokens,
+		text: string,
+		ground: string,
+		minimum: number,
+	) => {
+		const ratio = contrast(color(palette, text), color(palette, ground));
+		if (ratio < minimum)
+			failures.push(`${name}: ${text} on ${ground} ${ratio.toFixed(2)}`);
+	};
 	for (const [name, palette] of palettes()) {
-		for (const text of [
-			"foreground",
-			"muted-foreground",
-			"primary",
-			"accent",
-		]) {
-			for (const ground of ["background", "surface", "surface-hover"]) {
-				const ratio = contrast(color(palette, text), color(palette, ground));
-				if (ratio < 4.5)
-					failures.push(`${name}: ${text} on ${ground} ${ratio.toFixed(2)}`);
-			}
-		}
-		const onPrimary = contrast(
-			color(palette, "primary-foreground"),
-			color(palette, "primary"),
-		);
-		if (onPrimary < 4.5)
-			failures.push(`${name}: primary-foreground ${onPrimary.toFixed(2)}`);
-		for (const ground of ["background", "surface"]) {
-			const ratio = contrast(color(palette, "ring"), color(palette, ground));
-			if (ratio < 3)
-				failures.push(`${name}: ring on ${ground} ${ratio.toFixed(2)}`);
-		}
+		for (const text of ["foreground", "muted-foreground", "primary"])
+			for (const ground of ["background", "surface", "surface-hover"])
+				measure(name, palette, text, ground, 4.5);
+		measure(name, palette, "primary-foreground", "primary", 4.5);
+		// The Today tag and a lit action key print on signal orange.
+		measure(name, palette, "signal-foreground", "signal", 4.5);
+		// The scale is printed on the receiver's black glass, and the clock is
+		// read off the display.
+		for (const text of ["window-foreground", "window-muted"])
+			measure(name, palette, text, "window", 4.5);
+		measure(name, palette, "lcd-ink", "lcd", 4.5);
+		for (const ground of ["background", "surface"])
+			measure(name, palette, "ring", ground, 3);
 	}
 	expect(failures).toEqual([]);
 });
 
-test("the registration grid stays a whisper", () => {
+test("the needle, the indicator, and the lamps stand out as marks", () => {
+	const failures: string[] = [];
 	for (const [name, palette] of palettes()) {
-		const ratio = contrast(
-			color(palette, "grid-mark"),
-			color(palette, "background"),
-		);
-		expect({ name, faint: ratio <= 1.3 }).toEqual({ name, faint: true });
+		for (const [mark, ground] of [
+			["signal", "window"],
+			["signal", "surface"],
+			["signal", "surface-hover"],
+			["lamp", "surface"],
+			["lamp", "background"],
+		] as const) {
+			const ratio = contrast(color(palette, mark), color(palette, ground));
+			if (ratio < 3)
+				failures.push(`${name}: ${mark} on ${ground} ${ratio.toFixed(2)}`);
+		}
 	}
+	expect(failures).toEqual([]);
 });

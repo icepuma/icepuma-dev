@@ -10,6 +10,7 @@ type FixtureOptions = Partial<{
 	startViewTransition: (update: () => void) => {
 		ready: Promise<void>;
 		finished?: Promise<void>;
+		skipTransition?: () => void;
 	};
 	storedTheme: string | null;
 	writeBlocked: boolean;
@@ -31,7 +32,7 @@ const createThemeModule = new Function(
 	"document",
 	"CustomEvent",
 	new Bun.Transpiler({ loader: "ts" }).transformSync(
-		`${themeSource}\nreturn { applyTheme, loadTheme, resolveTheme, scanBand, scanFrames, setTheme, setThemeWithTransition, setupThemeListener };`,
+		`${themeSource}\nreturn { applyTheme, interruptThemeTransition, loadTheme, resolveTheme, revealBand, revealFrames, revealRadius, setTheme, setThemeWithTransition, setupThemeListener };`,
 	),
 ) as ThemeFactory;
 const prepaintSource = source("../src/layouts/MinimalLayout.astro").match(
@@ -214,7 +215,7 @@ test("falls back without view transitions and crossfades with reduced motion", (
 	themeFor(reducedMotion).setThemeWithTransition("dark", { x: 10, y: 10 });
 	expect(transitions).toBe(1);
 	expect(
-		reducedMotion.document.documentElement.dataset.themeScan,
+		reducedMotion.document.documentElement.dataset.themeReveal,
 	).toBeUndefined();
 	expectTheme(reducedMotion, "dark", "dark");
 
@@ -263,22 +264,23 @@ test("prepaint uses the saved choice and tolerates blocked storage", () => {
 	}
 });
 
-type FakeBeam = {
-	attributes: Map<string, string>;
-	className: string;
-	removed: boolean;
-	styles: Map<string, string>;
-};
-
-function withScan(fixture: ReturnType<typeof createFixture>) {
+function withReveal(
+	fixture: ReturnType<typeof createFixture>,
+	options: { animateThrows?: boolean } = {},
+) {
 	const animations: Array<{ keyframes: unknown; options: unknown }> = [];
-	const beams: FakeBeam[] = [];
-	const body: unknown[] = [];
 	const properties = new Map<string, string>();
 	const root = fixture.document.documentElement;
+	let cancelled = 0;
 	Object.assign(root, {
-		animate(keyframes: unknown, options: unknown) {
-			animations.push({ keyframes, options });
+		animate(keyframes: unknown, timing: unknown) {
+			if (options.animateThrows) throw new Error("Unsupported keyframes");
+			animations.push({ keyframes, options: timing });
+			return {
+				cancel() {
+					cancelled += 1;
+				},
+			};
 		},
 	});
 	Object.assign(root.style, {
@@ -286,46 +288,13 @@ function withScan(fixture: ReturnType<typeof createFixture>) {
 			properties.set(name, value);
 		},
 	});
-	Object.assign(fixture.document, {
-		body: {
-			append(node: unknown) {
-				body.push(node);
-			},
-		},
-		createElement() {
-			const beam = {
-				attributes: new Map<string, string>(),
-				className: "",
-				removed: false,
-				styles: new Map<string, string>(),
-				remove() {
-					beam.removed = true;
-				},
-				setAttribute(name: string, value: string) {
-					beam.attributes.set(name, value);
-				},
-				style: {
-					setProperty(name: string, value: string) {
-						beam.styles.set(name, value);
-					},
-				},
-			};
-			beams.push(beam);
-			return beam;
-		},
-	});
-	Object.assign(fixture.window, { innerHeight: 800 });
-	return { animations, beams, body, properties };
+	Object.assign(fixture.window, { innerWidth: 1200, innerHeight: 800 });
+	return { animations, cancelled: () => cancelled, properties };
 }
 
 const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
-const scanTiming = {
-	duration: 900,
-	easing: "cubic-bezier(0.37, 0, 0.63, 1)",
-	fill: "forwards",
-};
 
-test("writes the new palette in with a scan line from the theme button", async () => {
+test("spreads the new palette out from under the knob", async () => {
 	const updates: Array<() => void> = [];
 	const fixture = createFixture({
 		startViewTransition(update) {
@@ -333,44 +302,93 @@ test("writes the new palette in with a scan line from the theme button", async (
 			return { ready: Promise.resolve(), finished: Promise.resolve() };
 		},
 	});
-	const scan = withScan(fixture);
+	const reveal = withReveal(fixture);
 	const theme = themeFor(fixture);
 	theme.loadTheme();
 	const root = fixture.document.documentElement;
 
 	theme.setThemeWithTransition("dark", { x: 900.4, y: 40 });
-	expect(root.dataset.themeScan).toBe("");
-	expect(scan.properties.get("--scan-band")).toBe("160px");
-	// The beam is only created for the new state, after the old snapshot.
-	expect(scan.beams).toHaveLength(0);
+	expect(root.dataset.themeReveal).toBe("");
+	expect(Object.fromEntries(reveal.properties)).toEqual({
+		"--reveal-x": "900px",
+		"--reveal-y": "40px",
+		"--reveal-band": "160px",
+	});
 	updates[0]?.();
-	const [beam] = scan.beams;
-	expect(scan.body).toEqual([beam]);
-	expect([beam?.className, beam?.attributes.get("aria-hidden")]).toEqual([
-		"theme-scan",
-		"true",
-	]);
-	expect(beam?.styles.get("--scan-x")).toBe("900px");
 	await settle();
 
-	expect(scan.animations).toEqual([
+	// The farthest corner is the bottom left, 1179px away; the ring band
+	// has to pass it too.
+	expect(reveal.animations).toEqual([
 		{
-			keyframes: {
-				maskPosition: ["0 -960px, 0 -960px, 0 0", "0 0px, 0 0px, 0 0"],
-			},
-			options: { ...scanTiming, pseudoElement: "::view-transition-old(root)" },
-		},
-		{
-			keyframes: { transform: ["translateY(-12px)", "translateY(948px)"] },
+			keyframes: { "--reveal": ["0px", "1339px"] },
 			options: {
-				...scanTiming,
-				pseudoElement: "::view-transition-group(theme-scan)",
+				duration: 820,
+				easing: "cubic-bezier(0.37, 0, 0.63, 1)",
+				fill: "forwards",
+				pseudoElement: "::view-transition-new(root)",
 			},
 		},
 	]);
-	expect(beam?.removed).toBe(true);
-	expect(root.dataset.themeScan).toBeUndefined();
+	// The finished reveal lets go of its held last frame.
+	expect(reveal.cancelled()).toBe(1);
+	expect(root.dataset.themeReveal).toBeUndefined();
 	expectTheme(fixture, "dark", "dark");
+});
+
+test("falls back to the crossfade when the reveal cannot animate", async () => {
+	const fixture = createFixture({
+		startViewTransition(update) {
+			update();
+			return { ready: Promise.resolve(), finished: new Promise(() => {}) };
+		},
+	});
+	withReveal(fixture, { animateThrows: true });
+	const theme = themeFor(fixture);
+	theme.loadTheme();
+	const root = fixture.document.documentElement;
+
+	theme.setThemeWithTransition("dark", { x: 100, y: 100 });
+	expect(root.dataset.themeReveal).toBe("");
+	await settle();
+	// The transition is still running, now as a plain crossfade.
+	expect(root.dataset.themeReveal).toBeUndefined();
+	expectTheme(fixture, "dark", "dark");
+});
+
+test("a press on the knob can end a running reveal once", async () => {
+	let skipped = 0;
+	let finish!: () => void;
+	const fixture = createFixture({
+		startViewTransition(update) {
+			update();
+			return {
+				ready: Promise.resolve(),
+				finished: new Promise<void>((resolve) => {
+					finish = resolve;
+				}),
+				skipTransition() {
+					skipped += 1;
+					finish();
+				},
+			};
+		},
+	});
+	withReveal(fixture);
+	const theme = themeFor(fixture);
+	theme.loadTheme();
+
+	expect(theme.interruptThemeTransition()).toBe(false);
+	theme.setThemeWithTransition("dark", { x: 100, y: 100 });
+	expect(theme.interruptThemeTransition()).toBe(true);
+	expect(theme.interruptThemeTransition()).toBe(false);
+	expect(skipped).toBe(1);
+
+	theme.setThemeWithTransition("light", { x: 100, y: 100 });
+	finish();
+	await settle();
+	expect(theme.interruptThemeTransition()).toBe(false);
+	expect(skipped).toBe(1);
 });
 
 test("keeps a plain crossfade without an origin and does nothing when nothing changes", async () => {
@@ -381,32 +399,34 @@ test("keeps a plain crossfade without an origin and does nothing when nothing ch
 			return { ready: Promise.resolve(), finished: Promise.resolve() };
 		},
 	});
-	const scan = withScan(fixture);
+	const reveal = withReveal(fixture);
 	const theme = themeFor(fixture);
 	theme.loadTheme();
 
 	theme.setThemeWithTransition("dark");
-	expect(fixture.document.documentElement.dataset.themeScan).toBeUndefined();
+	expect(fixture.document.documentElement.dataset.themeReveal).toBeUndefined();
 	updates[0]?.();
 	await settle();
 	theme.setThemeWithTransition("dark", { x: 10, y: 10 });
 	await settle();
 	expect([
 		updates.length,
-		scan.animations.length,
-		scan.beams.length,
-		scan.properties.size,
-	]).toEqual([1, 0, 0, 0]);
+		reveal.animations.length,
+		reveal.properties.size,
+	]).toEqual([1, 0, 0]);
 	expectTheme(fixture, "dark", "dark");
 });
 
-test("sizes the scan band to the viewport and rides the beam on its edge", () => {
-	const { scanBand, scanFrames } = themeFor(createFixture());
-	expect([scanBand(800), scanBand(400), scanBand(2000)]).toEqual([
-		160, 120, 240,
-	]);
-	expect(scanFrames(800, 160)).toEqual({
-		mask: ["0 -960px", "0 0px"],
-		beam: ["translateY(-12px)", "translateY(948px)"],
-	});
+test("sizes the reveal to the screen and reaches every corner", () => {
+	const { revealBand, revealFrames, revealRadius } = themeFor(createFixture());
+	expect([
+		revealBand({ width: 1200, height: 800 }),
+		revealBand({ width: 375, height: 812 }),
+		revealBand({ width: 3000, height: 2000 }),
+	]).toEqual([160, 80, 200]);
+	expect(revealRadius({ x: 0, y: 0 }, { width: 300, height: 400 })).toBe(500);
+	expect(revealRadius({ x: 150, y: 200 }, { width: 300, height: 400 })).toBe(
+		250,
+	);
+	expect(revealFrames(500, 100)).toEqual(["0px", "600px"]);
 });

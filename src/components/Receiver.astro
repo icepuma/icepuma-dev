@@ -1,0 +1,52 @@
+---
+import ThemeKnob from "@/components/ThemeKnob.astro";
+import TuningScale from "@/components/TuningScale.astro";
+import { SEGMENTS, segmentPath } from "@/utils/lcd";
+import type { ScaleDay } from "@/utils/scale";
+
+export interface Props {
+	days: ScaleDay[];
+}
+
+const { days } = Astro.props;
+
+// Four twelve-unit digit cells with the colon between hours and minutes.
+const cells = [0, 15, 35, 50];
+const segments = SEGMENTS.map((segment) => ({
+	segment,
+	path: segmentPath(segment),
+}));
+---
+
+<div class="receiver">
+	<div class="receiver-window">
+		<TuningScale days={days} />
+	</div>
+	<div class="receiver-controls">
+		<dl class="readout" data-live-readout data-pending>
+			<div class="readout-clock">
+				<dt>Berlin</dt>
+				<dd class="lcd">
+					<svg class="lcd-digits" data-lcd viewBox="0 0 62 22" aria-hidden="true">
+						{cells.map((x) => (
+							<g data-digit transform={`translate(${x} 0)`}>
+								{segments.map(({ segment, path }) => (
+									<path class="lcd-segment" data-segment={segment} d={path} />
+								))}
+							</g>
+						))}
+						<path class="lcd-colon" d="M29.8 6.2h2.4v2.4h-2.4zM29.8 13.4h2.4v2.4h-2.4z" />
+					</svg>
+					<time class="sr-only" data-live-clock></time>
+					<span class="lcd-zone" data-live-zone></span>
+				</dd>
+			</div>
+			<div class="readout-today">
+				<dt>Today</dt>
+				<dd data-live-today></dd>
+			</div>
+		</dl>
+		<span class="receiver-grille" aria-hidden="true"></span>
+		<ThemeKnob />
+	</div>
+</div>
