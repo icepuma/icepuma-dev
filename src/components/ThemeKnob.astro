@@ -1,0 +1,92 @@
+---
+// A three-position rotary selector. The radios are the control and carry
+// the names; the knob is drawn around them and turns with a pointer.
+const positions = [
+	{ value: "light", label: "Light", angle: -60 },
+	{ value: "system", label: "Auto", note: " (follows your system)", angle: 0 },
+	{ value: "dark", label: "Dark", angle: 60 },
+] as const;
+const ticks = [-60, -45, -30, -15, 0, 15, 30, 45, 60].map((angle) => ({
+	angle,
+	at: positions.find((position) => position.angle === angle)?.value,
+}));
+---
+
+<fieldset class="selector" data-theme-knob>
+	<legend class="sr-only">Colour theme</legend>
+	<span class="selector-scale" aria-hidden="true">
+		{ticks.map(({ angle, at }) => (
+			<span class:list={["selector-tick", { "selector-detent": at }]} data-at={at} style={`--a: ${angle}deg`}></span>
+		))}
+	</span>
+	{positions.map((position) => (
+		<label class="selector-position" data-position={position.value} style={`--a: ${position.angle}deg`}>
+			<input
+				class="sr-only"
+				type="radio"
+				name="theme"
+				value={position.value}
+				checked={position.value === "system"}
+				autocomplete="off"
+			/>
+			<span class="selector-label">{position.label}</span>
+			{"note" in position && <span class="sr-only">{position.note}</span>}
+		</label>
+	))}
+	<div class="knob" data-knob aria-hidden="true">
+		<span class="knob-shadow"></span>
+		<span class="knob-grip"></span>
+		<span class="knob-grip-light"></span>
+		<span class="knob-seam"></span>
+		<span class="knob-bevel"></span>
+		<span class="knob-face"></span>
+		<span class="knob-face-light"></span>
+		<span class="knob-mark"></span>
+		<span class="knob-centre"></span>
+		<span class="knob-focus"></span>
+	</div>
+</fieldset>
+<script is:inline>
+	// Check the saved choice while the page is still parsing, so the knob is
+	// already in its detent at first paint and never turns on load.
+	(() => {
+		const choice = document.documentElement.dataset.themeChoice;
+		for (const input of document.querySelectorAll("[data-theme-knob] input"))
+			input.checked = input.value === choice;
+	})();
+</script>
+<span class="sr-only" role="status" data-theme-status></span>
+
+<script>
+	import { initKnob, type Position } from "@/utils/knob";
+	import {
+		interruptThemeTransition,
+		loadTheme,
+		setThemeWithTransition,
+		setupThemeListener,
+	} from "@/utils/theme";
+
+	const NAME: Record<Position, string> = {
+		light: "Light",
+		system: "Auto",
+		dark: "Dark",
+	};
+
+	const control = document.querySelector<HTMLElement>("[data-theme-knob]");
+	const status = document.querySelector<HTMLElement>("[data-theme-status]");
+	if (control) {
+		const knob = initKnob(
+			control,
+			(position, origin, source) => {
+				setThemeWithTransition(position, origin);
+				// The radios announce themselves; the live region speaks only
+				// when the drawn knob was turned.
+				if (source === "pointer" && status)
+					status.textContent = `${NAME[position]} theme`;
+			},
+			{ interrupt: interruptThemeTransition },
+		);
+		knob?.set(loadTheme());
+		setupThemeListener((theme) => knob?.set(theme));
+	}
+</script>

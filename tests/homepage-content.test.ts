@@ -182,7 +182,7 @@ test("the built homepage keeps its public content available without JavaScript",
 	expect(brand?.[1]).not.toContain("<svg");
 });
 
-test("the HUD layer ships no live data and stays out of the accessibility tree", () => {
+test("the receiver ships no live data and keeps its instruments out of the accessibility tree", () => {
 	const pagePath = join(repoRoot, "dist/index.html");
 	if (!existsSync(pagePath)) {
 		throw new Error("Run bun run build before this content regression test.");
@@ -191,17 +191,17 @@ test("the HUD layer ships no live data and stays out of the accessibility tree",
 
 	expect(page).toContain("viewport-fit=cover");
 	expect(page).not.toMatch(/<canvas\b/);
-	expect(page).not.toContain("refractive");
-	expect(page).not.toContain("data-inspect-link");
-	expect(page).not.toContain("decode-mask");
+	expect(page).not.toContain("data-hud-");
+	expect(page).not.toContain("data-lit");
 
-	// The clock and today's focus are filled in by the browser, in Berlin
-	// time, so nothing live is baked into the build.
+	// The clock, today's focus, and the needle are filled in by the browser,
+	// in Berlin time, so nothing live is baked into the build.
 	expect(page).toMatch(
-		/<dl\b(?=[^>]*\bdata-hud-readout\b)(?=[^>]*\bhidden\b)[^>]*>/,
+		/<dl\b(?=[^>]*\bdata-live-readout\b)(?=[^>]*\bdata-pending\b)[^>]*>/,
 	);
-	expect(page).toMatch(/<time\b[^>]*\bdata-hud-clock\b[^>]*><\/time>/);
-	expect(page).toMatch(/<dd\b[^>]*\bdata-hud-today\b[^>]*><\/dd>/);
+	expect(page).toMatch(/<time\b[^>]*\bdata-live-clock\b[^>]*><\/time>/);
+	expect(page).toMatch(/<dd\b[^>]*\bdata-live-today\b[^>]*><\/dd>/);
+	expect(page).toMatch(/<span\b[^>]*\bdata-live-zone\b[^>]*><\/span>/);
 
 	const schedule = "src/content/calendar/schedule.yaml";
 	const days = yamlValues(schedule, "day");
@@ -215,39 +215,84 @@ test("the HUD layer ships no live data and stays out of the accessibility tree",
 	);
 	expect(rows).toEqual(days.map((day, index) => [day, focus[index]]));
 
-	const dial = page.match(
-		/<div\b(?=[^>]*\bdata-hud-dial\b)[^>]*>([\s\S]*?)<span class="dial-centre"/,
+	// The tuning scale: the week's days in order, and one station for each
+	// run of days on the same focus. It is drawing, not content.
+	const scale = page.match(
+		/<div\b(?=[^>]*\bdata-scale\b)[^>]*>([\s\S]*?)<span class="scale-ghost"/,
 	);
-	expect(dial?.[0]).toContain('aria-hidden="true"');
-	const arcs = Array.from(
-		dial?.[1]?.matchAll(
-			/<path\b(?=[^>]*\bdial-day\b)[^>]*\bdata-day="([^"]+)"/g,
+	expect(scale?.[0]).toContain('aria-hidden="true"');
+	const scaleDays = Array.from(
+		scale?.[1]?.matchAll(
+			/<span\b[^>]*\bdata-scale-day\b[^>]*\bdata-day="([^"]+)"[^>]*>([^<]*)<\/span>/g,
 		) ?? [],
-		(match) => match[1],
+		(match) => [match[1], match[2]],
 	);
-	expect(arcs).toEqual(days);
+	expect(scaleDays).toEqual(days.map((day) => [day, day]));
+	const stations = Array.from(
+		scale?.[1]?.matchAll(
+			/<span\b(?=[^>]*\bscale-station\b)[^>]*\bdata-days="([^"]+)"[^>]*>([^<]*)<\/span>/g,
+		) ?? [],
+		(match) => [match[1], match[2]],
+	);
+	expect(stations).toEqual([
+		["Mon Tue", "intar.dev"],
+		["Wed Thu", "Rawkode Academy"],
+		["Fri", "Waddle"],
+		["Sat Sun", "Off"],
+	]);
+	expect(scale?.[1]).not.toMatch(/>[^<]*\d[^<]*</);
+
+	// The display is four seven-segment digits, all unlit until script reads
+	// the clock.
+	const display = page.match(
+		/<svg\b(?=[^>]*\bdata-lcd\b)[^>]*>([\s\S]*?)<\/svg>/,
+	);
+	expect(display?.[0]).toContain('aria-hidden="true"');
+	expect(display?.[1]?.match(/\bdata-digit\b/g)).toHaveLength(4);
+	expect(display?.[1]?.match(/\bdata-segment="[a-g]"/g)).toHaveLength(28);
+
+	// The knob is three radios in a named group; the drawn knob is hidden.
+	const selector = page.match(
+		/<fieldset\b(?=[^>]*\bdata-theme-knob\b)[^>]*>([\s\S]*?)<\/fieldset>/,
+	);
+	expect(selector?.[1]).toMatch(/<legend\b[^>]*>Colour theme<\/legend>/);
+	const radios = Array.from(
+		selector?.[1]?.matchAll(/<input\b[^>]*>/g) ?? [],
+		([input]) => [
+			input.match(/\btype="([^"]+)"/)?.[1],
+			input.match(/\bname="([^"]+)"/)?.[1],
+			input.match(/\bvalue="([^"]+)"/)?.[1],
+		],
+	);
+	expect(radios).toEqual([
+		["radio", "theme", "light"],
+		["radio", "theme", "system"],
+		["radio", "theme", "dark"],
+	]);
 	const labels = Array.from(
-		dial?.[1]?.matchAll(
-			/<span\b[^>]*\bdata-day="[^"]+"[^>]*>([^<]*)<\/span>/g,
+		selector?.[1]?.matchAll(
+			/<span class="selector-label"[^>]*>([^<]*)<\/span>/g,
 		) ?? [],
 		(match) => match[1],
 	);
-	expect(labels).toEqual(days.map((day) => day.toUpperCase()));
-	expect(dial?.[1]).not.toMatch(/>[^<]*\d[^<]*</);
+	expect(labels).toEqual(["Light", "Auto", "Dark"]);
+	expect(selector?.[1]).toMatch(
+		/<div\b(?=[^>]*\bdata-knob\b)(?=[^>]*aria-hidden="true")[^>]*>/,
+	);
 
 	const subLabels = Array.from(
 		page.matchAll(/<span\b(?=[^>]*\bsection-sub\b)[^>]*>([^<]*)<\/span>/g),
 	);
 	expect(subLabels.map((match) => match[1])).toEqual([
-		"開発",
-		"経歴",
-		"使用技術",
-		"週間予定",
-		"音楽",
-		"連絡先",
+		"Projekte",
+		"Profil",
+		"Technische Daten",
+		"Wochenplan",
+		"Musik",
+		"Kontakt",
 	]);
 	for (const [tag] of subLabels) {
-		expect(tag).toContain('lang="ja"');
+		expect(tag).toContain('lang="de"');
 		expect(tag).toContain('aria-hidden="true"');
 	}
 });

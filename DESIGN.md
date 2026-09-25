@@ -1,203 +1,205 @@
 ---
 name: "icepuma.dev"
-description: "A project-first personal homepage in the Stand Alone Complex register: a calm cyberbrain HUD built from real data."
+description: "A project-first personal homepage in the Braun register: one receiver built from real data, quiet printed panels, and a hyper-realistic knob for the theme."
 colors:
-  light-background: "#eaf0ef"
-  light-surface: "#f1f5f4"
-  light-surface-hover: "#e6eff0"
-  light-foreground: "#0e1b1e"
-  light-muted-foreground: "#4a5d61"
-  light-primary: "#006a7d"
-  light-accent: "#94510a"
-  light-rule: "#c3cfce"
-  light-rule-strong: "#8fa0a0"
-  light-grid-mark: "#cfd9d8"
-  dark-background: "#060e11"
-  dark-surface: "#0d1c21"
-  dark-surface-hover: "#132b31"
-  dark-foreground: "#d8e8ea"
-  dark-muted-foreground: "#8ea6aa"
-  dark-primary: "#57d6ea"
-  dark-accent: "#f0ab4a"
-  dark-rule: "#17292e"
-  dark-rule-strong: "#2a454c"
-  dark-grid-mark: "#17292e"
+  light-background: "#e5e4df"
+  light-surface: "#f4f3ef"
+  light-surface-hover: "#fbfaf7"
+  light-foreground: "#1a1a19"
+  light-muted-foreground: "#5c5b56"
+  light-primary: "#ad3d0c"
+  light-signal: "#e85a20"
+  light-lamp: "#27903f"
+  light-rule: "#d5d3cc"
+  light-rule-strong: "#b3b1a9"
+  light-window: "#161615"
+  light-lcd: "#c3c8b8"
+  light-lcd-ink: "#1d211b"
+  dark-background: "#111110"
+  dark-surface: "#1b1b1a"
+  dark-surface-hover: "#242423"
+  dark-foreground: "#ecebe5"
+  dark-muted-foreground: "#a3a199"
+  dark-primary: "#ff8b52"
+  dark-signal: "#ff7a3d"
+  dark-lamp: "#45d06c"
+  dark-rule: "#2a2a28"
+  dark-rule-strong: "#43433f"
+  dark-window: "#0a0a09"
+  dark-lcd: "#0d0f0d"
+  dark-lcd-ink: "#ffcf9a"
 typography:
   display:
-    fontFamily: "Chakra Petch, IBM Plex Sans, sans-serif"
-    fontSize: "clamp(2.25rem, 1.2rem + 5.2vw, 4.75rem)"
+    fontFamily: "Archivo, Helvetica Neue, Arial, sans-serif"
+    fontSize: "clamp(2.75rem, 1.3rem + 6vw, 5.5rem)"
     fontWeight: 600
-    lineHeight: 0.95
-    textTransform: "uppercase"
+    lineHeight: 0.92
+    letterSpacing: "-0.045em"
   section-title:
-    fontFamily: "Chakra Petch, IBM Plex Sans, sans-serif"
-    fontSize: "clamp(1.75rem, 1.35rem + 1.4vw, 2.25rem)"
+    fontFamily: "Archivo"
+    fontSize: "clamp(1.75rem, 1.3rem + 1.6vw, 2.5rem)"
     fontWeight: 600
     lineHeight: 1
-    textTransform: "uppercase"
+    letterSpacing: "-0.035em"
   title:
-    fontFamily: "IBM Plex Sans, sans-serif"
+    fontFamily: "Archivo"
     fontSize: "1.25rem"
     fontWeight: 600
-    lineHeight: 1.25
-    letterSpacing: "-0.01em"
+    letterSpacing: "-0.02em"
   statement:
-    fontFamily: "IBM Plex Sans, sans-serif"
-    fontSize: "clamp(1.375rem, 1.1rem + 1vw, 1.75rem)"
+    fontFamily: "Archivo"
+    fontSize: "clamp(1.375rem, 1.05rem + 1.2vw, 1.875rem)"
     fontWeight: 400
-    lineHeight: 1.45
-    letterSpacing: "-0.01em"
+    lineHeight: 1.35
+    letterSpacing: "-0.02em"
   body:
-    fontFamily: "IBM Plex Sans, sans-serif"
+    fontFamily: "Archivo"
     fontSize: "0.9375rem"
     fontWeight: 400
-    lineHeight: 1.6
-  data:
-    fontFamily: "JetBrains Mono, ui-monospace, monospace"
-    fontSize: "0.75rem"
-    fontWeight: 400
-    letterSpacing: "0.04em"
-  japanese:
-    fontFamily: "Hiragino Sans, Yu Gothic UI, Noto Sans JP, sans-serif"
-    fontSize: "0.8125rem"
+    lineHeight: 1.55
+  legend:
+    fontFamily: "Archivo"
+    fontSize: "0.6875rem–0.8125rem"
     fontWeight: 500
 spacing:
   control-min: "44px"
   gutter: "clamp(1rem, 4vw, 3rem)"
   content-max: "75rem"
-  panel-cut: "12px"
-  bracket: "12px"
-  control-mark: "7px"
-  section-scale: "9rem"
+  radius-panel: "18px"
+  radius-receiver: "26px"
+  radius-key: "6px"
+  knob: "6rem phone, 6.5rem from 30rem, 7rem from 48rem"
 components:
-  project-panel:
+  receiver:
     backgroundColor: "var(--surface)"
-    borderColor: "var(--rule-strong)"
-    shape: "one 12px cut corner, top right"
+    parts: "tuning scale behind black glass, clock display, speaker grille, theme knob"
+  knob:
+    material: "spun aluminium face, knurled grip, engraved signal indicator"
+    detents: "Light -60°, Auto 0°, Dark 60°"
+  key:
+    backgroundColor: "var(--key-face)"
+    size: "32px cap, 44px target"
   panel:
     backgroundColor: "var(--surface)"
-    borderColor: "var(--rule-strong)"
-  chip:
-    borderColor: "var(--rule-strong)"
-    size: "32px visual, 44px target"
-  today-tag:
-    backgroundColor: "var(--primary)"
-    textColor: "var(--primary-foreground)"
-  destination:
-    textColor: "var(--accent)"
+    radius: "18px"
+  panel-arrow:
+    size: "16px printed arrow in a 20px corner window"
+    lit: "var(--signal)"
+  lamp:
+    size: "6–8px"
+    lit: "var(--lamp)"
 ---
 
 # Design System: icepuma.dev
 
 ## Overview
 
-A project-first homepage in the **Stand Alone Complex** register: a calm cyberbrain HUD over one person's work. Thin-line instruments, bilingual register labels, cyan for what you can act on, amber for what is recorded. The page leans into the franchise through its interface language, not through its art: nothing here is a reproduced mark, character, or line of on-screen text, and every instrument measures something real.
+A project-first homepage in the **Braun register**: the product language of Dieter Rams and Dietrich Lubs, from the SK 4 to the ET 66. Warm grey paper, white and anthracite bodies, black print, one signal orange, one green pilot lamp. The page is a catalogue with a single product on it.
 
-The first viewport carries the one bold object, the **week dial**: a ring whose rim ticks every hour of the week, whose arcs are the days of the real open-source schedule, and whose cyan tick is now in Berlin. Everything below it is quieter: ruled panels, a spec-sheet stack, a duty-roster calendar.
+That product is the **receiver** in the hero. Its waveband is the week: the tuning scale is the real open-source schedule, the needle is now in Berlin, the display reads the Berlin clock, and the knob beside the speaker grille switches the theme. Everything below it is quieter: printed panels, a keypad for the stack, a row of day slots for the calendar.
 
-**Key characteristics:** two signals and no red; one cut corner; a dial built from data; bilingual section labels; motion that answers the reader or runs once; generous contrast in both themes.
+The site is inspired by Braun's design language. It reproduces no Braun logo, product name, or trademark, and every instrument measures something real.
+
+**Key characteristics:** less, but better; one object; one signal colour; printed data; physical light; controls that behave like controls.
 
 ## Colors
 
-Two grounds and two signals, defined in `src/styles/tokens.css`. The file is tagged so `tests/contrast.test.ts` can measure every palette, including the no-JS system copy and the more-contrast overrides.
+Two grounds, black print, and two signals, defined in `src/styles/tokens.css`. The file is tagged so `tests/contrast.test.ts` can measure every palette, including the no-JS system copy and the more-contrast overrides.
 
-- **Night dive** (`#060e11`) and **daylight briefing** (`#eaf0ef`) are the two grounds. The dark ground is a teal-black; the light ground is cool, flat paper with no glare.
-- **Surface** (`#0d1c21` / `#f1f5f4`) fills panels; **surface-hover** (`#132b31` / `#e6eff0`) is the lit panel.
-- **Instrument cyan** (`#57d6ea` / `#006a7d`) is interaction and presence: links, focus, the current section, the today tag, the now tick.
-- **Register amber** (`#f0ab4a` / `#94510a`) is recorded data: destinations, categories, days, genres, handles, the week arcs.
-- **Rule** and **rule-strong** draw hairlines and panel frames. Panel frames always use rule-strong; plain rule disappears on the dark ground.
+- **Paper** (`#e5e4df`) and **Braun black** (`#111110`) are the grounds; **surface** (`#f4f3ef` / `#1b1b1a`) is the body of every panel and of the receiver, a white device or an anthracite one.
+- **Print** (`#1a1a19` / `#ecebe5`) and **grey print** (`#5c5b56` / `#a3a199`) carry every word. Data (destinations, categories, days, genres, handles) is grey print, never a hue.
+- **Signal orange** (`--signal`) is the one accent: the needle, the knob's indicator, the lit detent, the latched key's lamp, a panel's lit arrow, the Today tag. As text it is `--primary` (`#ad3d0c` / `#ff8b52`), used only on hover and focus.
+- **Pilot green** (`--lamp`) is a lamp, never text: the current section and today.
+- **Window** and **LCD** tokens colour the receiver's black glass and its display; **key** and **metal** tokens are materials and are not measured.
 
 ### Named Rules
 
-**The Two-Signal Rule.** Cyan means "you can act here" or "this is now"; amber means "this is recorded". As text, cyan only ever sits on links and controls. Cyan and amber are nearly the same brightness, so every colour change is paired with a shape change (brackets, a frame, an underline).
+**The One-Signal Rule.** Orange means "this is now" or "you are acting here". Green means "this is on". Nothing else has a hue.
 
-**The No-Alarm Rule.** No red is defined, because the page has no alert state.
+**The Printed-Data Rule.** Recorded data is printed in grey, like the legends on a device. It never takes a colour.
 
-**The One-Fill Rule.** The Today tag is the only solid cyan fill on the page.
+**The Pair Rule.** Every colour change comes with a shape change: a key sinks, a panel lifts, a lamp glows, a detent tick lengthens.
 
-**The Measured-Palette Rule.** Every text token clears 4.5:1 on background, surface, and surface-hover in both themes and both contrast modes; the contrast test fails the build otherwise.
+**The Measured-Palette Rule.** Every text token clears 4.5:1 on background, surface, and surface-hover in both themes and both contrast modes; the scale print clears it on the window and the clock on the display; the needle, indicator, and lamps clear 3:1 as marks. The contrast test fails the build otherwise.
 
-**The Glow Rule.** Glow is dark-mode only, on lines only (today's arc), never on text, and off under reduced transparency or more contrast.
+**The Night-Light Rule.** Glow exists only in the dark theme and only on light sources: the needle, the display's segments, the lamps, the scale's backlight. Never on body text, and off under more contrast.
 
 ## Typography
 
-- **Chakra Petch 600**, uppercase only: the name, section titles, and the dial's day. Its cut corners echo the panel chamfer.
-- **IBM Plex Sans** for everything read: titles at 600, prose at 400, the About statement at a larger size.
-- **JetBrains Mono** for data and chrome: navigation, readouts, destinations, categories, days, genres, handles. Never below 12px except the phone nav at 320px (11px), never tracked wider than 0.04em.
-- **Japanese sub-labels** in the system Japanese face at 13px, weight 500: 開発, 経歴, 使用技術, 週間予定, 音楽, 連絡先. They are `lang="ja"` and `aria-hidden`, because the English heading is the name.
+- **Archivo** only, in three weights, as Braun used one grotesque for everything. 600 for the name, section titles, and card titles, all tightly tracked; 400 for prose and the About statement; 500 for printed legends: keys, labels, the scale, the knob's positions.
+- Legends are small (11–13px) and never tracked wider than 0.04em. Figures on the scale and in data are tabular.
+- **German sub-labels** sit beside each section title in grey print, the way a Braun manual carries a second language: Projekte, Profil, Technische Daten, Wochenplan, Musik, Kontakt. They are `lang="de"` and `aria-hidden`, because the English heading is the name.
 
 ### Named Rules
 
-**The Uppercase-Display Rule.** Chakra Petch appears in capitals only; mixed-case identifiers like `intar.dev` stay in Plex.
-
-**The Tracking Rule.** No letter-spacing above 0.04em, anywhere.
+**The One-Family Rule.** No second typeface, no monospace. Distinction comes from weight, size, and grey.
 
 ## Layout
 
 The page is at most 75rem wide with fluid gutters that respect safe-area insets. It is mobile first:
 
-- **Header**: sticky. Below 40rem it has two rows (brand and theme, then all six links on one row, sized to their words, about 96px in total); from 40rem it is one row. Below 320px or at high zoom the links wrap; they are never truncated or scrolled.
-- **Hero**: the identity, then live readouts and the dial. Below 48rem a small dial sits beside the stacked readouts; from 48rem the dial takes the right column at up to 20rem.
-- **Projects**: one, two (40rem), then three (64rem) columns of equal-height panels.
-- **Stack**: tonal category bands, label column from 48rem. **Calendar**: rows, then a seven-cell strip from 48rem. **Music**: two columns from 48rem. **Social**: two columns from 30rem.
+- **Header**: sticky. Below 48rem it has two rows, the brand and then all six keys; the brand row scrolls away and only the keys stay stuck, so anchors clear 50px, not 98. From 48rem it is one row and stays whole.
+- **Hero**: the name, role, and location, then the receiver. From 64rem they sit side by side. Inside the receiver, the scale spans the width; below 30rem the readouts share a row and the knob sits centred under them, and from 30rem the readouts, the grille, and the knob share one row.
+- **Projects**: one, two (40rem), then three (64rem) columns of panels.
+- **Stack**: one keypad panel, the label column from 48rem. **Calendar**: rows, then seven day slots from 48rem. **Music**: two columns from 48rem. **Social**: two columns from 30rem.
 
 ### Named Rules
 
-**The No-Separator Rule.** No full-width rules divide the page. Separation comes from space, tonal bands, and panel frames; the section scale is short and attached to its title.
+**The No-Separator Rule.** No rules divide the page. Separation comes from space and from objects resting on the paper.
 
-**The Always-Visible-Nav Rule.** All six links are visible at every width. No menu, no numbers, no sliding indicator.
+**The Always-Visible-Nav Rule.** All six keys are visible at every width. No menu, no numbers, no sliding indicator: the current key latches in place.
 
 ## Elevation & Depth
 
-No shadows. Depth comes from the grounds, panel frames, and state. The sticky header has its own layer (88% fill with a 16px backdrop blur on a pseudo-element, opaque without blur for reduced transparency and forced colours). A hairline fades in under it once the page scrolls. The hero has a faint "+" registration grid centred on the dial, at or below 1.3:1 against the ground, and a soft cyan wash in dark mode.
-
-### Motion
-
-Motion is a state language and deliberately scarce.
-
-- **At rest nothing moves.** The clock and the now tick change once a minute; there are no seconds and no blinking.
-- **Once per visit** the dial draws itself in (about 900ms) and the live readouts resolve with a short decode. It never replays, and it is skipped when the reader arrives on an anchor or through history.
-- **Scroll** drives two things, both CSS scroll-driven and static where unsupported: the section scale draws in as its section arrives, and the dial's inner ring turns up to 45° as the hero leaves.
-- **Hover and focus**: brackets and corner marks glide in over 260–340ms and fade out over about 220ms; the endpoint rings dial in over 700–900ms; colour and underline take 120–220ms; a press stays under 200ms; the theme scan takes 900ms, easing in and out along a sine.
-- Three easings: `--ease-out` (out-quad) for feedback and release, `--ease-acquire` (out-cubic) for arrivals, and `--ease-in-out` (in-out cubic) for crossfades and for rings turning back out. Releases are only slightly faster than arrivals.
-
-**The Answer-or-Once Rule.** Every movement answers the reader (scroll, hover, focus, press, theme choice) or runs once per visit. Nothing loops.
-
-**The No-Snap Rule.** No curve spends most of its travel in the first frames: reveals glide, releases fade, and the arrow inside the endpoint rings never moves.
-
-**The Budget Rule.** At most two effects per hover plus the press, at most two animations at once, nothing travels more than 8px.
-
-**The One-Decode Rule.** Text scrambles in exactly one place: the hero's live readouts, as the data arrives. The mask is `aria-hidden`; the real text never changes.
-
-## Shapes
-
-Square everywhere except one cut: **project panels carry a single 12px chamfer at the top right**, drawn by clipping a frame layer and a fill layer inset 1px (the inner cut is 0.59px shorter, so the diagonal stays one pixel). The link itself is never clipped, so focus survives. Small controls keep two 7px corner marks. Panels take 12px lock-on brackets outside their frame. Every ring on the page, from the dial to the link endpoints, shares one stroke and dash rhythm.
+Objects rest on the paper like products on a catalogue table, lit from above: a hairline edge, a lit top edge, a contact shadow, and a soft cast shadow (`--shadow-panel`). A hovered panel lifts 2px into `--shadow-lift`; a pressed one settles 1px into `--shadow-press`. The receiver casts the longest shadow on the page. Recessed things are the opposite: the scale window and the display sit behind glass with inner shadows and a diagonal reflection, and a day off is an empty slot pressed into the page. The sticky header has its own layer (86% fill with a 16px blur, opaque without blur), and a soft edge fades in under it once the page scrolls.
 
 ### Named Rules
 
-**The One-Cut Rule.** Only project panels are chamfered. Chips, cells, tags, and buttons stay square.
+**The Physical-Light Rule.** Light comes from above and shadows fall down. Spun metal is round, so the knob's highlights stay still while it turns; only the grip and the indicator rotate, and the sheen follows the viewer instead.
+
+## Motion
+
+Motion is mechanical and deliberately scarce.
+
+- **One spring.** A single damped spring with a 6% overshoot (`--spring`, a `linear()` curve) runs at three lengths: 240ms for keys, 380ms for the knob, 1300ms for the needle. Colour and opacity use `--ease-out`; crossfades use `--ease-in-out`.
+- **Keys** sink 1.5px as they are pressed (70ms) and spring back; their lip disappears as they go down. The current section's key stays latched, and its lamp scales in.
+- **Panels** lift on hover and press down under a click. The arrow printed in their corner runs out at the top right while a fresh one, in signal orange, slides in from the bottom left (380ms).
+- **The knob** follows a drag, lagging near each detent and hurrying over the ridge between two, so a steady drag reads as a click; past an end stop it gives about 7° and comes back as soon as the hand does. Released, it springs into its detent. A tap advances one position (a finger may wobble 12px, a mouse 6px); a control-click is left to the context menu. Android phones get an 8ms haptic tick per detent. A press on the knob or its labels during a reveal ends the reveal and still counts.
+- **The sheen** turns up to 12° toward a mouse as it crosses the page.
+- **The theme change** spreads out from under the knob: the new palette grows as a disc whose edge breaks into fine concentric rings, like the knob's spun face (820ms, in-out sine). Without an origin, under reduced motion, in forced colours, or where the reveal cannot be animated it is a 240ms crossfade; unsupported browsers switch instantly. Colours change once, inside the reveal: every other transition is off while it runs.
+- **The scale** takes a ghost needle under a mouse and lights the day and station beneath it.
+- **Once per visit** the receiver powers on: the display lights every segment for 700ms and the needle tunes in from Monday, overshooting a little before it settles. Never on anchor or history arrival.
+- **At rest nothing moves.** The clock and the needle change once a minute.
+
+**The Answer-or-Once Rule.** Every movement answers the reader (pointer, key, scroll, theme choice) or runs once per visit. Nothing loops and nothing blinks.
+
+**The No-Sound Rule.** The knob clicks by shape and, where supported, by touch. It never plays a sound.
+
+## Shapes
+
+Soft rectangles and circles, as on the devices: 26px on the receiver, 18px on panels, 12px on the window and day slots, 6px on keys, and circles for the knob and the lamps. Panels carry no buttons of their own: the whole panel is the control, and its arrow is print. Every key is a 32px cap inside a 44px target.
 
 ## Components
 
-- **Navigation** — six direct links. The current one carries `aria-current="location"`, a surface chip, and its corner marks; the reticle moves from link to link in place and never slides. Hover underlines in cyan.
-- **Theme control** — one tri-state button, Light → Dark → System, with the glyph for the current mode crossfading in place. Its accessible name states the mode and the next action; a live region speaks only after a press. A palette change from the button is written in by a **scan line**: a cyan hairline with ruler ticks on the grid's 48px rhythm and a cursor under the button sweeps down the screen over 900ms; the new palette stands behind it, and the old one thins into fading raster lines for one band above it, like a display rewriting itself. The old snapshot lies on top and is masked away, so both palettes are always drawn. Without an origin, under reduced motion, or in forced colours it is a 240ms crossfade; unsupported browsers switch instantly.
-- **Week dial** — inline SVG, `aria-hidden`, built at build time from `schedule.yaml`: 168 hour ticks with long midnight ticks, seven week arcs (weekdays amber, days off dashed and muted, today cyan), one inner ring that turns with scroll, crosshair ticks, and today's day in the centre. JavaScript marks today and places the now tick at `(day·24 + hour + minute/60) / 168 · 360°` in Berlin time. Fine pointers tilt it by at most 4°. Below 48rem the minor ticks and the day labels hide.
-- **Readouts** — `BERLIN hh:mm CET/CEST` and `TODAY <focus>`, built from the calendar row. Rendered hidden and revealed by JavaScript; without JavaScript there is no clock and no placeholder.
-- **Section heading** — the English title, a short tick scale that turns cyan while its section is current, the Japanese sub-label, and the intro.
-- **Project panel** — title, description, and the amber destination (breaking only after slashes) above a ringed endpoint. Hover and focus lock on: three brackets glide in and the endpoint rings dial in, counter-rotating around the arrow, which stays centred. Focus also turns the frame cyan at 2px, following the cut.
-- **Music and social panels** — square panels; hover and focus bring four brackets.
-- **Stack chips** — 32px square hairline chips with 44px targets; hover and focus change colour and border only.
-- **Calendar** — a duty roster. Today gets a cyan frame, `aria-current="date"` on its day, and the Today tag; days off are hatched beside the word, never behind it.
-- **Touch attention lock** — on devices without hover, once scrolling stops, the panel under a reading line 30% down the viewport takes the brackets, one panel at a time.
-- **Without JavaScript** — every section link, project, tool, day, channel, and contact stays visible; the theme button and readouts stay hidden; CSS follows the system colour preference.
-- **Reduced motion** — every state change stays, instantly, and a theme change crossfades; rotation, draw-in, the scan, decode, and tilt are gone. **Forced colours** — no clipping, system borders, Highlight focus. **More contrast** — stronger text and rules, no glow.
+- **Navigation** — six push-button keys. The current one carries `aria-current="location"`, stays pressed in, and shows a short orange lamp under its word.
+- **Receiver** — the hero object: the tuning scale behind black glass, the Berlin display, today's station, a punched speaker grille (from 30rem), and the theme knob. With JavaScript the readouts hold their place from the first paint, invisible until the clock arrives, so nothing moves; on phones they wrap onto two rows rather than overflow, and the knob is capped to the screen's width.
+- **Tuning scale** — built at build time from `schedule.yaml`: 168 hour ticks, longer every six hours, longest at midnight, with a closing tick after Sunday; one station per run of days with the same focus, bracketed (a day off dashed); the day names beneath. Stations and days share a seven-column grid, so long names wrap inside their own band. JavaScript marks today's day (with an orange dot) and station, and places the needle at `(day·24 + hour + minute/60) / 168` of the width, in Berlin time. The whole scale is `aria-hidden`; the calendar carries the same data as text.
+- **Display** — four seven-segment digits and a colon, drawn as SVG, with the unlit segments faintly visible and the lit ones casting a hairline shadow; a warm backlit reading at night. It is `aria-hidden`; the real time is in a visually hidden `<time>`, and the zone is printed beside the digits.
+- **Theme knob** — a `fieldset` of three radios (Light, Auto, Dark) with a hidden legend; each printed position is the 44px label for its radio. Arrow keys and labels change the radios natively; a drag turns the knob through the detents and commits on release; a tap advances one position and swings back from Dark to Light. The checked radio sets the knob's angle through CSS, and an inline script checks the saved choice while the page parses, so the knob is already in its detent at first paint. A live region speaks the new theme after a change. Without JavaScript there is no knob.
+- **Section heading** — a pilot lamp that lights while its section is read, the title, the German sub-label, and the intro.
+- **Project, music, and social panels** — white or anthracite panels with a small grey arrow printed beside the title (at the right edge of the shorter social panels); on hover and focus it swaps for an orange one as the panel lifts.
+- **Stack** — a keypad: one panel, a grey label per row, a key per tool.
+- **Calendar** — seven day slots with a pilot lamp each; today's is lit and carries the orange Today tag, and days off are empty slots pressed into the page.
+- **Touch attention** — on devices without hover, once scrolling stops, the panel under a reading line 30% down the viewport takes the hover state, one at a time.
+- **Without JavaScript** — every section, project, tool, day, channel, and contact stays visible; the knob and readouts are absent; CSS follows the system colour preference.
+- **Reduced motion** — every state change stays, instantly, and the theme change crossfades; the springs, the power-on, and the sheen are gone. **Forced colours** — system borders, Highlight for the needle, the indicator, the lit detent, and the lamps; the knob becomes a bordered circle with its indicator. **More contrast** — stronger grey print and rules, no glow.
 
 ## Do's and Don'ts
 
 ### Do:
 
-- **Do** keep every control at a 44px target and every action on cyan.
-- **Do** keep recorded data on amber, and pair every colour change with a shape change.
+- **Do** keep every control at a 44px target and give every press a physical answer.
+- **Do** keep orange for now and for action, green for lamps, and data in grey print.
 - **Do** build instruments from real data: the schedule, the Berlin clock, the real destinations.
 - **Do** keep copy, URLs, collection order, section anchors, and the single static page unchanged.
 - **Do** run `bun test` after any token change; the contrast test measures both themes.
@@ -205,8 +207,8 @@ Square everywhere except one cut: **project panels carry a single 12px chamfer a
 
 ### Don't:
 
-- **Don't** add section numbers, wide tracking, sliding indicators, separator lines, or a custom logo.
-- **Don't** chamfer anything but project panels, or glow anything but lines.
-- **Don't** scramble text anywhere but the live readouts, and never scramble Japanese.
-- **Don't** reproduce franchise art, marks, on-screen text, or character references, and don't invent case numbers, timestamps, statuses, stamps, or redactions.
-- **Don't** put text in a band around a ring or an emblem in its centre.
+- **Don't** reproduce the Braun logo, product names, model numbers, or any other trademark.
+- **Don't** add section numbers, separator lines, sliding indicators, or a custom logo.
+- **Don't** add a second accent colour, colour data, or put glow on text.
+- **Don't** loop, blink, or play sounds.
+- **Don't** invent statuses, readings, or other fictional data for an instrument to show.

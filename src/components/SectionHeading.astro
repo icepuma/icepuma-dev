@@ -10,9 +10,9 @@ const { title, intro, sub } = Astro.props;
 
 <div class="section-heading">
 	<div class="section-bar">
+		<span class="section-lamp" aria-hidden="true"></span>
 		<h2 id={`${title.toLowerCase()}-heading`}>{title}</h2>
-		<span class="section-scale" aria-hidden="true"></span>
-		{sub && <span class="section-sub" lang="ja" aria-hidden="true">{sub}</span>}
+		{sub && <span class="section-sub" lang="de" aria-hidden="true">{sub}</span>}
 	</div>
 	{intro && <p class="section-intro">{intro}</p>}
 </div>

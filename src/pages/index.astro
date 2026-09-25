@@ -1,9 +1,8 @@
 ---
 import ExternalLink from "@/components/ExternalLink.astro";
 import Nav from "@/components/Nav.astro";
+import Receiver from "@/components/Receiver.astro";
 import SectionHeading from "@/components/SectionHeading.astro";
-import ThemeSwitcher from "@/components/ThemeSwitcher.astro";
-import WeekDial from "@/components/WeekDial.astro";
 import MinimalLayout from "@/layouts/MinimalLayout.astro";
 import { getCollection, render } from "astro:content";
 
@@ -42,9 +41,10 @@ const stackLinks: Record<string, string> = {
 const calendarEntries = (await getCollection("calendar")).sort(
 	(a, b) => Number(a.id) - Number(b.id),
 );
-const dialDays = calendarEntries.map((entry) => ({
+const scaleDays = calendarEntries.map((entry) => ({
 	day: entry.data.day,
-	off: !entry.data.url,
+	focus: entry.data.focus,
+	url: entry.data.url,
 }));
 const socialEntries = (await getCollection("socials")).sort(
 	(a, b) => Number(a.id) - Number(b.id),
@@ -135,20 +135,11 @@ const musicLinks = [
 				icepuma.dev
 			</a>
 			<Nav />
-			<ThemeSwitcher />
 		</div>
 	</header>
 
 	<main class="page-width" id="main" tabindex="-1">
 		<div class="hero">
-			<svg class="hero-grid" aria-hidden="true">
-				<defs>
-					<pattern id="hero-grid-mark" width="48" height="48" patternUnits="userSpaceOnUse">
-						<path d="M24 20v8M20 24h8" />
-					</pattern>
-				</defs>
-				<rect width="100%" height="100%" fill="url(#hero-grid-mark)" />
-			</svg>
 			<div class="identity">
 				<h1>Stefan Ruzitschka</h1>
 				<p>
@@ -156,23 +147,11 @@ const musicLinks = [
 					<span class="identity-location">Berlin, Germany</span>
 				</p>
 			</div>
-			<div class="hero-readout-slot">
-				<dl class="hero-readout" data-hud-readout hidden>
-					<div>
-						<dt>Berlin</dt>
-						<dd><time class="decode" data-hud-clock></time> <span data-hud-zone></span></dd>
-					</div>
-					<div>
-						<dt>Today</dt>
-						<dd data-hud-today></dd>
-					</div>
-				</dl>
-			</div>
-			<WeekDial days={dialDays} />
+			<Receiver days={scaleDays} />
 		</div>
 
 		<section class="page-section projects-section" id="projects" aria-labelledby="projects-heading" tabindex="-1">
-			<SectionHeading title="Projects" sub="開発" intro="Things I build and maintain." />
+			<SectionHeading title="Projects" sub="Projekte" intro="Things I build and maintain." />
 			<ul class="project-list" role="list">
 				{projects.map(({ data, Content, destination }) => (
 					<li>
@@ -191,7 +170,7 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="about" aria-labelledby="about-heading" tabindex="-1">
-			<SectionHeading title="About" sub="経歴" />
+			<SectionHeading title="About" sub="Profil" />
 			<p class="about-copy">
 				Principal Engineer with 15+ years of
 				experience shipping end-to-end. Specializing in
@@ -201,7 +180,7 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="stack" aria-labelledby="stack-heading" tabindex="-1">
-			<SectionHeading title="Stack" sub="使用技術" />
+			<SectionHeading title="Stack" sub="Technische Daten" />
 			<dl class="stack-list">
 				{stackEntries.map((entry) => (
 					<div class="stack-row">
@@ -209,7 +188,7 @@ const musicLinks = [
 						<dd>
 							<ul class="stack-tools">
 								{entry.data.items.map((item) => (
-									<li><ExternalLink href={stackLinks[item]} class="stack-link">{item}</ExternalLink></li>
+									<li><ExternalLink href={stackLinks[item]} class="stack-link key">{item}</ExternalLink></li>
 								))}
 							</ul>
 						</dd>
@@ -219,7 +198,7 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="calendar" aria-labelledby="calendar-heading" tabindex="-1">
-			<SectionHeading title="Calendar" sub="週間予定" intro="My weekly open-source schedule — what I work on and when." />
+			<SectionHeading title="Calendar" sub="Wochenplan" intro="My weekly open-source schedule — what I work on and when." />
 			<dl class="calendar-list">
 				{calendarEntries.map((entry) => (
 					<div class="calendar-row" data-day={entry.data.day} data-focus={entry.data.focus}>
@@ -235,7 +214,7 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="music" aria-labelledby="music-heading" tabindex="-1">
-			<SectionHeading title="Music" sub="音楽" intro="Channels and record spaces worth keeping in rotation." />
+			<SectionHeading title="Music" sub="Musik" intro="Channels and record spaces worth keeping in rotation." />
 			<ul class="music-list" role="list">
 				{musicLinks.map((link) => (
 					<li>
@@ -251,7 +230,7 @@ const musicLinks = [
 		</section>
 
 		<section class="page-section" id="social" aria-labelledby="social-heading" tabindex="-1">
-			<SectionHeading title="Social" sub="連絡先" intro="Where to find me online." />
+			<SectionHeading title="Social" sub="Kontakt" intro="Where to find me online." />
 			<ul class="social-list" role="list">
 				{socialEntries.map((entry) => (
 					<li>
@@ -269,30 +248,33 @@ const musicLinks = [
 
 	<footer class="site-footer page-width">
 		<p>icepuma.dev — {new Date().getFullYear()}</p>
-		<a class="control back-to-top" href={import.meta.env.BASE_URL} data-back-to-top>Back to top <svg class="external-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7" /></svg></a>
+		<a class="control key back-to-top" href={import.meta.env.BASE_URL} data-back-to-top>Back to top <svg class="external-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg></a>
 	</footer>
 </MinimalLayout>
 
 <script>
-	import { initDialTilt, initHudClock } from "@/utils/hud";
 	import {
 		initAttentionLock,
 		initBackToTop,
 		initHeaderState,
 		initSectionNavigation,
 	} from "@/utils/navigation";
-	initHudClock();
+	import { initReceiverClock, initScaleTuning } from "@/utils/receiver";
+	initReceiverClock();
+	initScaleTuning();
 	initBackToTop();
 	initHeaderState();
 	initSectionNavigation();
 	initAttentionLock();
-	initDialTilt();
 	// iOS only applies :active press styles once a touch listener exists.
 	document.addEventListener("touchstart", () => {}, { passive: true });
+	// On phones the brand row scrolls away and only the keys stay stuck, so
+	// anchors clear the part of the header that is actually on screen.
 	const header = document.querySelector<HTMLElement>(".site-header");
 	if (header) {
 		new ResizeObserver(() => {
-			document.documentElement.style.setProperty("--header-height", `${header.offsetHeight}px`);
+			const stuck = header.offsetHeight + (Number.parseFloat(getComputedStyle(header).top) || 0);
+			document.documentElement.style.setProperty("--header-height", `${stuck}px`);
 		}).observe(header);
 	}
 </script>

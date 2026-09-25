@@ -63,10 +63,11 @@ export function scheduleMoment(
 	};
 }
 
-// Degrees clockwise from the top of the dial, where Monday 00:00 sits.
-export function weekAngle(dayIndex: number, hour: number, minute: number) {
+// How far through the week the moment is, from Monday 00:00 at the left end
+// of the tuning scale (0) to the end of Sunday at the right (just under 1).
+export function weekFraction(dayIndex: number, hour: number, minute: number) {
 	const hours = dayIndex * 24 + hour + minute / 60;
-	return ((((hours / 168) * 360) % 360) + 360) % 360;
+	return (((hours / 168) % 1) + 1) % 1;
 }
 
 export function msUntilNextMinute(date: Date) {

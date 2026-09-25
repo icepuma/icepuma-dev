@@ -5,7 +5,7 @@ import {
 	msUntilNextMinute,
 	scheduleMoment,
 	WEEKDAYS,
-	weekAngle,
+	weekFraction,
 } from "../src/utils/schedule";
 
 test("reads the weekday and clock in Berlin, whatever the visitor's zone", () => {
@@ -51,11 +51,12 @@ test("follows both daylight saving changes", () => {
 	});
 });
 
-test("maps the week onto one turn of the dial", () => {
-	expect(weekAngle(0, 0, 0)).toBe(0);
-	expect(weekAngle(3, 12, 0)).toBeCloseTo(180);
-	expect(weekAngle(6, 23, 59)).toBeGreaterThan(359.9);
-	expect(weekAngle(6, 23, 59)).toBeLessThan(360);
+test("maps the week onto the length of the tuning scale", () => {
+	expect(weekFraction(0, 0, 0)).toBe(0);
+	expect(weekFraction(3, 12, 0)).toBeCloseTo(0.5);
+	expect(weekFraction(4, 2, 30)).toBeCloseTo(98.5 / 168);
+	expect(weekFraction(6, 23, 59)).toBeGreaterThan(0.9999);
+	expect(weekFraction(6, 23, 59)).toBeLessThan(1);
 });
 
 test("waits until the next minute boundary", () => {
