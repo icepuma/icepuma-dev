@@ -123,7 +123,12 @@ test("the built homepage keeps its public content available without JavaScript",
 	expect(socialUrls).toHaveLength(4);
 	for (const url of socialUrls) expect(page).toContain(`href="${url}"`);
 
-	expect(page).toContain(
+	const aboutCopy = page
+		.match(/<p\b[^>]*\babout-copy\b[^>]*>([\s\S]*?)<\/p>/)?.[1]
+		.replace(/<[^>]*>/g, "")
+		.replace(/\s+/g, " ")
+		.trim();
+	expect(aboutCopy).toBe(
 		"Principal Engineer with 15+ years of experience shipping end-to-end. Specializing in high-reliability systems, platform engineering, and monolith-to-microservices migrations.",
 	);
 	const employerLink = page.match(
