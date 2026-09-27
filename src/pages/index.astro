@@ -135,6 +135,7 @@ const musicLinks = [
 				icepuma.dev
 			</a>
 			<Nav />
+			<a class="control key back-to-top" href={import.meta.env.BASE_URL} data-back-to-top>Back to top <svg class="external-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg></a>
 		</div>
 	</header>
 
@@ -243,7 +244,6 @@ const musicLinks = [
 
 	<footer class="site-footer page-width">
 		<p>icepuma.dev — {new Date().getFullYear()}</p>
-		<a class="control key back-to-top" href={import.meta.env.BASE_URL} data-back-to-top>Back to top <svg class="external-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 19V5M6 11l6-6 6 6" /></svg></a>
 	</footer>
 </MinimalLayout>
 
@@ -261,13 +261,11 @@ const musicLinks = [
 	initSectionNavigation();
 	// iOS only applies :active press styles once a touch listener exists.
 	document.addEventListener("touchstart", () => {}, { passive: true });
-	// On phones the brand row scrolls away and only the keys stay stuck, so
-	// anchors clear the part of the header that is actually on screen.
+	// Anchors clear the stuck header at whatever height the width and text size give it.
 	const header = document.querySelector<HTMLElement>(".site-header");
 	if (header) {
 		new ResizeObserver(() => {
-			const stuck = header.offsetHeight + (Number.parseFloat(getComputedStyle(header).top) || 0);
-			document.documentElement.style.setProperty("--header-height", `${stuck}px`);
+			document.documentElement.style.setProperty("--header-height", `${header.offsetHeight}px`);
 		}).observe(header);
 	}
 </script>

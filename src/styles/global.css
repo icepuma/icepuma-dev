@@ -11,9 +11,6 @@
 
 :root {
 	--header-height: 6rem;
-	/* The brand row's height: its top padding plus a 44px target, or the
-	   line of type if the reader's font is larger. */
-	--brand-row: calc(0.25rem + max(44px, 1.4531rem));
 	--gutter: clamp(1rem, 4vw, 3rem);
 	/* One scale of corners: large for bodies and cards, medium for keys and
 	   the window set into the radio, small for the display and tags. */
@@ -157,10 +154,10 @@ body {
 
 /* --- header -------------------------------------------------------------- */
 
-/* On phones the brand row scrolls away and only the row of keys stays. */
+/* The whole header stays, so the back-to-top key is always at hand. */
 .site-header {
 	position: sticky;
-	top: calc(-1 * var(--brand-row));
+	top: 0;
 	z-index: 20;
 	isolation: isolate;
 	padding-top: env(safe-area-inset-top);
@@ -203,12 +200,55 @@ html[data-scrolled] .site-header::after {
 
 .header-inner {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr);
+	grid-template-columns: minmax(0, 1fr) auto;
 	grid-template-areas:
-		"brand"
-		"nav";
+		"brand top"
+		"nav nav";
 	align-items: center;
 	padding-block: 0.25rem 0.375rem;
+	/* The folding key's label runs off to the right, never into a scrollbar. */
+	overflow-x: clip;
+}
+
+/* With JavaScript the key shows only once the reader is a screen down. It
+   folds to nothing and back on the knob's spring, so it slides in from the
+   right edge and pushes the section buttons over; hidden, it leaves the tab
+   order too. ponytail: max-width is capped near the label's width, raise
+   --key-width if the label grows. Doubled up to win over .key below. */
+.key.back-to-top {
+	--key-width: 9em;
+	grid-area: top;
+	max-width: var(--key-width);
+	margin-inline-start: var(--key-gap, 0);
+	padding-inline: 0.875rem;
+	transition:
+		translate 240ms var(--spring),
+		color 160ms var(--ease-out),
+		max-width 380ms var(--spring),
+		min-width 380ms var(--spring),
+		padding 380ms var(--spring),
+		margin 380ms var(--spring),
+		opacity 180ms var(--ease-out),
+		visibility 380ms;
+}
+
+html[data-theme]:not([data-scrolled-far]) .back-to-top {
+	visibility: hidden;
+	max-width: 0;
+	min-width: 0;
+	margin-inline-start: 0;
+	padding-inline: 0;
+	opacity: 0;
+}
+
+@media (hover: hover) {
+	.back-to-top:hover .external-arrow {
+		translate: 0 -2px;
+	}
+}
+
+.back-to-top:focus-visible .external-arrow {
+	translate: 0 -2px;
 }
 
 .brand {
@@ -1745,28 +1785,9 @@ html:not([data-theme-choice]) :is(.selector, .receiver-controls) {
 /* --- footer -------------------------------------------------------------- */
 
 .site-footer {
-	display: flex;
-	flex-wrap: wrap;
-	align-items: center;
-	justify-content: space-between;
-	gap: 0.5rem 1rem;
 	padding-block: clamp(3.5rem, 8vw, 6rem) max(1.5rem, env(safe-area-inset-bottom));
 	color: var(--muted-foreground);
 	font-size: 0.875rem;
-}
-
-.back-to-top {
-	padding-inline: 0.875rem;
-}
-
-@media (hover: hover) {
-	.back-to-top:hover .external-arrow {
-		translate: 0 -2px;
-	}
-}
-
-.back-to-top:focus-visible .external-arrow {
-	translate: 0 -2px;
 }
 
 /* --- breakpoints --------------------------------------------------------- */
@@ -1806,20 +1827,18 @@ html:not([data-theme-choice]) :is(.selector, .receiver-controls) {
 }
 
 @media (min-width: 48rem) {
-	.site-header {
-		top: 0;
-	}
-
 	.header-inner {
-		grid-template-columns: auto minmax(0, 1fr);
-		grid-template-areas: "brand nav";
-		column-gap: 2rem;
+		grid-template-columns: auto minmax(0, 1fr) auto;
+		grid-template-areas: "brand nav top";
+		/* The key brings its own gap, so the buttons end flush right without it. */
+		--key-gap: 2rem;
 		padding-block: 0.5rem;
 	}
 
 	.section-nav {
 		grid-template-columns: repeat(auto-fit, 5.5em);
 		justify-content: end;
+		margin-inline-start: 2rem;
 	}
 
 	.selector {

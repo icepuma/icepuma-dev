@@ -88,19 +88,23 @@ export function initSectionNavigation() {
 }
 export function initHeaderState() {
 	let frame = 0;
-	let scrolled = false;
+	const state: Record<string, boolean> = {};
+
+	function mark(name: string, on: boolean) {
+		if (state[name] === on) return;
+		state[name] = on;
+		if (on) {
+			document.documentElement.setAttribute(name, "");
+		} else {
+			document.documentElement.removeAttribute(name);
+		}
+	}
 
 	function update() {
 		frame = 0;
-		const next = window.scrollY > 8;
-		if (next === scrolled) return;
-		scrolled = next;
-		const root = document.documentElement;
-		if (next) {
-			root.setAttribute("data-scrolled", "");
-		} else {
-			root.removeAttribute("data-scrolled");
-		}
+		mark("data-scrolled", window.scrollY > 8);
+		// Back to top is only offered once a whole screen has gone by.
+		mark("data-scrolled-far", window.scrollY > window.innerHeight);
 	}
 
 	function schedule() {

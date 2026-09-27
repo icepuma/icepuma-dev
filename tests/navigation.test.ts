@@ -42,7 +42,7 @@ function createLink() {
 
 function createFixture(reducedMotion = false) {
 	const brand = createLink();
-	const footer = createLink();
+	const key = createLink();
 	const sectionIds = [
 		"projects",
 		"about",
@@ -101,7 +101,7 @@ function createFixture(reducedMotion = false) {
 		},
 		querySelectorAll: (selector: string) =>
 			selector === "[data-back-to-top]"
-				? [brand.element, footer.element]
+				? [brand.element, key.element]
 				: selector === ".nav-link"
 					? navLinks.map(({ element }) => element)
 					: [],
@@ -125,7 +125,7 @@ function createFixture(reducedMotion = false) {
 	return {
 		brand,
 		document,
-		footer,
+		key,
 		flushFrame,
 		headerBottom: (value: number) => {
 			headerBottom = value;
@@ -231,7 +231,7 @@ test("initializes both top controls and honors reduced motion", () => {
 	init(fixture);
 
 	expect(click(fixture.brand.element).defaultPrevented).toBe(true);
-	expect(click(fixture.footer.element).defaultPrevented).toBe(true);
+	expect(click(fixture.key.element).defaultPrevented).toBe(true);
 	expect(fixture.scrollCalls).toEqual([
 		{ top: 0, left: 0, behavior: "instant" },
 		{ top: 0, left: 0, behavior: "instant" },
@@ -253,7 +253,7 @@ test("keeps modified and non-primary clicks native", () => {
 		{ metaKey: true },
 		{ shiftKey: true },
 	]) {
-		expect(click(fixture.footer.element, options).defaultPrevented).toBe(false);
+		expect(click(fixture.key.element, options).defaultPrevented).toBe(false);
 	}
 	expect(fixture.historyCalls).toEqual([]);
 	expect(fixture.scrollCalls).toEqual([]);
@@ -275,6 +275,16 @@ test("marks the header as scrolled only after the page moves", () => {
 	expect(fixture.document.documentElement.getAttribute("data-scrolled")).toBe(
 		"",
 	);
+	expect(
+		fixture.document.documentElement.getAttribute("data-scrolled-far"),
+	).toBeNull();
+
+	fixture.scrollPosition(fixture.window.innerHeight + 1);
+	fixture.window.dispatchEvent(new Event("scroll"));
+	fixture.flushFrame(40);
+	expect(
+		fixture.document.documentElement.getAttribute("data-scrolled-far"),
+	).toBe("");
 
 	fixture.scrollPosition(0);
 	fixture.window.dispatchEvent(new Event("scroll"));

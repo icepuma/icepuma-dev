@@ -141,7 +141,7 @@ Two grounds, black print, and two signals, defined in `src/styles/tokens.css`. T
 
 The page is at most 75rem wide with fluid gutters that respect safe-area insets. It is mobile first:
 
-- **Header**: sticky. Below 48rem it has two rows, the brand and then all six section buttons; the brand row scrolls away and only the buttons stay stuck, so anchors clear 50px, not 98. From 48rem it is one row and stays whole.
+- **Header**: sticky and whole at every width, and the Back to top key at its right appears once a whole screen has scrolled by (always shown without JavaScript). Below 48rem it has two rows, the brand with the key and then all six section buttons; from 48rem it is one row, the key after the buttons.
 - **Hero**: the name, role, and location, then the receiver. From 64rem they sit side by side. Inside the receiver, the scale spans the width; below 30rem the readouts share a row and the knob sits centred under them, and from 30rem the readouts, the grille, and the knob share one row.
 - **Projects**: one, two (40rem), then three (64rem) columns of panels.
 - **Stack**: one keypad panel, the label column from 48rem. **Calendar**: rows, then seven day slots from 48rem. **Music**: two columns from 48rem. **Social**: two columns from 30rem.

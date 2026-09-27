@@ -1,3 +1,15 @@
 {
-	"buildPath": "code"
+  "buildPath": "code",
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "var(--spring)",
+        "createdAt": "2026-09-27T21:55:10.218Z",
+        "reason": "design system: DESIGN.md Motion 'One spring' sanctions --spring (6% overshoot) for keys, knob, needle"
+      }
+    ]
+  }
 }
